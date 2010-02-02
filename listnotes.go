@@ -2,7 +2,7 @@
   Scans for files, extracts metadata, emits
   JSON file list.
   
-  ; fn gogo  {6g -I . listnotes.go  metadata.go && 6l  listnotes.6  && ./6.out ; echo}
+  ; fn gogo  {6g -I . listnotes.go  metadata.go generatemarkup.go && 6l  listnotes.6  && ./6.out ; echo}
 
 */
 
@@ -65,6 +65,7 @@ func main() {
   }
   e = e[0:i];  // fix up the slice
 
+
   // Output  
   for _, d := range e {
       fmt.Print(d.Name + " " + d.Url + " " +
@@ -73,4 +74,10 @@ func main() {
           " " + d.Title);
       fmt.Print("\n");
   }
+  
+  // Time to generate the stuff...
+  // ofd, _ := os.Open("foo.js", os.O_WRONLY, 0);
+  ofd := os.Stdout;
+  writeMarkup(ofd, e);
+  
 }
