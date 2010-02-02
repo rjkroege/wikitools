@@ -2,7 +2,7 @@
   Scans for files, extracts metadata, emits
   JSON file list.
   
-  ; fn gogo  {6g -I . listnotes.go  metadata.go && 6l  listnotes.6  && ./6.out }
+  ; fn gogo  {6g -I . listnotes.go  metadata.go && 6l  listnotes.6  && ./6.out ; echo}
 
 */
 
