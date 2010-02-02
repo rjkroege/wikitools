@@ -12,6 +12,7 @@ import (
   "bufio";
   "io";
   "strings";
+  "strconv";
   "regexp";
   "time";
 )
@@ -25,22 +26,18 @@ var commentDataMatcher = regexp.MustCompile("<!-- *([0-9]*) *-->");
  */
 func parseDateCmdFmt(numericDate string) uint64 {
   fmt.Println(numericDate);
+
+  t := time.LocalTime();
   
-  // Moral: I don't understand how date and time work.
-  t, e1 := time.Parse("20060102150405", numericDate);
+  t.Year, _ = strconv.Atoi64(numericDate[0:4]);
+  t.Month, _ = strconv.Atoi(numericDate[4:6]);
+  t.Day, _ = strconv.Atoi(numericDate[6:8]);
+  t.Hour, _ = strconv.Atoi(numericDate[8:10]);
+  t.Minute, _ = strconv.Atoi(numericDate[10:12]);
+  t.Second, _ = strconv.Atoi(numericDate[12:14]);
   
-  retval := uint64(0);
-  
-  if e1 != nil {
-    fmt.Print(e1);
-  } else {
-    fmt.Println("y:", t.Year, "m:", t.Month, "d: ", t.Day, t.Hour, t.Minute,
-        t.Second, t.ZoneOffset, t.Seconds(), "\n");        
-    fmt.Println(time.LocalTime().Seconds());        
-    retval = uint64(t.Seconds() * 1e9);
-  }
-  
-  return retval;
+  fmt.Println(t.Seconds(), "\n");        
+  return uint64(t.Seconds() * 1e9);
 }
 
 
