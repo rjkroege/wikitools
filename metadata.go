@@ -40,6 +40,25 @@ func parseDateCmdFmt(numericDate string) uint64 {
   return uint64(t.Seconds() * 1e9);
 }
 
+/**
+ * Attempts to parse the metadata of the file. I will require file
+ * metadata to be in UNIX data format (because I can since there
+ * is no legacy.)
+ */
+func parseDateUnix(numericDate string) uint64 {
+  // Could loop over multiple formats here?
+  dateFormat := "Mon _2 Jan 2006 15:04:05 MST";
+
+  t, e := time.Parse(dateFormat, numericDate);
+  resultDate := uint64(0);
+
+  if e == nil {
+    resultDate = uint64(t.Seconds() * 1e9);
+  } else {
+    fmt.Println("Date parsing error:", e);
+  }
+  return resultDate;
+}
 
 /**
  * Opens a specified file and attempts to extract meta data.
@@ -80,10 +99,9 @@ func rootThroughFileForMetadata(name string) (uint64, string) {
     m1 := metadataMatcher.MatchStrings(line);
     m2 := commentDataMatcher.MatchStrings(line);
     if len(m1) > 0 {
-
       fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
       if strings.ToLower(m1[1]) == "title" { resultLine = m1[2]; }
-      // if strings.ToLower(m1[1]) == "date" { resultDate = parseDateFlexible(m1[2]); }
+      if strings.ToLower(m1[1]) == "date" { resultDate = parseDateUnix(m1[2]); }
     } else if len(m2) > 0 {
       // fmt.Print("matched for  <" + m2[1] + ">\n");
       resultDate = parseDateCmdFmt(m2[1]);
