@@ -9,14 +9,71 @@ package main
 import (
   "fmt";
   "io";
-//  "bufio";
 //  "io";
 //  "strings";
 //  "strconv";
 //  "regexp";
 //  "time";
+  "exp/datafmt";
+  "strings";
 )
 
+
+const (
+
+// Insert at the top of each generated file.
+  header =
+`
+var timeline_data = {  // save as a global variable
+'dateTimeFormat': 'iso8601',
+'wikiURL': "http://simile.mit.edu/shelf/",
+'wikiSection': "Simile Cubism Timeline",
+
+'events': [
+
+`;
+
+// Insert at the bottom of each generated file.
+footer = 
+`
+] }
+`;
+
+// Use to actually generate the output using the formatter.
+// 
+emitter =
+`
+main "./main";
+string = "'%s'";
+main.FileMetaData = "  {\n    'title': " Title  ",\n    'link'l: " Url  "\n  }";
+ptr = * : main.FileMetaData;
+array = { * / ",\n" };
+`;
+
+)
+
+
 func writeMarkup(fd io.Writer, e []*FileMetaData) {
-  fmt.Println("hello");
+
+  // Might not need...
+  // fmap := make(FormatterMap);
+  
+
+  df, err := datafmt.Parse("listnotes.go", strings.Bytes(emitter), nil);
+  if err != nil {
+    fmt.Print(err);
+  } else {
+    io.WriteString(fd, header);
+
+    // mind that you have no looping (will add repetition
+    // TODO(rjkroege): add repetition to the format.
+    _, err2  :=df.Fprint(fd, nil, e);
+    if (err2 != nil) {
+      fmt.Print(err2);
+      return;
+    }
+    io.WriteString(fd, footer);
+  }
 }
+
+
