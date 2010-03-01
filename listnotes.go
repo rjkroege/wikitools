@@ -77,8 +77,10 @@ func main() {
   }
   
   // Time to generate the stuff...
-  // ofd, _ := os.Open("foo.js", os.O_WRONLY, 0);
-  ofd := os.Stdout;
-  writeMarkup(ofd, e);
-  
+  ofd, err := os.Open("note_list.js", os.O_WRONLY | os.O_CREATE, 0644);
+  if err != nil {
+    fmt.Print(err);
+  } else {
+    writeMarkup(ofd, e);
+  }
 }
