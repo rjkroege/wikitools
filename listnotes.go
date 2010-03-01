@@ -21,6 +21,7 @@ type FileMetaData struct {
   DateFromStat uint64;
   DateFromMetadata uint64;
   Title string;
+  FinalDate string;
 }
 
 /**
@@ -65,14 +66,14 @@ func main() {
   }
   e = e[0:i];  // fix up the slice
 
-
-  // Output  
+  // Update the metadata objects with the desired date.
   for _, d := range e {
-      fmt.Print(d.Name + " " + d.Url + " " +
-          dateToString(d.DateFromStat) + " " +
-          dateToString(d.DateFromMetadata) +
-          " " + d.Title);
-      fmt.Print("\n");
+    // TODO(rjkroege): insert computing the Date string here.
+    if (d.DateFromMetadata > uint64(0)) {
+      d.FinalDate = dateToString(d.DateFromMetadata);
+    } else {
+      d.FinalDate = dateToString(d.DateFromStat);
+    }
   }
   
   // Time to generate the stuff...

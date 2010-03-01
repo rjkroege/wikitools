@@ -30,7 +30,6 @@ var timeline_data = {  // save as a global variable
 'wikiSection': "Simile Cubism Timeline",
 
 'events': [
-
 `;
 
 // Insert at the bottom of each generated file.
@@ -39,13 +38,25 @@ footer =
 ] }
 `;
 
+
+// TODO(rjkroege): understand the way of the formatter: indent.
+// I have this feeling that this interface can do more but I'm missing
+// the boat somehow.
+
 // Use to actually generate the output using the formatter.
 // 
 emitter =
 `
 main "./main";
 string = "'%s'";
-main.FileMetaData = "  {\n    'title': " Title  ",\n    'link'l: " Url  "\n  }";
+titleField = "'title': '%s'";
+urlField = "'link': '%s'";
+dateField = "'start': '%s'";
+main.FileMetaData = "  {" ( "    " >>  "\n"
+    Title:titleField ",\n"
+    Url:urlField ",\n"
+    FinalDate:dateField
+    ) "\n  }";
 ptr = * : main.FileMetaData;
 array = { * / ",\n" };
 `;
