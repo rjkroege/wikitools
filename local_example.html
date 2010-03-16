@@ -6,30 +6,30 @@
    <title>debug the timeline</title>
    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 
-   <link rel="stylesheet" href="resetfonts.css" type="text/css">
-   <link rel="stylesheet" type="text/css" href="base.css"> 
+   <link rel="stylesheet" href="timeline/resetfonts.css" type="text/css">
+   <link rel="stylesheet" type="text/css" href="timeline/base.css"> 
    
   <!-- need CSS files -->
-   <link rel="stylesheet" href="../tmp_foo/timeline_2.3.0/src/webapp/api/timeline-bundle.css"
+   <link rel="stylesheet" href="timeline/timeline-bundle.css"
        type="text/css">
 
   <!-- this is needed to make the timeline work -->
   <!-- move all of the JS to the end -->
-  <script src="../tmp_foo/timeline_2.3.0/src/ajax/api/simile-ajax-api.js"
+  <script src="timeline/simile-ajax-api.js"
       type="text/javascript"></script>
   <script>
     window.Timeline = window.Timeline || {};
     window.Timeline.DateTime = window.SimileAjax.DateTime; // for backward compatibility
   </script>
 
-  <script src="../tmp_foo/timeline_2.3.0/src/webapp/api/timeline-bundle.js"
+  <script src="timeline/timeline-bundle.js"
       type="text/javascript"></script>
   
   <!-- need some localization here? -->
   <script>
     Timeline.serverLocale = "en";
     Timeline.clientLocale = "en";
-    Timeline.urlPrefix = "../tmp_foo/timeline_2.3.0/src/webapp/api/";
+    Timeline.urlPrefix = "timeline/";
     
     Timeline.GregorianDateLabeller.monthNames["en"] = [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
