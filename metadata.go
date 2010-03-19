@@ -7,7 +7,7 @@
 package main
 
 import (
-  "fmt";
+//  "fmt";
   "os";
   "bufio";
   "io";
@@ -25,8 +25,6 @@ var commentDataMatcher = regexp.MustCompile("<!-- *([0-9]*) *-->");
  * files that consists of a string of digits.
  */
 func parseDateCmdFmt(numericDate string) uint64 {
-  fmt.Println(numericDate);
-
   t := time.LocalTime();
   
   t.Year, _ = strconv.Atoi64(numericDate[0:4]);
@@ -36,7 +34,6 @@ func parseDateCmdFmt(numericDate string) uint64 {
   t.Minute, _ = strconv.Atoi(numericDate[10:12]);
   t.Second, _ = strconv.Atoi(numericDate[12:14]);
   
-  fmt.Println(t.Seconds(), "\n");        
   return uint64(t.Seconds() * 1e9);
 }
 
@@ -102,7 +99,7 @@ func rootThroughFileForMetadata(name string) (uint64, string) {
     m1 := metadataMatcher.MatchStrings(line);
     m2 := commentDataMatcher.MatchStrings(line);
     if len(m1) > 0 {
-      fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
+      // fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
       if strings.ToLower(m1[1]) == "title" { resultLine = m1[2]; }
       if strings.ToLower(m1[1]) == "date" { resultDate = parseDateUnix(m1[2]); }
     } else if len(m2) > 0 {

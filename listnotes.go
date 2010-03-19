@@ -43,7 +43,7 @@ func dateToString(ti uint64) string {
 
 
 func main() {
-  fmt.Printf("hello world\n");
+  // fmt.Printf("hello world\n");
   pwd, _ := os.Getwd();
   
   // get a directory listing
