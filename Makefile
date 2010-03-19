@@ -9,7 +9,7 @@ mandir			= $(DESTDIR)/$(prefix)/man
 INSTALL			= /usr/bin/install -c
 
 
-SRCS			= generatemarkup.go listnotes.go metadata.go
+SRCS			= listnotes.go generatemarkup.go metadata.go
 BINS = entrylist
 
 entrylist		:  $(SRCS)
