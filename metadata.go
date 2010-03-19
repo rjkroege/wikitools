@@ -1,6 +1,6 @@
 /*
   Metadata extraction  
-  ; fn gogo  {6g -I . listnotes.go  metadata.go generatemarkup.go && 6l  listnotes.6  && ./6.out ; echo}
+  ; fn gogo  {make  && ./entrylist ; echo}
 
 */
 
@@ -44,21 +44,25 @@ func parseDateCmdFmt(numericDate string) uint64 {
  * Attempts to parse the metadata of the file. I will require file
  * metadata to be in UNIX data format (because I can since there
  * is no legacy.)
+ *
+ * Returns the first time corresponding to the first data match.
  */
 func parseDateUnix(numericDate string) uint64 {
-  // Could loop over multiple formats here?
-  dateFormat := "Mon _2 Jan 2006 15:04:05 MST";
-
-  t, e := time.Parse(dateFormat, numericDate);
+  dateFormats := [2]string {
+      "Mon _2 Jan 2006 15:04:05 MST",
+      "2006/01/02 15:04:05" };
   resultDate := uint64(0);
 
-  if e == nil {
-    resultDate = uint64(t.Seconds() * 1e9);
-  } else {
-    fmt.Println("Date parsing error:", e);
+  for _, df := range(dateFormats) {
+    t, e := time.Parse(df, numericDate);
+    if e == nil {
+      resultDate = uint64(t.Seconds() * 1e9);
+      break;
+    }
   }
   return resultDate;
 }
+
 
 /**
  * Opens a specified file and attempts to extract meta data.
@@ -85,9 +89,8 @@ func rootThroughFileForMetadata(name string) (uint64, string) {
   inMetaData := false;
 
   var resultLine string;
-  // var uint64 resultDate uint64;
   resultDate := uint64(0);
-  
+
   for !inMetaData && lc < 5 {
     line, _ := rd.ReadString('\n');
     line = line[0:len(line)-1];
@@ -105,6 +108,11 @@ func rootThroughFileForMetadata(name string) (uint64, string) {
     } else if len(m2) > 0 {
       // fmt.Print("matched for  <" + m2[1] + ">\n");
       resultDate = parseDateCmdFmt(m2[1]);
+    }
+  
+    if resultDate == uint64(0) {
+      // fmt.Print("zero resultData, trying to parse title");
+      resultDate = parseDateUnix(resultLine);
     }
   
     lc++;
