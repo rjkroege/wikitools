@@ -27,4 +27,4 @@ install			: all
 
 
 clean:
-	rm -rf *.6 core *.dSYM
+	rm -rf *.6 core *.dSYM note_list.js
