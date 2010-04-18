@@ -9,22 +9,24 @@ mandir			= $(DESTDIR)/$(prefix)/man
 INSTALL			= /usr/bin/install -c
 
 
-SRCS			= listnotes.go generatemarkup.go metadata.go
-BINS = entrylist
-
-entrylist		:  $(SRCS)
-	6g -I . $(SRCS)
-	6l  -o entrylist listnotes.6
-
+SRCS = generatemarkup.go metadata.go
+BINS = extractmeta entrylist
 
 all: $(BINS)
+
+entrylist		:  listnotes.go $(SRCS)
+	6g -I . listnotes.go $(SRCS)
+	6l  -o entrylist listnotes.6
+
+extractmeta		:  extractone.go $(SRCS)
+	6g -I . extractone.go $(SRCS)
+	6l  -o extractmeta extractone.6
 
 install			: all
 	$(INSTALL) -d $(bindir)
 	for BIN in $(BINS) ; do \
 		$(INSTALL) $$BIN $(bindir)/$$BIN ; \
 	done
-
 
 clean:
 	rm -rf *.6 core *.dSYM note_list.js
