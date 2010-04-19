@@ -1,6 +1,6 @@
 /*
   Rips out the meta data from a single Journal file.
-  {make &&  ./extractmeta *.md}
+  {make &&  ./extractmeta *.md ; echo}
 */
 
 package main
@@ -11,6 +11,7 @@ import (
   "strings";
   "time";
   "flag";
+  "exp/datafmt";
 )
 
 // TODO(rjkroege): refactor into something different
@@ -23,6 +24,23 @@ type FileMetaData struct {
   Title string;
   FinalDate string;
 }
+
+
+const (
+singleEmitter =
+`
+main "./main";
+string = "'%s'";
+titleField = "title = %s";
+urlField = "link = %s";
+dateField = "start = %s";
+main.FileMetaData =
+    Title:titleField "\n"
+    Url:urlField "\n"
+    FinalDate:dateField "\n";
+ptr = * : main.FileMetaData;
+`;
+)
 
 
 /**
@@ -47,6 +65,12 @@ func main() {
   flag.Parse();
   pwd, _ := os.Getwd();
   
+  fmt.Print("running\n");
+  df, err1 := datafmt.Parse("extractone.go", strings.Bytes(singleEmitter), nil);
+  if err1 != nil {
+    fmt.Print(err1);
+  }
+  
   for i := 0; i < flag.NArg(); i++ {
     fname := flag.Arg(i);
   
@@ -66,10 +90,12 @@ func main() {
         e.FinalDate = dateToString(e.DateFromStat);
       }
 
-      fmt.Println(e.Name);
-      fmt.Println(e.Url);
-      fmt.Println(e.Title);
-      fmt.Println(e.FinalDate);
+        
+      
+      _, err2 := df.Fprint(os.Stdout, nil, e);
+      if err2 != nil {
+        fmt.Print(err2);
+      }
 
     } else if err != nil {
       fmt.Print(err);

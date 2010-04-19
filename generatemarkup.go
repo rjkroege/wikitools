@@ -65,26 +65,21 @@ array = { * / ",\n" };
 
 
 func writeMarkup(fd io.Writer, e []*FileMetaData) {
-
-  // Might not need...
-  // fmap := make(FormatterMap);
-  
-
+  io.WriteString(fd, header);
   df, err := datafmt.Parse("listnotes.go", strings.Bytes(emitter), nil);
   if err != nil {
     fmt.Print(err);
   } else {
-    io.WriteString(fd, header);
 
     // mind that you have no looping (will add repetition
     // TODO(rjkroege): add repetition to the format.
-    _, err2  :=df.Fprint(fd, nil, e);
+    _, err2  := df.Fprint(fd, nil, e);
     if (err2 != nil) {
       fmt.Print(err2);
       return;
     }
-    io.WriteString(fd, footer);
   }
+  io.WriteString(fd, footer);
 }
 
 
