@@ -22,6 +22,12 @@ extractmeta		:  extractone.go $(SRCS)
 	6g -I . extractone.go $(SRCS)
 	6l  -o extractmeta extractone.6
 
+# TODO(rjkroege): might want to add some additional tests.
+test: entrylist
+	rm -f note_list.js
+	./entrylist
+	diff -q note_list.js note_list.js.baseline
+
 install			: all
 	$(INSTALL) -d $(bindir)
 	for BIN in $(BINS) ; do \
