@@ -68,7 +68,7 @@ func main() {
   flag.Parse();
   pwd, _ := os.Getwd();
   
-  fmt.Print("running\n");
+  // fmt.Print("running\n");
   df, err1 := datafmt.Parse("extractone.go", strings.Bytes(singleEmitter), nil);
   if err1 != nil {
     fmt.Print(err1);
