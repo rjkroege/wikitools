@@ -28,6 +28,8 @@ func parseDateCmdFmt(numericDate string) uint64 {
   d0 := uint64(0);
   t := time.LocalTime();
   var e os.Error;
+
+  if len(numericDate) != 14 { return d0; }
   
   t.Year, e = strconv.Atoi64(numericDate[0:4]);
   if e != nil { return d0; }
@@ -104,7 +106,7 @@ func rootThroughFileForMetadata(name string) (uint64, string) {
 
   for !inMetaData && lc < 5 {
     line, _ := rd.ReadString('\n');
-    line = line[0:len(line)-1];
+    if len(line) > 0 { line = line[0:len(line)-1]; }
     
     if lc == 0 { resultLine = line; }
     // fmt.Print(line);
