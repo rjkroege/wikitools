@@ -131,6 +131,7 @@ func rootThroughFileForMetadata(name string) (uint64, string) {
     lc++;
   }
 
+  fd.Close();
   return resultDate, resultLine;
 }
 
