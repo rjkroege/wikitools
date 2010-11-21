@@ -9,23 +9,29 @@ mandir			= $(DESTDIR)/$(prefix)/man
 INSTALL			= /usr/bin/install -c
 
 
-SRCS = generatemarkup.go metadata.go
-BINS = extractmeta entrylist
+BINS = wikimake
 
 all: $(BINS)
 
-entrylist		:  listnotes.go $(SRCS)
-	6g -I . listnotes.go $(SRCS)
-	6l  -o entrylist listnotes.6
 
-extractmeta		:  extractone.go $(SRCS)
-	6g -I . extractone.go $(SRCS)
-	6l  -o extractmeta extractone.6
+article.6: article.go metadata.go
+	6g $^
+
+# According to http://golang.org/doc/go_tutorial.html#tmp_186, 
+# we need to be sure to compile buildnote.go first before 
+# the compilation of listnotes.go can be successful.
+wikimake :  listnotes.go generatemarkup.go article.6
+	6g listnotes.go generatemarkup.go
+	6l  -o $@ listnotes.6
+
+
+# Add some unit testing...
+# wikitest : wikitesting.go article.6 
 
 # TODO(rjkroege): might want to add some additional tests.
-test: entrylist
+test: wikimake
 	rm -f note_list.js
-	./entrylist
+	./wikimake
 	diff -q note_list.js note_list.js.baseline
 
 install			: all

@@ -7,6 +7,7 @@
 package main
 
 import (
+	"./article"
   "fmt";
   "bytes";
   "io";
@@ -47,28 +48,30 @@ footer =
 // 
 emitter =
 `
+article "./article";
 main "./main";
 string = "'%s'";
 titleField = "'title': '%s'";
 urlField = "'link': '%s'";
 dateField = "'start': '%s'";
-main.FileMetaData = "  {" ( "    " >>  "\n"
+article.MetaData = "  {" ( "    " >>  "\n"
     Title:titleField ",\n"
     Url:urlField ",\n"
     FinalDate:dateField
     ) "\n  }";
-ptr = * : main.FileMetaData;
+ptr = * : article.MetaData;
 array = { * / ",\n" };
 `;
 
 )
 
 
-func writeMarkup(fd io.Writer, e []*FileMetaData) {
+func writeMarkup(fd io.Writer, e []*article.MetaData) {
   io.WriteString(fd, header);
   df, err := datafmt.Parse("listnotes.go", bytes.NewBufferString(emitter).Bytes(), nil);
   if err != nil {
-    fmt.Print(err);
+		fmt.Print("Something went wrong with the formatted output: ")
+    fmt.Println(err);
   } else {
 
     // mind that you have no looping (will add repetition

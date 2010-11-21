@@ -4,7 +4,7 @@
 
 */
 
-package main
+package article;
 
 import (
   // "fmt";
@@ -91,13 +91,10 @@ func parseDateUnix(numericDate string) int64 {
  * To keep this from being too inefficient, it must be found in the top
  * 5 lines.
  */
-func rootThroughFileForMetadata(name string) (int64, string) {
-  fd, _ := os.Open(name, os.O_RDONLY, 0);
-  // Collect the metadata in a struct?  
-  
-  // read a line of the file
-  rd := bufio.NewReader(io.Reader(fd));
+func (md *MetaData) RootThroughFileForMetadata() {
+  fd, _ := os.Open(md.Name, os.O_RDONLY, 0);
 
+  rd := bufio.NewReader(io.Reader(fd));
   lc := 0;
   inMetaData := false;
 
@@ -131,8 +128,7 @@ func rootThroughFileForMetadata(name string) (int64, string) {
   
     lc++;
   }
-
   fd.Close();
-  return resultDate, resultLine;
+  md.DateFromMetadata, md.Title = resultDate, resultLine;
 }
 

@@ -4,34 +4,22 @@
   
   ; fn gogo  {6g -I . listnotes.go  metadata.go generatemarkup.go && 6l  listnotes.6  && ./6.out ; echo}
 
+  Observe: entrylist enumerates over the .md files and opens each one.
+  It could also construct the actual HTML files while doing so. Each 
+  html file is constructed through (what is currently) a python script.
+
 */
+
 
 package main
 
 import (
+  "./article"
   "fmt";
   "os";
   "strings";
   "time";
 )
-
-type FileMetaData struct {
-  Name string;
-  Url string;
-  DateFromStat int64;
-  DateFromMetadata int64;
-  Title string;
-  FinalDate string;
-}
-
-/**
- * Constructs a URL path equivalent to the given source
- * file.
- */ 
-func makeUrlFromName(f string, path string) string {
-  // Prefix file:///<path>/fname.html
-  return "file://" + path + "/" + f[0:len(f) - len(".md")] + ".html";
-}
 
 /**
  * Turns a time in ns since epoch into a string
@@ -50,17 +38,20 @@ func main() {
   fd, _ := os.Open(".", os.O_RDONLY, 0);
   dirs, _ := fd.Readdir(-1);	// < 0 means get all of them
   
-  e := make([]*FileMetaData, len(dirs));
+  e := make([]*article.MetaData, len(dirs));
   i := 0;
   
   for _, d := range dirs {
     if strings.HasSuffix(d.Name, ".md") {
-      e[i] = new(FileMetaData);
+      e[i] = new(article.MetaData);
       e[i].Name = d.Name;
-      e[i].Url = makeUrlFromName(e[i].Name, pwd);
+      e[i].UrlForName(pwd);
       e[i].DateFromStat = d.Mtime_ns;
-      e[i].DateFromMetadata, e[i].Title = rootThroughFileForMetadata(d.Name);
+      e[i].RootThroughFileForMetadata();
       
+      // NEW: article construction goes here.
+      e[i].Build()
+
       i++;
     }
   }

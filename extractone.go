@@ -6,6 +6,7 @@
 package main
 
 import (
+  "./article"
   "bytes";
   "exp/datafmt";
   "flag";
@@ -15,18 +16,6 @@ import (
   "time";
 )
 
-// TODO(rjkroege): refactor into something different
-// TODO(rjkroege): write some tests.
-type FileMetaData struct {
-  Name string;
-  Url string;
-  DateFromStat int64;
-  DateFromMetadata int64;
-  Title string;
-  FinalDate string;
-}
-
-
 const (
 singleEmitter =
 `
@@ -35,25 +24,17 @@ string = "'%s'";
 titleField = "entrytitle = %s";
 urlField = "link = %s";
 dateField = "titledate = %s";
-main.FileMetaData =
+main.article.MetaData =
     Title:titleField "\n"
     Url:urlField "\n"
     FinalDate:dateField "\n";
-ptr = * : main.FileMetaData;
+ptr = * : main.article.MetaData;
 `;
 
 titleTimeFormat = "Mon Jan _2, 2006";
 )
 
 
-/**
- * Constructs a URL path equivalent to the given source
- * file.
- */ 
-func makeUrlFromName(f string, path string) string {
-  // Prefix file:///<path>/fname.html
-  return "file://" + path + "/" + f[0:len(f) - len(".md")] + ".html";
-}
 
 /**
  * Turns a time in ns since epoch into a string
@@ -81,7 +62,7 @@ func main() {
     // Skip files of the wrong metadata
     fi, err := os.Stat(fname);
     if strings.HasSuffix(fname, ".md") && err == nil {
-      e := new(FileMetaData);
+      e := new(article.MetaData);
       e.Name = fname;
       e.Url = makeUrlFromName(e.Name, pwd);
       
