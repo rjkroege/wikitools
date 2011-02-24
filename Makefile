@@ -8,19 +8,18 @@ mandir			= $(DESTDIR)/$(prefix)/man
 .PHONY: clean nuke install all distclean
 INSTALL			= /usr/bin/install -c
 
-
 BINS = wikimake
 
 all: $(BINS)
 
-
+# TODO(rjkroege): this makefile assumes 64bit intel processors. Fix.
 article.6: article.go metadata.go
 	6g $^
 
 # According to http://golang.org/doc/go_tutorial.html#tmp_186, 
 # we need to be sure to compile buildnote.go first before 
 # the compilation of listnotes.go can be successful.
-wikimake :  listnotes.go generatemarkup.go article.6
+wikimake :  listnotes.go generatemarkup.go article.6 mkd.6
 	6g listnotes.go generatemarkup.go
 	6l  -o $@ listnotes.6
 

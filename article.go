@@ -176,6 +176,11 @@ func (md *MetaData) Build() {
     }
   
     // magic mystery to convert fd's contents into html
+
+		// so... low road is to run a command here. We have still removed
+		// some forks.
+		
+		// gack.
     body = "foo --------------------\n" + body + "bar ---------------------- \n";
     result := header + body + footer;
   
