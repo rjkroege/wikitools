@@ -15,10 +15,11 @@
 package article;
 
 import (
-  "bufio";
-  "fmt";
-  "io";
-  "os";
+  "bufio"
+  "fmt"
+  "io"
+  "os"
+  md "markdown"
 )
 
 
@@ -180,14 +181,22 @@ func (md *MetaData) Build() {
 		// so... low road is to run a command here. We have still removed
 		// some forks.
 		
+		doc := md.Parse(body, md.Extensions{Smart: true})
+		
 		// gack.
-    body = "foo --------------------\n" + body + "bar ---------------------- \n";
-    result := header + body + footer;
-  
+    // body = "foo --------------------\n" + body + "bar ---------------------- \n";
+    
+    ofd.WriteString(header)
+    doc.WriteHtml(ofd)
+    ofd.WriteString(footer)
+    
+    // result := header + body + footer;
+
+    // TODO(rjkroege): do I need to worry about this?
     // 4. replace special symbols with some properties.
     // setup the stuff that we are inserting.
     // result = result modified...
-    ofd.WriteString(result);
+    // ofd.WriteString(result);
   }
 }
 

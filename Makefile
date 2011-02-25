@@ -19,7 +19,7 @@ article.6: article.go metadata.go
 # According to http://golang.org/doc/go_tutorial.html#tmp_186, 
 # we need to be sure to compile buildnote.go first before 
 # the compilation of listnotes.go can be successful.
-wikimake :  listnotes.go generatemarkup.go article.6 mkd.6
+wikimake :  listnotes.go generatemarkup.go article.6
 	6g listnotes.go generatemarkup.go
 	6l  -o $@ listnotes.6
 
