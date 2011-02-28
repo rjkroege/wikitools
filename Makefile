@@ -1,34 +1,37 @@
-SHELL			= /bin/sh
+# This Makefile is very primitive and could be replaced
 
-prefix			= /usr/local
-exec_prefix		= ${prefix}
-bindir			= $(DESTDIR)/$(exec_prefix)/bin
-mandir			= $(DESTDIR)/$(prefix)/man
+include $(GOROOT)/src/Make.inc
 
-.PHONY: clean nuke install all distclean
-INSTALL			= /usr/bin/install -c
+TARG = wikimake
 
-BINS = wikimake
+# Add the rest of the files here.
+# GOFILES = article.go generatemarkup.go listnotes.go metadata.go
+GOFILES = listnotes.go
 
-all: $(BINS)
-
-# TODO(rjkroege): this makefile assumes 64bit intel processors. Fix.
-article.6: article.go metadata.go
-	6g $^
-
-# According to http://golang.org/doc/go_tutorial.html#tmp_186, 
-# we need to be sure to compile buildnote.go first before 
-# the compilation of listnotes.go can be successful.
-wikimake :  listnotes.go generatemarkup.go article.6
-	6g listnotes.go generatemarkup.go
-	6l  -o $@ listnotes.6
+# hypothesis: 2011/2/28
+# extractone.go is unnecessary.
+# assumption: let's make it this way.
 
 
-# Add some unit testing...
-# wikitest : wikitesting.go article.6 
+CLEANFILES+=mkdtest note_list.js
 
-# TODO(rjkroege): might want to add some additional tests.
-test: wikimake
+include $(GOROOT)/src/Make.cmd
+
+# need to set some kind of include path
+# $GOROOT/src/pkg/github.com/knieriem/markdown
+
+
+# Is the test necessary?
+# Yes. but doe we have to code like this?
+# TODO(rjkroege): fix this test up
+# mkdtest :  install testdriver.go
+#	6g -I./_obj -I../sre2/_obj testdriver.go
+#	6l -o $@ testdriver.6
+
+# Runs the test too.
+all: $(BINS) targettest
+
+targettest: $(BINS)
 	rm -f note_list.js
 	./wikimake
 	diff -q note_list.js note_list.js.baseline

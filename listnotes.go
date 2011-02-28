@@ -14,7 +14,7 @@
 package main
 
 import (
-  "./article"
+//  "./article"
   "fmt";
 //	"./mkd"
   "os";

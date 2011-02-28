@@ -7,7 +7,7 @@
 package main
 
 import (
-	"./article"
+//	"./article"
   "fmt";
   "bytes";
   "io";

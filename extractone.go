@@ -6,7 +6,7 @@
 package main
 
 import (
-  "./article"
+//  "./article"
   "bytes";
   "exp/datafmt";
   "flag";

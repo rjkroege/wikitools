@@ -12,14 +12,15 @@
   Must be a different package
   But now, I have a circular dependency. And how do I plan on handling this?
 */
-package article;
+// package article;
+package main
 
 import (
   "bufio"
   "fmt"
   "io"
   "os"
-  md "markdown"
+  "github.com/knieriem/markdown"
 )
 
 
@@ -181,7 +182,7 @@ func (md *MetaData) Build() {
 		// so... low road is to run a command here. We have still removed
 		// some forks.
 		
-		doc := md.Parse(body, md.Extensions{Smart: true})
+		doc := markdown.Parse(body, markdown.Extensions{Smart: true})
 		
 		// gack.
     // body = "foo --------------------\n" + body + "bar ---------------------- \n";
