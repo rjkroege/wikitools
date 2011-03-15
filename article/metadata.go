@@ -4,9 +4,7 @@
 
 */
 
-// package article;
-package main
-
+package article;
 
 import (
   // "fmt";

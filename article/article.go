@@ -12,8 +12,7 @@
   Must be a different package
   But now, I have a circular dependency. And how do I plan on handling this?
 */
-// package article;
-package main
+package article;
 
 import (
   "bufio"
@@ -141,6 +140,9 @@ func (md *MetaData) UrlForName(path string) string {
 
 
 
+// Idea: it is desirable to not have enormous side-effect
+// intense functions such as this one.
+
 /**
   Given a article.MetaData object containing some paths and stuff,
   does appropriate transformations to construct the HTML form.
@@ -177,21 +179,17 @@ func (md *MetaData) Build() {
 			}
     }
   
-    // magic mystery to convert fd's contents into html
-
 		// so... low road is to run a command here. We have still removed
 		// some forks.
-		
+		fmt.Println("processing a file...")
+
+		// Convert the markdown file into a HTML
 		doc := markdown.Parse(body, markdown.Extensions{Smart: true})
-		
-		// gack.
-    // body = "foo --------------------\n" + body + "bar ---------------------- \n";
-    
     ofd.WriteString(header)
-    doc.WriteHtml(ofd)
+    w := bufio.NewWriter(ofd)
+    doc.WriteHtml(w)
+    w.Flush()
     ofd.WriteString(footer)
-    
-    // result := header + body + footer;
 
     // TODO(rjkroege): do I need to worry about this?
     // 4. replace special symbols with some properties.

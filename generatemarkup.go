@@ -7,7 +7,7 @@
 package main
 
 import (
-//	"./article"
+	"liqui.org/article"
   "fmt";
   "bytes";
   "io";
@@ -48,7 +48,7 @@ footer =
 // 
 emitter =
 `
-article "./article";
+article "liqui.org/article";
 main "./main";
 string = "'%s'";
 titleField = "'title': '%s'";
@@ -68,7 +68,7 @@ array = { * / ",\n" };
 
 func writeMarkup(fd io.Writer, e []*article.MetaData) {
   io.WriteString(fd, header);
-  df, err := datafmt.Parse("listnotes.go", bytes.NewBufferString(emitter).Bytes(), nil);
+  df, err := datafmt.Parse(nil, "foo", bytes.NewBufferString(emitter).Bytes(), nil);
   if err != nil {
 		fmt.Print("Something went wrong with the formatted output: ")
     fmt.Println(err);

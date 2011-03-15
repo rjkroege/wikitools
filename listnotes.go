@@ -14,7 +14,7 @@
 package main
 
 import (
-//  "./article"
+  "liqui.org/article"
   "fmt";
 //	"./mkd"
   "os";
@@ -22,7 +22,7 @@ import (
   "time";
 )
 
-/**
+/**a
  * Turns a time in ns since epoch into a string
  */
 func dateToString(ti int64) string {
@@ -30,8 +30,9 @@ func dateToString(ti int64) string {
   return t.Format(time.RFC3339);
 }
 
+// TODO(rjkroege): must read the directory from the command line?
 func main() {
-  // fmt.Printf("hello world\n");
+  fmt.Printf("hello world\n");
   pwd, _ := os.Getwd();
   
   // get a directory listing
@@ -50,6 +51,7 @@ func main() {
       e[i].RootThroughFileForMetadata();
       
       // NEW: article construction goes here.
+      fmt.Printf("convert a markdown file into html...\n")
       e[i].Build()
 
       i++;
@@ -68,11 +70,13 @@ func main() {
   }
   
   // Time to generate the stuff...
-  ofd, err := os.Open("note_list.js", os.O_WRONLY | os.O_CREATE, 0644);
+  //ofd, err := os.Open("note_list.js", os.O_WRONLY | os.O_CREATE, 0644);
+  _, err := os.Open("note_list.js", os.O_WRONLY | os.O_CREATE, 0644);
   if err != nil {
     fmt.Print(err);
   } else {
-    writeMarkup(ofd, e);
+    fmt.Print("ought to be printing here\n")
+    // writeMarkup(ofd, e);
   }
 
 

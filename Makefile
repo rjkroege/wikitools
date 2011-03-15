@@ -6,12 +6,13 @@ TARG = wikimake
 
 # Add the rest of the files here.
 # GOFILES = article.go generatemarkup.go listnotes.go metadata.go
-GOFILES = listnotes.go
+GOFILES = listnotes.go generatemarkup.go
 
 # hypothesis: 2011/2/28
 # extractone.go is unnecessary.
 # assumption: let's make it this way.
 
+# GC+=-I .
 
 CLEANFILES+=mkdtest note_list.js
 
@@ -29,12 +30,15 @@ include $(GOROOT)/src/Make.cmd
 #	6l -o $@ testdriver.6
 
 # Runs the test too.
-all: $(BINS) targettest
+all: article wikimake targettest
+	
+article: article/article.go article/metadata.go
+	make -C article install
 
-targettest: $(BINS)
+targettest: wikimake
 	rm -f note_list.js
-	./wikimake
-	diff -q note_list.js note_list.js.baseline
+	cd testdata ; ../wikimake
+	diff -q testdata/note_list.js testdata/note_list.js.baseline
 
 install			: all
 	$(INSTALL) -d $(bindir)
