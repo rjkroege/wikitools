@@ -49,11 +49,6 @@ func main() {
       e[i].UrlForName(pwd);
       e[i].DateFromStat = d.Mtime_ns;
       e[i].RootThroughFileForMetadata();
-      
-      // NEW: article construction goes here.
-      fmt.Printf("convert a markdown file into html...\n")
-      e[i].WriteHtmlFile()
-
       i++;
     }
   }
@@ -80,8 +75,8 @@ func main() {
 
   // Generate articles here so that we can inline the JavaScript data if
   // that would prove desirable.
-  // for _, d := range e {
-  //  d.WriteFile()
-  //}
+  for _, d := range e {
+    d.WriteHtmlFile()
+  }
 
 }
