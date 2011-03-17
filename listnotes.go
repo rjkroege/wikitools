@@ -78,5 +78,10 @@ func main() {
     article.WriteTimeline(ofd, e);
   }
 
+  // Generate articles here so that we can inline the JavaScript data if
+  // that would prove desirable.
+  // for _, d := range e {
+  //  d.WriteFile()
+  //}
 
 }
