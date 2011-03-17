@@ -139,15 +139,13 @@ func (md *MetaData) UrlForName(path string) string {
 }
 
 
-
-// Idea: it is desirable to not have enormous side-effect
-// intense functions such as this one.
-
+// TODO(rjkroege): it might be desirable to divide this funciton
+// up.
 /**
   Given a article.MetaData object containing some paths and stuff,
   does appropriate transformations to construct the HTML form.
 */
-func (md *MetaData) Build() {
+func (md *MetaData) WriteHtmlFile() {
   // TODO(rjkroege): it is silly to re-open these files when I 
   // have had them open before them. And to re-read chunks of
   // them when I have already done so. But this is easier. And

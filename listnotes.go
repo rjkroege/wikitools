@@ -52,7 +52,7 @@ func main() {
       
       // NEW: article construction goes here.
       fmt.Printf("convert a markdown file into html...\n")
-      e[i].Build()
+      e[i].WriteHtmlFile()
 
       i++;
     }
