@@ -4,7 +4,7 @@ TARG=liqui.org/article
 GOFILES=\
 	article.go\
 	metadata.go\
-	generatemarkup.go
+	generatetimeline.go
 
 include $(GOROOT)/src/Make.pkg
 

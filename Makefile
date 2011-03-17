@@ -32,7 +32,7 @@ include $(GOROOT)/src/Make.cmd
 # Runs the test too.
 all: article wikimake targettest
 	
-article: article/article.go article/metadata.go article/generatemarkup.go
+article: article/article.go article/metadata.go article/generatetimeline.go
 	make -C article install
 
 targettest: wikimake

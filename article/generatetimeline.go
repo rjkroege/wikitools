@@ -1,7 +1,6 @@
 /*
-  Metadata extraction  
-  ; fn gogo  {6g -I . listnotes.go  metadata.go generatemarkup.go && 6l  listnotes.6  && ./6.out ; echo}
-
+  Creates the contents of the JavaScript file that lists the entries in the
+  timeline.
 */
 
 package article

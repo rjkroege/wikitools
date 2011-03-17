@@ -191,7 +191,7 @@ func (md *MetaData) Build() {
     w.Flush()
     ofd.WriteString(footer)
 
-    // TODO(rjkroege): do I need to worry about this?
+    // TODO(rjkroege):     
     // 4. replace special symbols with some properties.
     // setup the stuff that we are inserting.
     // result = result modified...
