@@ -92,11 +92,11 @@ func parseDateUnix(numericDate string) int64 {
  * 5 lines.
  */
 func (md *MetaData) RootThroughFileForMetadata() {
-  fd, _ := os.Open(md.Name, os.O_RDONLY, 0);
-
-  rd := bufio.NewReader(io.Reader(fd));
-  lc := 0;
-  inMetaData := false;
+  fd, _ := os.Open(md.Name, os.O_RDONLY, 0)
+  rd := bufio.NewReader(io.Reader(fd))
+  lc := 0
+  inMetaData := false
+  md.hadMetaData = false
 
   var resultLine string;
   resultDate := int64(0);
@@ -116,6 +116,7 @@ func (md *MetaData) RootThroughFileForMetadata() {
       // fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
       if strings.ToLower(m1[1]) == "title" { resultLine = m1[2]; }
       if strings.ToLower(m1[1]) == "date" { resultDate = parseDateUnix(m1[2]); }
+      md.hadMetaData = true
     } else if len(m2) > 0 {
       // fmt.Print("matched for  <" + m2[1] + ">\n");
       resultDate = parseDateCmdFmt(m2[1]);

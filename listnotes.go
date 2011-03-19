@@ -30,6 +30,12 @@ func dateToString(ti int64) string {
   return t.Format(time.RFC3339);
 }
 
+func dateForPeople(ti int64) string {
+  t := time.SecondsToLocalTime(int64(ti / 1e9));
+  return t.Format("Monday, Jan _2, 2006");
+}
+
+
 // TODO(rjkroege): must read the directory from the command line?
 func main() {
   fmt.Printf("hello world\n");
@@ -44,8 +50,11 @@ func main() {
   
   for _, d := range dirs {
     if strings.HasSuffix(d.Name, ".md") {
+      // TODO(rjkroege): could be a constructor like object.
+      // This code could be much more designed. And less hacky.
       e[i] = new(article.MetaData);
       e[i].Name = d.Name;
+      e[i].SourceForName(pwd)
       e[i].UrlForName(pwd);
       e[i].DateFromStat = d.Mtime_ns;
       e[i].RootThroughFileForMetadata();
@@ -59,8 +68,10 @@ func main() {
     // TODO(rjkroege): insert computing the Date string here.
     if (d.DateFromMetadata > int64(0)) {
       d.FinalDate = dateToString(d.DateFromMetadata);
+      d.PrettyDate = dateForPeople(d.DateFromMetadata);
     } else {
       d.FinalDate = dateToString(d.DateFromStat);
+      d.PrettyDate = dateForPeople(d.DateFromStat);
     }
   }
   
@@ -76,6 +87,7 @@ func main() {
   // Generate articles here so that we can inline the JavaScript data if
   // that would prove desirable.
   for _, d := range e {
+    fmt.Print("running WriteHtmlFile\n")
     d.WriteHtmlFile()
   }
 

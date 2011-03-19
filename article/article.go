@@ -20,6 +20,7 @@ import (
   "io"
   "os"
   "github.com/knieriem/markdown"
+  "template"
 )
 
 
@@ -30,6 +31,9 @@ type MetaData struct {
   DateFromMetadata int64;
   Title string;
   FinalDate string;
+  hadMetaData bool;
+  PrettyDate string;
+  SourceUrl string;
 }
 
 // Contains large string contants.
@@ -39,12 +43,12 @@ header =
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-   <title>$entrytitle</title>
+   <title>{Title}</title>
    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
   <!-- date argument for centering -->
   <script language="JavaScript" type="text/javascript">
-    var external_titledate = '$titledate';
+    var external_titledate = '{PrettyDate}';
   </script>
 
   <!-- timeline CSS -->
@@ -72,8 +76,8 @@ header =
    <div id="container">
       <div id="title">
         <!-- Add editing functionality? -->
-        <h1 class="left">$entrytitle</h1>
-        <h1 class="right">$titledate</h1>
+        <h1 class="left">{Title}</h1>
+        <h1 class="right">{PrettyDate}</h1>
       </div> <!-- title -->
 
       <!-- Timeline -->
@@ -103,9 +107,27 @@ footer =
 </body>
 </html>
 `
+
+textmateFooter =
+`
+<hr />
+<p class="info">
+   Source: <a href="txmt://open?url={SourceUrl}">{Name}</a><br />
+   <!-- new ones not handled -->
+   <a href="txmt://open?url=file:///Users/rjkroege/Documents/wiki2/template.md">New Article</a><br />
+</p>
+</div> <!-- note -->
+</div> <!-- container -->
+</body>
+</html>
+`
+
+test = "foo foo {Title} bar bar\n{PrettyDate}\n{SourceUrl}\n{Name}\n"
+
 )
 
-
+var headerTemplate = template.MustParse(header, nil);
+var footerTemplate = template.MustParse(textmateFooter, nil);
 
 
 /*
@@ -138,6 +160,10 @@ func (md *MetaData) UrlForName(path string) string {
   return md.Url;
 }
 
+func (md *MetaData) SourceForName(path string) string {
+  md.SourceUrl = "file://" + path + "/" + md.Name
+  return md.SourceUrl
+}
 
 // TODO(rjkroege): it might be desirable to divide this funciton
 // up.
@@ -160,15 +186,32 @@ func (md *MetaData) WriteHtmlFile() {
 
   // TODO(rjkroege): if the md file is not as new as the HTML file, 
 	// skip all of this work.
-  ofd, werr := os.Open(md.FormattedName(), os.O_WRONLY | os.O_CREATE, 0644);
+  ofd, werr := os.Open(md.FormattedName(), os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
   
+  fmt.Println("processing")
+
   if werr != nil {
     fmt.Print(werr);
     return
   } else {
     body := "";
     rd := bufio.NewReader(io.Reader(fd));
-  
+
+    // TODO(rjkroege): trim the metadata here.
+    if md.hadMetaData {
+      for {
+        line, rerr := rd.ReadString('\n');
+        if rerr != nil {
+          break
+          // TODO(rjkroege): skip this file
+        }
+        if line == "\n" {
+          break
+        }
+      }
+    }
+    
+    // TODO(rjkroege): don't read the file into memory.
     for {
       line, rerr := rd.ReadString('\n');
       body += line;
@@ -177,23 +220,21 @@ func (md *MetaData) WriteHtmlFile() {
 			}
     }
   
-		// so... low road is to run a command here. We have still removed
-		// some forks.
-		fmt.Println("processing a file...")
+    fmt.Println("processing a file...2 ")
+    w := bufio.NewWriter(ofd)
 
+   // 4. replace special symbols with some properties.
+    headerTemplate.Execute(w, md)
+    
 		// Convert the markdown file into a HTML
 		doc := markdown.Parse(body, markdown.Extensions{Smart: true})
-    ofd.WriteString(header)
-    w := bufio.NewWriter(ofd)
     doc.WriteHtml(w)
-    w.Flush()
-    ofd.WriteString(footer)
 
-    // TODO(rjkroege):     
-    // 4. replace special symbols with some properties.
-    // setup the stuff that we are inserting.
-    // result = result modified...
-    // ofd.WriteString(result);
+   // 4. replace special symbols with some properties.
+    footerTemplate.Execute(w, md)
+    
+    w.Flush()
+    ofd.Close()
   }
 }
 
