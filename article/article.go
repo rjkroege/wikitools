@@ -50,6 +50,9 @@ header =
   <!-- date argument for centering -->
   <script language="JavaScript" type="text/javascript">
     var external_titledate = '{PrettyDate}';
+    function modifyTheUrl(event) {.meta-left}
+      event.currentTarget.href += Date.now() + '.md';
+      return true; {.meta-right}
   </script>
 
   <!-- timeline CSS -->
@@ -115,11 +118,12 @@ textmateFooter =
 <p class="info">
    Source: <a href="txmt://open?url={SourceUrl}">{Name}</a><br />
    <!-- new ones not handled -->
-   <a href="txmt://open?url=file:///Users/rjkroege/Documents/wiki2/template.md">New Article</a><br />
+   <a onclick="modifyTheUrl(event)" href="txmt://open?url=file:///Users/rjkroege/Documents/wiki2/ca_">New Article</a><br />
 </p>
 </div> <!-- note -->
 </div> <!-- container -->
 </body>
+
 </html>
 `
 
