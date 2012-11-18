@@ -1,16 +1,6 @@
 /*
   Constructs the actual note. Does what the current python buildPage.py
   script does.
-  
-  insert here
-  
-  This file is probably mis-named.
-  
-*/
-
-/*
-  Must be a different package
-  But now, I have a circular dependency. And how do I plan on handling this?
 */
 package article;
 
@@ -27,6 +17,7 @@ import (
 
 // TODO(rjkroege): make sure that each entry has a nice comment
 // and clean up.
+// TODO(rjkroege): Make the structure members private.
 type MetaData struct {
   Name string;    // Relative file name
   Url string;     // Url of the generated file.
@@ -36,7 +27,7 @@ type MetaData struct {
   FinalDate string;
   hadMetaData bool;
   PrettyDate string;
-  SourceUrl string;
+  SourcePath string;
 }
 
 // Contains large string contants.
@@ -114,13 +105,12 @@ footer =
 </html>
 `
 
-textmateFooter =
+plumberfooter =
 `
 <hr />
 <p class="info">
-   Source: <a href="txmt://open?url={{.SourceUrl}}">{{.Name}}</a><br />
-   <!-- new ones not handled -->
-   <a onclick="modifyTheUrl(event)" href="txmt://open?url=file:///Users/rjkroege/Documents/wiki2/ca_">New Article</a><br />
+   Source: <a href="plumb:{{.SourcePath}}">{{.Name}}</a><br />
+   <a href="plumb:/Users/rjkroege/Documents/wiki2/New">New Article</a><br />
 </p>
 </div> <!-- note -->
 </div> <!-- container -->
@@ -128,14 +118,10 @@ textmateFooter =
 
 </html>
 `
-
-// Used for exploring how the template facility works.
-test = "foo foo {Title} bar bar\n{PrettyDate}\n{SourceUrl}\n{Name}\n"
-
 )
 
 var headerTemplate = template.Must(template.New("header").Parse(header));
-var footerTemplate = template.Must(template.New("footer").Parse(textmateFooter));
+var footerTemplate = template.Must(template.New("footer").Parse(plumberfooter));
 
 // Converts an article name into its name as a formatted object.s
 func (md *MetaData) FormattedName() string {
@@ -151,11 +137,11 @@ func (md *MetaData) UrlForName(path string) string {
 }
 
 func (md *MetaData) SourceForName(path string) string {
-  md.SourceUrl = "file://" + path + "/" + md.Name
-  return md.SourceUrl
+  md.SourcePath = path + "/" + md.Name
+  return md.SourcePath
 }
 
-// TODO(rjkroege): it might be desirable to divide this funciton
+// TODO(rjkroege): it might be desirable to divide this function
 // up.
 /**
   Given a article.MetaData object containing some paths and stuff,
