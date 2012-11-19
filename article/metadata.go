@@ -12,41 +12,12 @@ import (
   "bufio";
   "io";
   "strings";
-  "strconv";
   "regexp";
   "time";
-  "errors";
 )
 
 var metadataMatcher = regexp.MustCompile("^([A-Za-z]*):[ \t]*(.*)$");
 var commentDataMatcher = regexp.MustCompile("<!-- *([0-9]*) *-->");
-
-// I don't think this is named well.
-/**
- * Attempts to parse the date sequence that I have used in multiple
- * files that consists of a string of digits.
- */
-func parseDateCmdFmt(numericDate string) (t time.Time, err error) {
-  t = time.Now();
-  if len(numericDate) != 14 {
-    return t, errors.New("numeric date string contained wrong number of characters")
-  }
-
-  err = nil;
-  year, err := strconv.ParseInt(numericDate[0:4], 10, 32);
-  month, err := strconv.ParseInt(numericDate[4:6], 10, 32);
-  day, err := strconv.ParseInt(numericDate[6:8], 10, 32);
-  hour, err := strconv.ParseInt(numericDate[8:10], 10, 32);
-  minute, err := strconv.ParseInt(numericDate[10:12], 10, 32);
-  second, err := strconv.ParseInt(numericDate[12:14], 10, 32);
-  if err != nil { return }
-
-  location, err := time.LoadLocation("Local")
-  if err != nil { return }
-
-  return time.Date(int(year), time.Month(month), int(day),
-                                         int(hour), int(minute), int(second), 0, location), nil;
-}
 
 const (
 lstring = "20060102150405 MST";
