@@ -43,9 +43,6 @@ header =
   <!-- date argument for centering -->
   <script language="JavaScript" type="text/javascript">
     var external_titledate = '{{.PrettyDate}}';
-    function modifyTheUrl(event) {
-      event.currentTarget.href += Date.now() + '.md';
-      return true; }
   </script>
 
   <!-- timeline CSS -->
@@ -167,11 +164,11 @@ func (md *MetaData) WriteHtmlFile() {
   if serr != nil || statinfo.ModTime().Before(md.DateFromStat) {
     // TODO(rjkroege): if the md file is not as new as the HTML file, 
     // skip all of this work.
-    fmt.Println("processing " + md.Name)
+    // fmt.Println("processing " + md.Name)
     ofd, werr := os.OpenFile(md.FormattedName(), os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
     defer ofd.Close()
     if werr != nil {
-      fmt.Print("one ", werr, "\n");
+      // fmt.Print("one ", werr, "\n");
       return
     }
 
@@ -185,7 +182,7 @@ func (md *MetaData) WriteHtmlFile() {
       for {
         line, rerr := rd.ReadString('\n');
         if rerr != nil {
-          fmt.Print("two ", werr, "\n");
+          // fmt.Print("two ", werr, "\n");
           return
         }
         if line == "\n" {

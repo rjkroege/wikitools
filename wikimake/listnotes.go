@@ -35,7 +35,7 @@ func dateForPeople(ti time.Time) string {
 
 // TODO(rjkroege): must read the directory from the command line?
 func main() {
-  fmt.Printf("hello world\n");
+  // fmt.Printf("hello world\n");
   pwd, _ := os.Getwd();
   
   // get a directory listing

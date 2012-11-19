@@ -7,7 +7,7 @@
 package article;
 
 import (
-  "fmt";
+//  "fmt";  // Need for debugging printfs.
   "os";
   "bufio";
   "io";
@@ -63,7 +63,7 @@ unixlike = "Mon _2 Jan 2006 15:04:05 MST"
  * Returns the first time corresponding to the first data match.
  */
 func parseDateUnix(ds string) (t time.Time, err error)  {
-  fmt.Print("time string <" + ds + ">\n");
+  // fmt.Print("time string <" + ds + ">\n");
 
   // Formats where the data does have a timezone.
   unzoned := []string {
@@ -83,11 +83,11 @@ func parseDateUnix(ds string) (t time.Time, err error)  {
 
  for _, fs := range(zoned) {
     t, err = time.Parse(fs, ds + " EDT");
-    fmt.Print("<" + fs + "> for <" + ds + " EDT> gives location: " + t.Location().String());
+    // fmt.Print("<" + fs + "> for <" + ds + " EDT> gives location: " + t.Location().String());
     if err == nil && t.Location().String() == "Local" { return }
     
     t, err = time.Parse(fs, ds + " EST");
-    fmt.Print("<" + fs + "> for <" + ds + " EST> gives location: " + t.Location().String());
+    // fmt.Print("<" + fs + "> for <" + ds + " EST> gives location: " + t.Location().String());
     if err == nil && t.Location().String() == "Local" { return }
   }
   return;
@@ -108,7 +108,7 @@ func parseDateUnix(ds string) (t time.Time, err error)  {
  * 5 lines.
  */
 func (md *MetaData) RootThroughFileForMetadata() {
-  fmt.Print("\nfile: " + md.Name + "\n");
+  // fmt.Print("\nfile: " + md.Name + "\n");
   fd, _ := os.OpenFile(md.Name, os.O_RDONLY, 0)
   rd := bufio.NewReader(io.Reader(fd))
   lc := 0
@@ -124,26 +124,26 @@ func (md *MetaData) RootThroughFileForMetadata() {
     if len(line) > 0 { line = line[0:len(line)-1]; }
     
     if lc == 0 { resultLine = line; }
-     fmt.Print(line);
-     fmt.Print("\n");
+     // fmt.Print(line);
+     // fmt.Print("\n");
 
-    fmt.Print("running regexp matcher...\n")
+    // fmt.Print("running regexp matcher...\n")
     m1 := metadataMatcher.FindStringSubmatch(line);
     m2 := commentDataMatcher.FindStringSubmatch(line);
     if len(m1) > 0 {
-      fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
+      // fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
       if strings.ToLower(m1[1]) == "title" { resultLine = m1[2]; }
       if strings.ToLower(m1[1]) == "date" {
         date, de = parseDateUnix(strings.TrimSpace(m1[2]));
       }
       md.hadMetaData = true
     } else if len(m2) > 0 {
-      fmt.Print("matched for  <" + m2[1] + ">\n");
+      // fmt.Print("matched for  <" + m2[1] + ">\n");
       date, de = parseDateUnix(m2[1]);
     }
   
     if de != nil || date.IsZero() {
-      fmt.Print("date is zero, trying whole resultLine: <" + resultLine + ">\n");
+      //fmt.Print("date is zero, trying whole resultLine: <" + resultLine + ">\n");
       date, de  = parseDateUnix(resultLine);
     }
     lc++;
