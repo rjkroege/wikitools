@@ -15,9 +15,9 @@ import (
   "time"
 )
 
-// TODO(rjkroege): make sure that each entry has a nice comment
-// and clean up.
-// TODO(rjkroege): Make the structure members private.
+// Clarify the purpose of the struct members.
+// Note the use of the named fields for generating
+// Timeline JSON.
 type MetaData struct {
   Name string					`json:"-"`
   Url string					`json:"link"`
