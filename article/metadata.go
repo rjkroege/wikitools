@@ -24,7 +24,7 @@ lstring = "20060102150405 MST";
 sstring = "200601021504 MST";
 slashdate = "2006/01/02 15:04:05 MST"
 unixlike = "Mon _2 Jan 2006 15:04:05 MST"
-lsdate = "02 Jan 15:04:05 2006"
+lsdate = "_2 Jan 15:04:05 2006"
 )
 
 /**
