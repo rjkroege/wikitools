@@ -32,7 +32,7 @@ func WriteTimeline(fd io.Writer, e []*MetaData) {
   io.WriteString(fd, timeline_header);
 
   enc := json.NewEncoder(fd);
-  err := enc.Encode(e);  
+  err := enc.Encode(e); 
   if err != nil { panic(err) }
 
   io.WriteString(fd, timeline_footer);

@@ -150,7 +150,13 @@ func (md *MetaData) WriteHtmlFile() {
   // them when I have already done so. But this is easier. And
 	// it probably doesn't matter given that most files don't need
 	// to be regenerated.
-  
+
+  // Handle  failures in the library.
+  defer func() {
+   if r := recover(); r != nil {
+      fmt.Println(md.Name, "WriteHtmlFile, failed", r)
+      }
+    }()  
 
   fd, err := os.OpenFile(md.Name, os.O_RDONLY, 0)
   defer fd.Close()
@@ -216,7 +222,7 @@ func (md *MetaData) WriteHtmlFile() {
 
     // Footer with substitutions
     footerTemplate.Execute(w, md)
-    fmt.Println("done " + md.Name)
+    // fmt.Println("done " + md.Name)
   }
 }
 
