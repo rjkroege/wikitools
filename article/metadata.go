@@ -24,6 +24,7 @@ lstring = "20060102150405 MST";
 sstring = "200601021504 MST";
 slashdate = "2006/01/02 15:04:05 MST"
 unixlike = "Mon _2 Jan 2006 15:04:05 MST"
+lsdate = "02 Jan 15:04:05 2006"
 )
 
 /**
@@ -39,7 +40,8 @@ func parseDateUnix(ds string) (t time.Time, err error)  {
   // Formats where the data does have a timezone.
   unzoned := []string {
       unixlike,
-      time.UnixDate };
+      time.UnixDate,
+     lsdate };
 
   for _, fs := range(unzoned) {
     t, err = time.Parse(fs, ds);
