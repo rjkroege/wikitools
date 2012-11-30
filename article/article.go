@@ -107,7 +107,7 @@ plumberfooter =
 <hr />
 <p class="info">
    Source: <a href="plumb:{{.SourcePath}}">{{.Name}}</a><br />
-   <a href="plumb:/Users/rjkroege/Documents/wiki2/New">New Article</a><br />
+   <a href="plumb:/Users/rjkroege/Dropbox/wiki2/New">New Article</a><br />
 </p>
 </div> <!-- note -->
 </div> <!-- container -->
