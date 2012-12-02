@@ -73,17 +73,6 @@ header =
         <h1 class="left">{{.Title}}</h1>
         <h1 class="right">{{.PrettyDate}}</h1>
       </div> <!-- title -->
-
-      <!-- Timeline -->
-      <div id="doc3" class="yui-t7">
-        <div id="bd" role="main">
-          <div class="yui-g">
-            <div id='tl'></div>
-          </div>
-        </div>
-      </div>
-
-      
       <div id="note">
 `;
 
@@ -97,6 +86,8 @@ footer =
    <!-- This page built: $buildtime -->
 </p>
 </div> <!-- note -->
+
+
 </div> <!-- container -->
 </body>
 </html>
@@ -110,6 +101,16 @@ plumberfooter =
    <a href="plumb:/Users/rjkroege/Dropbox/wiki2/New">New Article</a><br />
 </p>
 </div> <!-- note -->
+
+      <!-- Timeline -->
+      <div id="doc3" class="yui-t7">
+        <div id="bd" role="main">
+          <div class="yui-g">
+            <div id='tl'></div>
+          </div>
+        </div>
+      </div>
+
 </div> <!-- container -->
 </body>
 
