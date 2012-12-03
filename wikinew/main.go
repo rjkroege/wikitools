@@ -1,7 +1,7 @@
 package main
 
 import (
-    "fmt"
+//    "fmt"			// needed for debugging.
     "os"
     "log"
    "time"
