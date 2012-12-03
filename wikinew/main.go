@@ -56,6 +56,7 @@ path = "/Users/rjkroege/Dropbox/wiki2/"
 journaltmpl = 
 `title: {{.Title}}
 date: {{.PrettyDate}}
+tags: @journal
 
 Yo dawg! Write stuff here.
 `
@@ -63,7 +64,7 @@ Yo dawg! Write stuff here.
 booktmpl =
 `title: {{.Title}}
 date: {{.PrettyDate}}
-tags: bib
+tags: @bib
 
 Yo dawg! Put the bookreview here.
 `
@@ -96,13 +97,12 @@ func (md *Article) Emit(tpl string) *Article {
 }
 
 func journal(args []string) {
-    fmt.Print("setup a new journal article", args, "\n");
+    // fmt.Print("setup a new journal article", args, "\n");
    Makearticle(args).Emit(journaltmpl).Plumb()
-    // TODO(rjkroege): figure out how to open it with plumber here.
 }
 
 func book(args []string) {
-    fmt.Print("setup a new book review", args, "\n");
+    // fmt.Print("setup a new book review", args, "\n");
    Makearticle(args).Emit(booktmpl).Plumb()
 }
 
