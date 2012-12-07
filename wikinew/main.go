@@ -73,7 +73,7 @@ Yo dawg! Put the bookreview here.
 
 // Might want to read where Plan9 lives from the environment?
 // Add wikimake to the bar for this edit pain.
-// Might want to sdd support for connecting to plumber
+// Might want to support 9p for connecting to plumber
 func (md *Article) Plumb() {
     // TODO(rjkroege): make pathifying a method on md
     err := exec.Command("/usr/local/plan9/bin/plumb", path + md.Filename).Run()
