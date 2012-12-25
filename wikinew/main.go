@@ -5,7 +5,6 @@ import (
     // "fmt"			// needed for debugging.
     "log"
     "os"
-    "strconv"
     "strings"
     "text/template"
    "code.google.com/p/goplan9/plan9/acme"
@@ -48,6 +47,7 @@ const (
 // basepath = "/Users/rjkroege/Dropbox/wiki2/"
 basepath = "/Users/rjkroege/"
 extension = ".md"
+timeformat = "20060102-150405"
 )
 
 func Makearticle(args []string) *Article {
@@ -68,7 +68,7 @@ func (md *Article) Filepath() string {
         return p
     }
     // Would a better time format be nicer?
-    md.filepath = md.filename + "-" + strconv.FormatUint(uint64(time.Now().Unix()), 10) + extension
+    md.filepath = md.filename + "-" + time.Now().Format(timeformat) + extension
     return md.filepath
 }
 
