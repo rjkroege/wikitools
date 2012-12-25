@@ -1,10 +1,11 @@
 package main
 
 import (
-//    "fmt"			// needed for debugging.
     "bytes" 
+    // "fmt"			// needed for debugging.
     "log"
     "os"
+    "strconv"
     "strings"
     "text/template"
    "code.google.com/p/goplan9/plan9/acme"
@@ -23,7 +24,8 @@ type Handler func([]string)
 
 // TODO(rjkroege): I can refactor this with the other tool.
 type Article struct {
-    Filename string
+    filename string
+    filepath string
     Title string
     PrettyDate string
     Buffy *bytes.Buffer
@@ -42,18 +44,35 @@ func filter(r rune) rune {
     return nr
 }
 
+const (
+// basepath = "/Users/rjkroege/Dropbox/wiki2/"
+basepath = "/Users/rjkroege/"
+extension = ".md"
+)
+
 func Makearticle(args []string) *Article {
     s := strings.Join(args, " ");
-    a := Article{ strings.Map(filter, s) + ".md", s, time.Now().Format(time.UnixDate), nil}
-    return &a;
+    a := Article{ strings.Map(filter, s), "", s, time.Now().Format(time.UnixDate), nil}
+    return &a
+}
+
+func (md *Article) Filepath() string {
+    if md.filepath != "" {
+        return md.filepath
+    }
+
+    p :=  basepath + md.filename + extension
+    _,  err := os.Stat(p)
+    if err != nil {
+        md.filepath = p
+        return p
+    }
+    // Would a better time format be nicer?
+    md.filepath = md.filename + "-" + strconv.FormatUint(uint64(time.Now().Unix()), 10) + extension
+    return md.filepath
 }
 
 const (
-path = "/Users/rjkroege/Dropbox/wiki2/"
-
-// for debugging
-// path = "./"
-
 journaltmpl = 
 `title: {{.Title}}
 date: {{.PrettyDate}}
@@ -78,7 +97,8 @@ func (md *Article) Plumb() {
     if err != nil {
         log.Fatal(err)
     }
-   err =  win.Name(path + md.Filename)
+    
+    err =  win.Name(md.Filepath())
     if err != nil {
         log.Fatal(err)
     }
