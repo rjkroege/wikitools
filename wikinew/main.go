@@ -3,6 +3,7 @@ package main
 import (
     "bytes" 
     // "fmt"			// needed for debugging.
+    "github.com/rjkroege/wikitools/wiki"
     "log"
     "os"
     "strings"
@@ -11,15 +12,9 @@ import (
    "time"
 )
 
-
 /*
     Go is awesome.
 */
-
-// insert constants here for the various templates.
-
-
-type Handler func([]string)
 
 // TODO(rjkroege): I can refactor this with the other tool.
 type Article struct {
@@ -27,6 +22,7 @@ type Article struct {
     filepath string
     Title string
     PrettyDate string
+    Tags []string
     Buffy *bytes.Buffer
 }
 
@@ -44,15 +40,15 @@ func filter(r rune) rune {
 }
 
 const (
-// basepath = "/Users/rjkroege/Dropbox/wiki2/"
-basepath = "/Users/rjkroege/"
+basepath = "/Users/rjkroege/Dropbox/wiki2/"
+// basepath = "/Users/rjkroege/"
 extension = ".md"
 timeformat = "20060102-150405"
 )
 
-func Makearticle(args []string) *Article {
+func Makearticle(args []string, tags []string) *Article {
     s := strings.Join(args, " ");
-    a := Article{ strings.Map(filter, s), "", s, time.Now().Format(time.UnixDate), nil}
+    a := Article{ strings.Map(filter, s), "", s, time.Now().Format(time.UnixDate), tags, nil}
     return &a
 }
 
@@ -67,31 +63,10 @@ func (md *Article) Filepath() string {
         md.filepath = p
         return p
     }
-    // Would a better time format be nicer?
     md.filepath = md.filename + "-" + time.Now().Format(timeformat) + extension
     return md.filepath
 }
 
-const (
-journaltmpl = 
-`title: {{.Title}}
-date: {{.PrettyDate}}
-tags: @journal
-
-Yo dawg! Write stuff here.
-`
-
-booktmpl =
-`title: {{.Title}}
-date: {{.PrettyDate}}
-tags: @bib
-
-Yo dawg! Put the bookreview here.
-`
-
-)
-
-// Connect up to Acme.
 func (md *Article) Plumb() {
     win, err  := acme.New();
     if err != nil {
@@ -114,6 +89,10 @@ func (md *Article) Plumb() {
     }
 }
 
+func (md* Article) Tagstring() string {
+    return strings.Join(md.Tags,  " ")
+}
+
 func (md *Article) Emit(tpl string) *Article {
     f :=  template.Must(template.New("footer").Parse(tpl));
 
@@ -122,31 +101,11 @@ func (md *Article) Emit(tpl string) *Article {
     return md
 }
 
-func journal(args []string) {
-    // fmt.Print("setup a new journal article", args, "\n");
-   Makearticle(args).Emit(journaltmpl).Plumb()
-}
-
-func book(args []string) {
-    // fmt.Print("setup a new book review", args, "\n");
-   Makearticle(args).Emit(booktmpl).Plumb()
-}
-
-// TODO(rjkroege): use @foo as a tag that goes in the tags entry (to create trails or the like)
 // TODO(rjkroege): add usage output on failure.
 func main() {
-    handlers := map[string]Handler{
-        "journal": journal,
-        "book": book }
+    args, tags := wiki.Split(os.Args[1:])
+    tm, args, tags := wiki.Picktemplate(args, tags)
 
-    if len(os.Args) < 2 {
-        log.Fatal("Not enough arguments\n");
-    }
-
-    f, ok := handlers[os.Args[1]];
-    if !ok {
-        log.Fatal("Unsupported sub-command\n");
-    }
-     f(os.Args[2:]);
+    Makearticle(args, tags).Emit(tm).Plumb()
 }
 
