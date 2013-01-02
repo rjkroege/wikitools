@@ -10,24 +10,6 @@ import (
   "encoding/json"
 )
 
-const (
-// Insert at the top of each generated file.
-  timeline_header =
-`
-var timeline_data = {  // save as a global variable
-'dateTimeFormat': 'iso8601',
-'wikiURL': "http://simile.mit.edu/shelf/",
-'wikiSection': "Simile Cubism Timeline",
-
-'events': 
-`
-
-// Insert at the bottom of each generated file.
-timeline_footer = 
-`
- }
-`)
-
 func WriteTimeline(fd io.Writer, e []*MetaData) {
   io.WriteString(fd, timeline_header);
 
