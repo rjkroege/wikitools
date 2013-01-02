@@ -1,127 +1,142 @@
 /*
-  Metadata extraction  
-  ; fn gogo  {make test}
-
+  Constructs the actual note. Does what the current python buildPage.py
+  script does.
 */
-
 package article;
 
 import (
-//  "fmt";  // Need for debugging printfs.
-  "os";
-  "bufio";
-  "io";
-  "strings";
-  "regexp";
-  "time";
+  "bufio"
+  "fmt"
+  "io"
+  "os"
+  "github.com/knieriem/markdown"
+  "text/template"
+  "strings"
+  "time"
 )
 
-var metadataMatcher = regexp.MustCompile("^([A-Za-z]*):[ \t]*(.*)$");
-var commentDataMatcher = regexp.MustCompile("<!-- *([0-9]*) *-->");
-
-const (
-lstring = "20060102150405 MST";
-sstring = "200601021504 MST";
-slashdate = "2006/01/02 15:04:05 MST"
-unixlike = "Mon _2 Jan 2006 15:04:05 MST"
-lsdate = "_2 Jan 15:04:05 2006"
-)
-
-/**
- * Attempts to parse the metadata of the file. I will require file
- * metadata to be in UNIX date format (because I can since there
- * is no legacy.)
- *
- * Returns the first time corresponding to the first data match.
- */
-func parseDateUnix(ds string) (t time.Time, err error)  {
-  // fmt.Print("time string <" + ds + ">\n");
-
-  // Formats where the data does have a timezone.
-  unzoned := []string {
-      unixlike,
-      time.UnixDate,
-     lsdate };
-
-  for _, fs := range(unzoned) {
-    t, err = time.Parse(fs, ds);
-    if err == nil { return }
-  }
-
-  // Formats where the data does not have an included timezone.
-  zoned := []string {
-      lstring,
-      sstring,
-      slashdate};
-
- for _, fs := range(zoned) {
-    t, err = time.Parse(fs, ds + " EDT");
-    // fmt.Print("<" + fs + "> for <" + ds + " EDT> gives location: " + t.Location().String());
-    if err == nil && t.Location().String() == "Local" { return }
-    
-    t, err = time.Parse(fs, ds + " EST");
-    // fmt.Print("<" + fs + "> for <" + ds + " EST> gives location: " + t.Location().String());
-    if err == nil && t.Location().String() == "Local" { return }
-  }
-  return;
+// Clarify the purpose of the struct members.
+// Note the use of the named fields for generating
+// Timeline JSON.
+type MetaData struct {
+  Name string					`json:"-"`
+  Url string					`json:"link"`
+  DateFromStat time.Time		`json:"-"`
+  DateFromMetadata time.Time	`json:"-"`
+  Title string					`json:"title"`
+  FinalDate string				`json:"start"`
+  hadMetaData bool 			`json:"-"`
+  PrettyDate string				`json:"-"`
+  SourcePath string			`json:"-"`
 }
 
+
+var headerTemplate = template.Must(template.New("header").Parse(header));
+var footerTemplate = template.Must(template.New("footer").Parse(plumberfooter));
+
+// Converts an article name into its name as a formatted object.s
+func (md *MetaData) FormattedName() string {
+  oname := md.Name[0:len(md.Name) - len(".md")] + ".html";
+  return oname
+}
+
+// Constructs a URL path equivalent to the given source file.
+func (md *MetaData) UrlForName(path string) string {
+  // Prefix file:///<path>/fname.html
+  md.Url = "file://" + path + "/" + md.FormattedName();
+  return md.Url;
+}
+
+func (md *MetaData) SourceForName(path string) string {
+  md.SourcePath = path + "/" + md.Name
+  return md.SourcePath
+}
+
+// TODO(rjkroege): it might be desirable to divide this function
+// up.
 /**
- * Opens a specified file and attempts to extract meta data.
- * There are two possibilities for metadata. Without either,
- * dates fallback to the modification date of the file and the 
- * the first line as the fallback.
- *
- * 1. The date is in a metadata segment at the top of the file as
- * defined for MetaMarkdown. This format consists of key: value with
- * a following blank line.
- *
- * 2. The date is contained in a comment as a sequence of numbers.
- * To keep this from being too inefficient, it must be found in the top
- * 5 lines.
- */
-func (md *MetaData) RootThroughFileForMetadata() {
-  // fmt.Print("\nfile: " + md.Name + "\n");
-  fd, _ := os.OpenFile(md.Name, os.O_RDONLY, 0)
-  rd := bufio.NewReader(io.Reader(fd))
-  lc := 0
-  inMetaData := false
-  md.hadMetaData = false
+  Given a article.MetaData object containing some paths and stuff,
+  does appropriate transformations to construct the HTML form.
+*/
+func (md *MetaData) WriteHtmlFile() {
+  // TODO(rjkroege): it is silly to re-open these files when I 
+  // have had them open before them. And to re-read chunks of
+  // them when I have already done so. But this is easier. And
+	// it probably doesn't matter given that most files don't need
+	// to be regenerated.
 
-  var resultLine string;
-  var date time.Time;
-  var de error;
-
-  for !inMetaData && lc < 5 {
-    line, _ := rd.ReadString('\n');
-    if len(line) > 0 { line = line[0:len(line)-1]; }
-    
-    if lc == 0 { resultLine = line; }
-     // fmt.Print(line);
-     // fmt.Print("\n");
-
-    // fmt.Print("running regexp matcher...\n")
-    m1 := metadataMatcher.FindStringSubmatch(line);
-    m2 := commentDataMatcher.FindStringSubmatch(line);
-    if len(m1) > 0 {
-      // fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
-      if strings.ToLower(m1[1]) == "title" { resultLine = m1[2]; }
-      if strings.ToLower(m1[1]) == "date" {
-        date, de = parseDateUnix(strings.TrimSpace(m1[2]));
+  // Handle  failures in the library.
+  defer func() {
+   if r := recover(); r != nil {
+      fmt.Println(md.Name, "WriteHtmlFile, failed", r)
       }
-      md.hadMetaData = true
-    } else if len(m2) > 0 {
-      // fmt.Print("matched for  <" + m2[1] + ">\n");
-      date, de = parseDateUnix(m2[1]);
-    }
-  
-    if de != nil || date.IsZero() {
-      //fmt.Print("date is zero, trying whole resultLine: <" + resultLine + ">\n");
-      date, de  = parseDateUnix(resultLine);
-    }
-    lc++;
+    }()  
+
+  fd, err := os.OpenFile(md.Name, os.O_RDONLY, 0)
+  defer fd.Close()
+  if err != nil {
+    fmt.Print(err)
+    return
   }
-  fd.Close();
-  md.DateFromMetadata, md.Title = date, resultLine;
+  
+  statinfo, serr := os.Stat(md.FormattedName())
+   // This might be suspect?
+  if serr != nil || statinfo.ModTime().Before(md.DateFromStat) {
+    // TODO(rjkroege): if the md file is not as new as the HTML file, 
+    // skip all of this work.
+    // fmt.Println("processing " + md.Name)
+    ofd, werr := os.OpenFile(md.FormattedName(), os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
+    defer ofd.Close()
+    if werr != nil {
+      // fmt.Print("one ", werr, "\n");
+      return
+    }
+
+    // TODO(rjkroege): using a byte slice might be faster?
+    // learn to improve perf on Go.
+    body := "";
+    rd := bufio.NewReader(io.Reader(fd));
+
+    // Trim the metadata here.
+    if md.hadMetaData {
+      for {
+        line, rerr := rd.ReadString('\n');
+        if rerr != nil {
+          // fmt.Print("two ", werr, "\n");
+          return
+        }
+        if line == "\n" {
+          break
+        }
+      }
+    }
+    
+    // TODO(rjkroege): don't read the file into memory.
+    // Read errors will wipe out previously generated output. Do I care?
+    for {
+      line, rerr := rd.ReadString('\n');
+			if rerr == io.EOF {
+        break
+			} else if rerr != nil {
+			  fmt.Print("WriteHtmlFile: read error ", rerr, "\n")
+			  return
+			}
+      body += line;
+    }
+
+    w := bufio.NewWriter(ofd)
+    defer w.Flush()
+
+    // Header with substitutions
+    headerTemplate.Execute(w, md)
+
+    // Convert the markdown file into a HTML
+    p := markdown.NewParser(&markdown.Extensions{Smart: true});
+    p.Markdown(strings.NewReader(body), markdown.ToHTML(w));
+
+    // Footer with substitutions
+    footerTemplate.Execute(w, md)
+    // fmt.Println("done " + md.Name)
+  }
 }
 
