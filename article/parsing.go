@@ -20,11 +20,11 @@ var metadataMatcher = regexp.MustCompile("^([A-Za-z]*):[ \t]*(.*)$");
 var commentDataMatcher = regexp.MustCompile("<!-- *([0-9]*) *-->");
 
 const (
+lsdate = "_2 Jan 15:04:05 2006 MST"
 lstring = "20060102150405 MST";
-sstring = "200601021504 MST";
 slashdate = "2006/01/02 15:04:05 MST"
+sstring = "200601021504 MST";
 unixlike = "Mon _2 Jan 2006 15:04:05 MST"
-lsdate = "_2 Jan 15:04:05 2006"
 )
 
 /**
@@ -37,24 +37,20 @@ lsdate = "_2 Jan 15:04:05 2006"
 func parseDateUnix(ds string) (t time.Time, err error)  {
   // fmt.Print("time string <" + ds + ">\n");
 
-  // Formats where the data does have a timezone.
-  unzoned := []string {
-      unixlike,
-      time.UnixDate,
-     lsdate };
+  timeformats := []string {
+    time.UnixDate,
+    lsdate,
+    lstring,
+    slashdate,
+    sstring,
+    unixlike };
 
-  for _, fs := range(unzoned) {
+  for _, fs := range(timeformats) {
     t, err = time.Parse(fs, ds);
     if err == nil { return }
   }
 
-  // Formats where the data does not have an included timezone.
-  zoned := []string {
-      lstring,
-      sstring,
-      slashdate};
-
- for _, fs := range(zoned) {
+ for _, fs := range(timeformats) {
     t, err = time.Parse(fs, ds + " EDT");
     // fmt.Print("<" + fs + "> for <" + ds + " EDT> gives location: " + t.Location().String());
     if err == nil && t.Location().String() == "Local" { return }

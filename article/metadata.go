@@ -42,4 +42,6 @@ func (md *MetaData) SourceForName(path string) string {
   return md.SourcePath
 }
 
+// TODO(rjkroege): Add a constructor.
+// TODO(rjkroege): Make your tests less brittle
 
