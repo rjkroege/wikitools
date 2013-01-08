@@ -56,7 +56,9 @@ func main() {
       e[i].SourceForName(pwd)
       e[i].UrlForName(pwd)
       e[i].DateFromStat = d.ModTime()
-      e[i].RootThroughFileForMetadata()
+      fd, _ :=  os.OpenFile(md.Name, os.O_RDONLY, 0)
+      e[i].RootThroughFileForMetadata(io.Reader(fd))
+      fd.Close()
       i++;
     }
   }

@@ -7,13 +7,12 @@
 package article;
 
 import (
+  "bufio"
+  "io"
+  "regexp"
+  "strings"
+  "time"
 //  "fmt";  // Need for debugging printfs.
-  "os";
-  "bufio";
-  "io";
-  "strings";
-  "regexp";
-  "time";
 )
 
 var metadataMatcher = regexp.MustCompile("^([A-Za-z]*):[ \t]*(.*)$");
@@ -76,10 +75,9 @@ func parseDateUnix(ds string) (t time.Time, err error)  {
  * To keep this from being too inefficient, it must be found in the top
  * 5 lines.
  */
-func (md *MetaData) RootThroughFileForMetadata() {
+func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
   // fmt.Print("\nfile: " + md.Name + "\n");
-  fd, _ := os.OpenFile(md.Name, os.O_RDONLY, 0)
-  rd := bufio.NewReader(io.Reader(fd))
+  rd := bufio.NewReader(reader)
   lc := 0
   inMetaData := false
   md.hadMetaData = false
@@ -117,7 +115,6 @@ func (md *MetaData) RootThroughFileForMetadata() {
     }
     lc++;
   }
-  fd.Close();
   md.DateFromMetadata, md.Title = date, resultLine;
 }
 
