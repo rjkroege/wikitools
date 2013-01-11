@@ -98,20 +98,22 @@ type rtfSR struct {
 }
 
 // TODO(rjkroege): Enforce the handling of dates.
+// Need to validate that the right thing happens here.
 func Test_RootThroughFileForMetadata(t *testing.T) {
     /* General idea: create a constant string. Read from it., validate the resulting output. */
 
+    realisticdate, _ := parseDateUnix("1999/03/21 17:00:00")
     date, _ := parseDateUnix("2012/03/19 06:51:15")
     testfiles := []rtfSR {
-        rtfSR{ test_header_1, nil, MetaData{"", "", time.Time{}, date , "What I want", "", true, "", ""}}, 
-        rtfSR{ test_header_2, nil, MetaData{"", "", time.Time{}, date , "What I want", "", true, "", ""}}, 
-        rtfSR{ test_header_3, nil, MetaData{"", "", time.Time{}, date , "What I want", "", true, "", ""}}, 
-        rtfSR{ test_header_4, nil, MetaData{"", "", time.Time{}, time.Time{} , "I need", "", false, "", ""}},  
-        rtfSR{ test_header_5, nil, MetaData{"", "", time.Time{}, date , "What I want", "", true, "", ""}},
-        rtfSR{ test_header_6, nil, MetaData{"", "", time.Time{}, date , "What I want", "", true, "", ""}}  }
+        rtfSR{ test_header_1, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, "", ""}}, 
+        rtfSR{ test_header_2, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, "", ""}}, 
+        rtfSR{ test_header_3, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, "", ""}}, 
+        rtfSR{ test_header_4, nil, MetaData{"", "", realisticdate, time.Time{} , "I need", "", false, "", ""}},  
+        rtfSR{ test_header_5, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, "", ""}},
+        rtfSR{ test_header_6, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, "", ""}}  }
 
     for _, tu := range(testfiles) {
-        md := MetaData{"", "", time.Time{}, time.Time{}, "", "", false, "", ""};
+        md := MetaData{"", "", realisticdate, time.Time{}, "", "", false, "", ""};
         rd := strings.NewReader(tu.in)
         md.RootThroughFileForMetadata(io.Reader(rd))
 
@@ -120,5 +122,4 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
             t.Errorf("expected %s != actual %s", tu.ex, md)
         }
     }
-
 }
