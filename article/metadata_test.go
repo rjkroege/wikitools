@@ -9,14 +9,14 @@ import (
 )
 
 func Test_Makearticle(t *testing.T) {
-    md := MetaData{ "foo.md", "", time.Now(), time.Now(), "", "", false, "", ""}
+    md := MetaData{ "foo.md", "", time.Now(), time.Now(), "", "", false, ""}
     if md.FormattedName() != "foo.html" {
         t.Errorf("expected  %s != to actual %s", "foo.html", md.Name)
     }    
 }
 
 func Test_UrlForName(t *testing.T) {
-    md := MetaData{ "foo.md", "", time.Now(), time.Now(), "", "", false, "", ""}
+    md := MetaData{ "foo.md", "", time.Now(), time.Now(), "", "", false,""}
     s := md.UrlForName("flimmer/blo")
     if s != "file://flimmer/blo/foo.html" {
         t.Errorf("expected  %s != to actual %s", "file://flimmer/blo/foo.html", s)
@@ -106,15 +106,15 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
     realisticdate, _ := parseDateUnix("1999/03/21 17:00:00")
     date, _ := parseDateUnix("2012/03/19 06:51:15")
     testfiles := []rtfSR {
-        rtfSR{ test_header_1, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, "", ""}}, 
-        rtfSR{ test_header_2, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, "", ""}}, 
-        rtfSR{ test_header_3, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, "", ""}}, 
-        rtfSR{ test_header_4, nil, MetaData{"", "", realisticdate, time.Time{} , "I need", "", false, "", ""}},  
-        rtfSR{ test_header_5, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, "", ""}},
-        rtfSR{ test_header_6, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, "", ""}}  }
+        rtfSR{ test_header_1, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, ""}}, 
+        rtfSR{ test_header_2, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, ""}}, 
+        rtfSR{ test_header_3, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, ""}}, 
+        rtfSR{ test_header_4, nil, MetaData{"", "", realisticdate, time.Time{} , "I need", "", false, ""}},  
+        rtfSR{ test_header_5, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, ""}},
+        rtfSR{ test_header_6, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, ""}}  }
 
     for _, tu := range(testfiles) {
-        md := MetaData{"", "", realisticdate, time.Time{}, "", "", false, "", ""};
+        md := MetaData{"", "", realisticdate, time.Time{}, "", "", false, ""};
         rd := strings.NewReader(tu.in)
         md.RootThroughFileForMetadata(io.Reader(rd))
 
@@ -194,7 +194,7 @@ const generated_output_2 =
 
   <!-- date argument for centering -->
   <script language="JavaScript" type="text/javascript">
-    var external_titledate = 'pretty-final-date-string';
+    var external_titledate = 'Monday, Mar 19, 2012';
   </script>
 
   <!-- timeline CSS -->
@@ -223,7 +223,7 @@ const generated_output_2 =
       <div id="title">
         <!-- Add editing functionality? -->
         <h1 class="left">What I want</h1>
-        <h1 class="right">pretty-final-date-string</h1>
+        <h1 class="right">Monday, Mar 19, 2012</h1>
       </div> <!-- title -->
       <div id="note">
 <p>I need to figure out what I want. </p>
@@ -263,7 +263,7 @@ func Test_WriteHtmlFile(t *testing.T) {
             time.Time{},
             make([]string, 0, 4)}
 
-    md := MetaData{"one.md", "http://two", realisticdate1999, realisticdate2012, "What I want", "final-date-string", true, "pretty-final-date-string", "hello"};
+    md := MetaData{"one.md", "http://two", realisticdate1999, realisticdate2012, "What I want", "final-date-string", true, "hello"};
     md.WriteHtmlFile(ms)
 
     AssertInt(t, 1, len(ms.writefiles))
@@ -285,7 +285,7 @@ func Test_WriteHtmlFile(t *testing.T) {
             realisticdate2012,
             make([]string, 0, 4)}
 
-    md = MetaData{"one.md", "http://two", realisticdate1999, realisticdate2012, "What I want", "final-date-string", true, "pretty-final-date-string", "hello"};
+    md = MetaData{"one.md", "http://two", realisticdate1999, realisticdate2012, "What I want", "final-date-string", true, "hello"};
     md.WriteHtmlFile(ms)
 
     AssertInt(t, 0, len(ms.writefiles))

@@ -20,7 +20,7 @@ type MetaData struct {
   Title string					`json:"title"`
   FinalDate string				`json:"start"`
   hadMetaData bool 			`json:"-"`
-  PrettyDate string				`json:"-"`
+//  PrettyDate string				`json:"-"`
   SourcePath string			`json:"-"`
 }
 
@@ -45,3 +45,10 @@ func (md *MetaData) SourceForName(path string) string {
 // TODO(rjkroege): Add a constructor.
 // TODO(rjkroege): Make your tests less brittle
 
+func (md *MetaData) PrettyDate() string {
+    const df = "Monday, Jan _2, 2006"
+    if (!md.DateFromMetadata.IsZero()) {
+        return md.DateFromMetadata.Format(df);
+    }
+    return md.DateFromMetadata.Format(df);
+}
