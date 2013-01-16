@@ -14,11 +14,12 @@
 package main
 
 import (
-  "github.com/rjkroege/wikitools/article"
-  "fmt";
-  "os";
-  "strings";
-  "time";
+    "fmt"
+    "github.com/rjkroege/wikitools/article"
+    "io"
+    "os"
+    "strings"
+    "time"
 )
 
 /**
@@ -56,7 +57,7 @@ func main() {
       e[i].SourceForName(pwd)
       e[i].UrlForName(pwd)
       e[i].DateFromStat = d.ModTime()
-      fd, _ :=  os.OpenFile(md.Name, os.O_RDONLY, 0)
+      fd, _ :=  os.OpenFile(e[i].Name, os.O_RDONLY, 0)
       e[i].RootThroughFileForMetadata(io.Reader(fd))
       fd.Close()
       i++;
@@ -89,7 +90,7 @@ func main() {
   // that would prove desirable.
   for _, d := range e {
     // fmt.Print("running WriteHtmlFile\n")
-    d.WriteHtmlFile()
+    d.WriteHtmlFile(d)
   }
 
 }

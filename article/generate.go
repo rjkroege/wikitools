@@ -6,15 +6,50 @@
 package article;
 
 import (
+   "time"
   "bufio"
   "fmt"
+  "github.com/knieriem/markdown"
   "io"
   "os"
-  "github.com/knieriem/markdown"
-  "text/template"
   "strings"
+  "text/template"
 )
 
+/*
+    Dependency injection interfaces. (Could move this somewhere else?)
+    How to write this with the least pain?
+
+    Editorial: writing things in terms of interfaces makes it easy to
+    do dependency injection for testing or re-purposing. The way of Go
+    hacking is clearly to code stupid, then up-level against an
+    interface and make the interface configurable.
+
+    Or something like that.
+*/
+type System interface {
+    OpenFileForReading(name string) (rd io.ReadCloser, err error)
+    ModTime(name string) (modtime time.Time, err error)
+    OpenFileForWriting(name string) (wr io.WriteCloser, err error)
+}
+
+func (md* MetaData) OpenFileForReading(name string) (rd io.ReadCloser, err error) {
+    rd, err = os.OpenFile(name, os.O_RDONLY, 0)
+    return
+}
+
+func (md* MetaData) ModTime(name string) (modtime time.Time, err error) {
+    statinfo, err := os.Stat(name)
+    if err != nil {
+         modtime = statinfo.ModTime()
+    }
+    return
+}
+
+func (md* MetaData) OpenFileForWriting(name string) (wr io.WriteCloser, err error) {
+    wr, err = os.OpenFile(name, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644)
+    return
+}
 
 var headerTemplate = template.Must(template.New("header").Parse(header));
 var footerTemplate = template.Must(template.New("footer").Parse(plumberfooter));
@@ -25,7 +60,7 @@ var footerTemplate = template.Must(template.New("footer").Parse(plumberfooter));
   Given a article.MetaData object containing some paths and stuff,
   does appropriate transformations to construct the HTML form.
 */
-func (md *MetaData) WriteHtmlFile() {
+func (md *MetaData) WriteHtmlFile(sys System) {
   // TODO(rjkroege): it is silly to re-open these files when I 
   // have had them open before them. And to re-read chunks of
   // them when I have already done so. But this is easier. And
@@ -39,20 +74,20 @@ func (md *MetaData) WriteHtmlFile() {
       }
     }()  
 
-  fd, err := os.OpenFile(md.Name, os.O_RDONLY, 0)
+  fd, err := sys.OpenFileForReading(md.Name)
   defer fd.Close()
   if err != nil {
     fmt.Print(err)
     return
   }
   
-  statinfo, serr := os.Stat(md.FormattedName())
+  modtime, serr := sys.ModTime(md.FormattedName())
    // This might be suspect?
-  if serr != nil || statinfo.ModTime().Before(md.DateFromStat) {
+  if serr != nil || modtime.Before(md.DateFromStat) {
     // TODO(rjkroege): if the md file is not as new as the HTML file, 
     // skip all of this work.
     // fmt.Println("processing " + md.Name)
-    ofd, werr := os.OpenFile(md.FormattedName(), os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
+    ofd, werr := sys.OpenFileForWriting(md.FormattedName());
     defer ofd.Close()
     if werr != nil {
       // fmt.Print("one ", werr, "\n");
