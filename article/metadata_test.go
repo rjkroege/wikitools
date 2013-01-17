@@ -299,3 +299,15 @@ func Test_WriteHtmlFile(t *testing.T) {
     // TODO(rjkroege): Add additional tests to support validating error handling, etc.
 }
 
+func Test_PrettyDate(t *testing.T) {
+    statdate, _ := parseDateUnix("1999/03/21 17:00:00")
+    tagdate, _ := parseDateUnix("2012/03/19 06:51:15")
+    zerodate := time.Time{}
+
+    md := MetaData{"", "", statdate, zerodate , "What I want 0", "", false, ""}
+    AssertString(t, "Sunday, Mar 21, 1999", md.PrettyDate())
+
+    md = MetaData{"", "", statdate, tagdate , "What I want 0", "", true, ""}
+    AssertString(t, "Monday, Mar 19, 2012", md.PrettyDate())
+
+}

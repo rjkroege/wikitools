@@ -50,5 +50,15 @@ func (md *MetaData) PrettyDate() string {
     if (!md.DateFromMetadata.IsZero()) {
         return md.DateFromMetadata.Format(df);
     }
+    return md.DateFromStat.Format(df);
+}
+
+/*
+func (md *MetaData) JsonDate(fd io.Writer) {
+    const df = "Monday, Jan _2, 2006"
+    if (!md.DateFromMetadata.IsZero()) {
+        return md.DateFromMetadata.Format(time.RFC3339);
+    }
     return md.DateFromMetadata.Format(df);
 }
+*/
