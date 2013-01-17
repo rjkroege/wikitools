@@ -178,6 +178,7 @@ func AssertInt(t *testing.T, expected int, actual int) {
     }
 }
 
+// TODO(rjkroege): Move testing utilities into a library of they're own.
 func AssertString(t *testing.T, expected string, actual string) {
     if (expected != actual) {
         t.Errorf("expected %s != actual %s", expected, actual)
