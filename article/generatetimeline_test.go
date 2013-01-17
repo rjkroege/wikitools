@@ -19,7 +19,6 @@ var timeline_data = {  // save as a global variable
  }
 `
 
-
 func Test_WriteTimeline(t *testing.T) {
     /* General idea: create a constant string. Read from it., validate the resulting output. */
 
