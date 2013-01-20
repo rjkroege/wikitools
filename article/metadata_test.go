@@ -8,8 +8,8 @@ import (
     "time"
 )
 
-var now = Date{time.Now()}
-var never = Date{time.Time{}}
+var now = time.Now()
+var never = time.Time{}
 
 func Test_Makearticle(t *testing.T) {
     md := MetaData{ "foo.md", "", never, never, "", false, ""}
@@ -286,7 +286,7 @@ func Test_WriteHtmlFile(t *testing.T) {
     ms = &mockSystem { test_header_2,
             make([]*mockReadCloser, 0, 4),
             make([]*mockWriteCloser, 0, 4),
-            realisticdate2012.Time,
+            realisticdate2012,
             make([]string, 0, 4)}
 
     md = MetaData{"one.md", "http://two", realisticdate1999, realisticdate2012, "What I want",  true, "hello"};

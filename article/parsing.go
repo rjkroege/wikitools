@@ -26,9 +26,8 @@ sstring = "200601021504 MST";
 unixlike = "Mon _2 Jan 2006 15:04:05 MST"
 )
 
-func parse(layout, value string) (Date, error) {
-    t , err := time.Parse(layout, value)
-    return Date{ t }, err
+func parse(layout, value string) (time.Time, error) {
+     return time.Parse(layout, value)
 }
 
 /**
@@ -38,7 +37,7 @@ func parse(layout, value string) (Date, error) {
  *
  * Returns the first time corresponding to the first data match.
  */
-func parseDateUnix(ds string) (t Date, err error)  {
+func parseDateUnix(ds string) (t time.Time, err error)  {
   timeformats := []string {
     time.UnixDate,
     lsdate,
@@ -84,7 +83,7 @@ func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
   md.hadMetaData = false
 
   var resultLine string;
-  var date Date;
+  var date time.Time;
   var de error;
 
   for !inMetaData && lc < 5 {

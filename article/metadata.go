@@ -10,23 +10,17 @@ import (
     "time"
 )
 
-type Date struct {
-    time.Time
-}
-
 // Clarify the purpose of the struct members.
 // Note the use of the named fields for generating
 // Timeline JSON.
 type MetaData struct {
-  Name string					`json:"-"`
-  Url string					`json:"link"`
-  DateFromStat Date			`json:"-"`
-  DateFromMetadata Date		`json:"start"`
-  Title string					`json:"title"`
-//  FinalDate string			`json:"start"`
-  hadMetaData bool 			`json:"-"`
-//  PrettyDate string			`json:"-"`
-  SourcePath string			`json:"-"`
+  Name string
+  Url string
+  DateFromStat time.Time
+  DateFromMetadata time.Time
+  Title string
+  hadMetaData bool
+  SourcePath string
 }
 
 // Converts an article name into its name as a formatted object.s
@@ -50,7 +44,7 @@ func (md *MetaData) SourceForName(path string) string {
 // TODO(rjkroege): Add a constructor.
 // TODO(rjkroege): Make your tests less brittle
 
-func (md *MetaData) PreferredDate() Date {
+func (md *MetaData) PreferredDate() time.Time {
     if (!md.DateFromMetadata.IsZero()) {
         return md.DateFromMetadata
     }
@@ -60,11 +54,6 @@ func (md *MetaData) PreferredDate() Date {
 func (md *MetaData) PrettyDate() string {
     const df = "Monday, Jan _2, 2006"
     return md.PreferredDate().Format(df);
-}
-
-func (md *Date) MarshalJSON() ([]byte, error) {
-    const df = "Monday, Jan _2, 2006"
-    return []byte(md.Format(`"` + df + `"`)), nil
 }
 
 type jsonmetadata struct {

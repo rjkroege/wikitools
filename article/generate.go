@@ -83,7 +83,7 @@ func (md *MetaData) WriteHtmlFile(sys System) {
   
   modtime, serr := sys.ModTime(md.FormattedName())
    // This might be suspect?
-  if serr != nil || modtime.Before(md.DateFromStat.Time) {
+  if serr != nil || modtime.Before(md.DateFromStat) {
     // TODO(rjkroege): if the md file is not as new as the HTML file, 
     // skip all of this work.
     // fmt.Println("processing " + md.Name)
