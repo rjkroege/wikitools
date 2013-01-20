@@ -8,15 +8,18 @@ import (
     "time"
 )
 
+var now = Date{time.Now()}
+var never = Date{time.Time{}}
+
 func Test_Makearticle(t *testing.T) {
-    md := MetaData{ "foo.md", "", time.Now(), time.Now(), "", "", false, ""}
+    md := MetaData{ "foo.md", "", never, never, "", false, ""}
     if md.FormattedName() != "foo.html" {
         t.Errorf("expected  %s != to actual %s", "foo.html", md.Name)
     }    
 }
 
 func Test_UrlForName(t *testing.T) {
-    md := MetaData{ "foo.md", "", time.Now(), time.Now(), "", "", false,""}
+    md := MetaData{ "foo.md", "", never, never, "", false,""}
     s := md.UrlForName("flimmer/blo")
     if s != "file://flimmer/blo/foo.html" {
         t.Errorf("expected  %s != to actual %s", "file://flimmer/blo/foo.html", s)
@@ -106,15 +109,15 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
     realisticdate, _ := parseDateUnix("1999/03/21 17:00:00")
     date, _ := parseDateUnix("2012/03/19 06:51:15")
     testfiles := []rtfSR {
-        rtfSR{ test_header_1, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, ""}}, 
-        rtfSR{ test_header_2, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, ""}}, 
-        rtfSR{ test_header_3, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, ""}}, 
-        rtfSR{ test_header_4, nil, MetaData{"", "", realisticdate, time.Time{} , "I need", "", false, ""}},  
-        rtfSR{ test_header_5, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, ""}},
-        rtfSR{ test_header_6, nil, MetaData{"", "", realisticdate, date , "What I want", "", true, ""}}  }
+        rtfSR{ test_header_1, nil, MetaData{"", "", realisticdate, date , "What I want", true, ""}}, 
+        rtfSR{ test_header_2, nil, MetaData{"", "", realisticdate, date , "What I want",  true, ""}}, 
+        rtfSR{ test_header_3, nil, MetaData{"", "", realisticdate, date , "What I want", true, ""}}, 
+        rtfSR{ test_header_4, nil, MetaData{"", "", realisticdate, never , "I need",  false, ""}},  
+        rtfSR{ test_header_5, nil, MetaData{"", "", realisticdate, date , "What I want", true, ""}},
+        rtfSR{ test_header_6, nil, MetaData{"", "", realisticdate, date , "What I want", true, ""}}  }
 
     for _, tu := range(testfiles) {
-        md := MetaData{"", "", realisticdate, time.Time{}, "", "", false, ""};
+        md := MetaData{"", "", realisticdate, never, "", false, ""};
         rd := strings.NewReader(tu.in)
         md.RootThroughFileForMetadata(io.Reader(rd))
 
@@ -264,7 +267,7 @@ func Test_WriteHtmlFile(t *testing.T) {
             time.Time{},
             make([]string, 0, 4)}
 
-    md := MetaData{"one.md", "http://two", realisticdate1999, realisticdate2012, "What I want", "final-date-string", true, "hello"};
+    md := MetaData{"one.md", "http://two", realisticdate1999, realisticdate2012, "What I want", true, "hello"};
     md.WriteHtmlFile(ms)
 
     AssertInt(t, 1, len(ms.writefiles))
@@ -283,10 +286,10 @@ func Test_WriteHtmlFile(t *testing.T) {
     ms = &mockSystem { test_header_2,
             make([]*mockReadCloser, 0, 4),
             make([]*mockWriteCloser, 0, 4),
-            realisticdate2012,
+            realisticdate2012.Time,
             make([]string, 0, 4)}
 
-    md = MetaData{"one.md", "http://two", realisticdate1999, realisticdate2012, "What I want", "final-date-string", true, "hello"};
+    md = MetaData{"one.md", "http://two", realisticdate1999, realisticdate2012, "What I want",  true, "hello"};
     md.WriteHtmlFile(ms)
 
     AssertInt(t, 0, len(ms.writefiles))
@@ -302,12 +305,37 @@ func Test_WriteHtmlFile(t *testing.T) {
 func Test_PrettyDate(t *testing.T) {
     statdate, _ := parseDateUnix("1999/03/21 17:00:00")
     tagdate, _ := parseDateUnix("2012/03/19 06:51:15")
-    zerodate := time.Time{}
 
-    md := MetaData{"", "", statdate, zerodate , "What I want 0", "", false, ""}
+    md := MetaData{"", "", statdate, never , "What I want 0", false, ""}
     AssertString(t, "Sunday, Mar 21, 1999", md.PrettyDate())
 
-    md = MetaData{"", "", statdate, tagdate , "What I want 0", "", true, ""}
+    md = MetaData{"", "", statdate, tagdate , "What I want 0", true, ""}
     AssertString(t, "Monday, Mar 19, 2012", md.PrettyDate())
+}
 
+type tEdMd struct {
+    err error
+    result string
+    md MetaData
+}
+
+
+const json1 = `{"link":"url-here-0","start":"Sunday, Mar 21, 1999","title":"What I want 0"}`
+const json2  = `{"link":"url-here-1","start":"Monday, Mar 19, 2012","title":"What I want 0"}`
+
+func Test_JsonDate(t *testing.T) {
+    statdate, _ := parseDateUnix("1999/03/21 17:00:00")
+    tagdate, _ := parseDateUnix("2012/03/19 06:51:15")
+
+    datas := []tEdMd {
+        { nil, json1, MetaData{"", "url-here-0", statdate, never , "What I want 0", false, ""}},
+        { nil, json2, MetaData{"", "url-here-1", statdate, tagdate , "What I want 0", true, ""}}}
+
+    for _, m := range(datas) {
+        b, e := m.md.MarshalJSON()
+        if m.err != e {
+            t.Errorf("error value wrong");
+        }
+        AssertString(t, m.result, string(b))
+    }
 }

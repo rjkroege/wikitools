@@ -3,7 +3,6 @@ package article
 import (
     "bytes"
     "testing"
-    "time"
 )
 
 const expected =
@@ -14,19 +13,20 @@ var timeline_data = {  // save as a global variable
 'wikiSection': "Simile Cubism Timeline",
 
 'events': 
-[{"link":"url-here-a","title":"What I want 0","start":"start-a"},{"link":"url-here-b","title":"What I want 1","start":"start-b"},{"link":"url-here-c","title":"What I want 2","start":"start-cc"}]
+[{"link":"url-here-a","start":"Monday, Mar 19, 2012","title":"What I want 0"},{"link":"url-here-b","start":"Sunday, Mar 21, 1999","title":"What I want 1"},{"link":"url-here-c","start":"Monday, Mar 19, 2012","title":"What I want 2"}]
 
  }
 `
 
 func Test_WriteTimeline(t *testing.T) {
     /* General idea: create a constant string. Read from it., validate the resulting output. */
+    statdate, _ := parseDateUnix("1999/03/21 17:00:00")
+    tagdate, _ := parseDateUnix("2012/03/19 06:51:15")
 
-    notime := time.Time{}
     metadatas := []*MetaData {
-        &MetaData{"", "url-here-a", notime, notime , "What I want 0", "start-a", false, ""},
-        &MetaData{"", "url-here-b", notime, notime , "What I want 1", "start-b", false, ""},
-        &MetaData{"", "url-here-c", notime, notime , "What I want 2", "start-cc", false, ""}}
+        &MetaData{"", "url-here-a", statdate, tagdate , "What I want 0", false, ""},
+        &MetaData{"", "url-here-b", statdate, statdate , "What I want 1", false, ""},
+        &MetaData{"", "url-here-c", statdate, tagdate , "What I want 2", false, ""}}
 
     buffy := make([]byte, 0, 5000)
     fd := bytes.NewBuffer(buffy)

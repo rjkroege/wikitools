@@ -26,6 +26,11 @@ sstring = "200601021504 MST";
 unixlike = "Mon _2 Jan 2006 15:04:05 MST"
 )
 
+func parse(layout, value string) (Date, error) {
+    t , err := time.Parse(layout, value)
+    return Date{ t }, err
+}
+
 /**
  * Attempts to parse the metadata of the file. I will require file
  * metadata to be in UNIX date format (because I can since there
@@ -33,9 +38,7 @@ unixlike = "Mon _2 Jan 2006 15:04:05 MST"
  *
  * Returns the first time corresponding to the first data match.
  */
-func parseDateUnix(ds string) (t time.Time, err error)  {
-  // fmt.Print("time string <" + ds + ">\n");
-
+func parseDateUnix(ds string) (t Date, err error)  {
   timeformats := []string {
     time.UnixDate,
     lsdate,
@@ -45,17 +48,15 @@ func parseDateUnix(ds string) (t time.Time, err error)  {
     unixlike };
 
   for _, fs := range(timeformats) {
-    t, err = time.Parse(fs, ds);
+    t, err = parse(fs, ds);
     if err == nil { return }
   }
 
  for _, fs := range(timeformats) {
-    t, err = time.Parse(fs, ds + " EDT");
-    // fmt.Print("<" + fs + "> for <" + ds + " EDT> gives location: " + t.Location().String());
+    t, err  = parse(fs, ds + " EDT");
     if err == nil && t.Location().String() == "Local" { return }
     
-    t, err = time.Parse(fs, ds + " EST");
-    // fmt.Print("<" + fs + "> for <" + ds + " EST> gives location: " + t.Location().String());
+    t, err = parse(fs, ds + " EST");
     if err == nil && t.Location().String() == "Local" { return }
   }
   return;
@@ -83,7 +84,7 @@ func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
   md.hadMetaData = false
 
   var resultLine string;
-  var date time.Time;
+  var date Date;
   var de error;
 
   for !inMetaData && lc < 5 {

@@ -5,9 +5,14 @@
 package article;
 
 import (
-  // "fmt"
-  "time"
+     // "fmt"
+    "encoding/json"
+    "time"
 )
+
+type Date struct {
+    time.Time
+}
 
 // Clarify the purpose of the struct members.
 // Note the use of the named fields for generating
@@ -15,12 +20,12 @@ import (
 type MetaData struct {
   Name string					`json:"-"`
   Url string					`json:"link"`
-  DateFromStat time.Time		`json:"-"`
-  DateFromMetadata time.Time	`json:"-"`
+  DateFromStat Date			`json:"-"`
+  DateFromMetadata Date		`json:"start"`
   Title string					`json:"title"`
-  FinalDate string				`json:"start"`
+//  FinalDate string			`json:"start"`
   hadMetaData bool 			`json:"-"`
-//  PrettyDate string				`json:"-"`
+//  PrettyDate string			`json:"-"`
   SourcePath string			`json:"-"`
 }
 
@@ -45,20 +50,31 @@ func (md *MetaData) SourceForName(path string) string {
 // TODO(rjkroege): Add a constructor.
 // TODO(rjkroege): Make your tests less brittle
 
-func (md *MetaData) PrettyDate() string {
-    const df = "Monday, Jan _2, 2006"
+func (md *MetaData) PreferredDate() Date {
     if (!md.DateFromMetadata.IsZero()) {
-        return md.DateFromMetadata.Format(df);
+        return md.DateFromMetadata
     }
-    return md.DateFromStat.Format(df);
+    return md.DateFromStat
 }
 
-/*
-func (md *MetaData) JsonDate(fd io.Writer) {
+func (md *MetaData) PrettyDate() string {
     const df = "Monday, Jan _2, 2006"
-    if (!md.DateFromMetadata.IsZero()) {
-        return md.DateFromMetadata.Format(time.RFC3339);
-    }
-    return md.DateFromMetadata.Format(df);
+    return md.PreferredDate().Format(df);
 }
-*/
+
+func (md *Date) MarshalJSON() ([]byte, error) {
+    const df = "Monday, Jan _2, 2006"
+    return []byte(md.Format(`"` + df + `"`)), nil
+}
+
+type jsonmetadata struct {
+    Link string				`json:"link"`
+    Start string				`json:"start"`
+    Title string				`json:"title"`
+}
+
+func (md *MetaData) MarshalJSON() ([]byte, error) {
+    const df = "Monday, Jan _2, 2006"
+    jmd := jsonmetadata{ md.Url, md.PreferredDate().Format(df), md.Title }
+    return json.Marshal(jmd)    
+}
