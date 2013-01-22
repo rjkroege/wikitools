@@ -36,8 +36,8 @@ func dateForPeople(ti time.Time) string {
 
 // TODO(rjkroege): must read the directory from the command line?
 func main() {
-  // fmt.Printf("hello world\n");
-  pwd, _ := os.Getwd();
+    pwd, _ := os.Getwd();
+    article.SetPathForContent(pwd)
   
   // get a directory listing
   fd, _ := os.OpenFile(".", os.O_RDONLY, 0);
@@ -52,11 +52,10 @@ func main() {
     if strings.HasSuffix(d.Name(), ".md") {
       // TODO(rjkroege): could be a constructor like object.
       // This code could be much more designed. And less hacky.
-      e[i] = new(article.MetaData)
-      e[i].Name = d.Name()
-      e[i].SourceForName(pwd)
-      e[i].UrlForName(pwd)
-      e[i].DateFromStat = d.ModTime()
+      e[i] = &MetaData{ d.Name(), d.ModTime(), time.Time{}, "", false }
+//      e[i] = new(article.MetaData)
+//      e[i].Name = d.Name()
+//      e[i].DateFromStat = d.ModTime()
       fd, _ :=  os.OpenFile(e[i].Name, os.O_RDONLY, 0)
       e[i].RootThroughFileForMetadata(io.Reader(fd))
       fd.Close()

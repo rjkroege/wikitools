@@ -10,39 +10,40 @@ import (
     "time"
 )
 
+var pathForContent = ""
+
+func SetPathForContent(p string) {
+    pathForContent = p
+}
+
 // Clarify the purpose of the struct members.
 // Note the use of the named fields for generating
 // Timeline JSON.
 type MetaData struct {
   Name string
-  Url string
+//  Url string
   DateFromStat time.Time
   DateFromMetadata time.Time
   Title string
   hadMetaData bool
-  SourcePath string
+//  SourcePath string
 }
 
-// Converts an article name into its name as a formatted object.s
+// Converts an article name into its name as a formatted object.
 func (md *MetaData) FormattedName() string {
   oname := md.Name[0:len(md.Name) - len(".md")] + ".html";
   return oname
 }
 
 // Constructs a URL path equivalent to the given source file.
-func (md *MetaData) UrlForName(path string) string {
+func (md *MetaData) UrlForPath() string {
   // Prefix file:///<path>/fname.html
-  md.Url = "file://" + path + "/" + md.FormattedName();
-  return md.Url;
+  return "file://" + pathForContent + "/" + md.FormattedName();
 }
 
-func (md *MetaData) SourceForName(path string) string {
-  md.SourcePath = path + "/" + md.Name
-  return md.SourcePath
+func (md *MetaData) SourceForPath() string {
+  return pathForContent + "/" + md.Name
 }
-
-// TODO(rjkroege): Add a constructor.
-// TODO(rjkroege): Make your tests less brittle
 
 func (md *MetaData) PreferredDate() time.Time {
     if (!md.DateFromMetadata.IsZero()) {
@@ -64,6 +65,6 @@ type jsonmetadata struct {
 
 func (md *MetaData) MarshalJSON() ([]byte, error) {
     const df = "Monday, Jan _2, 2006"
-    jmd := jsonmetadata{ md.Url, md.PreferredDate().Format(df), md.Title }
+    jmd := jsonmetadata{ md.UrlForPath(), md.PreferredDate().Format(df), md.Title }
     return json.Marshal(jmd)    
 }

@@ -128,7 +128,7 @@ func (md *MetaData) WriteHtmlFile(sys System) {
 
     w := bufio.NewWriter(ofd)
     defer w.Flush()
-
+    
     // Header with substitutions
     headerTemplate.Execute(w, md)
 
