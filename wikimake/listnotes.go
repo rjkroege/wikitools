@@ -65,18 +65,6 @@ func main() {
   }
   e = e[0:i];  // fix up the slice
 
-  // Update the metadata objects with the desired date.
-  for _, d := range e {
-    // TODO(rjkroege): insert computing the Date string here.
-    if (!d.DateFromMetadata.IsZero()) {
-      d.FinalDate = dateToString(d.DateFromMetadata);
-      d.PrettyDate = dateForPeople(d.DateFromMetadata);
-    } else {
-      d.FinalDate = dateToString(d.DateFromStat);
-      d.PrettyDate = dateForPeople(d.DateFromStat);
-    }
-  }
-  
   // Generate the timeline datafile.
   ofd, err := os.OpenFile("note_list.js", os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
   if err != nil {
