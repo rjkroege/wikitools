@@ -16,17 +16,16 @@ func SetPathForContent(p string) {
     pathForContent = p
 }
 
-// Clarify the purpose of the struct members.
-// Note the use of the named fields for generating
-// Timeline JSON.
 type MetaData struct {
   Name string
-//  Url string
   DateFromStat time.Time
   DateFromMetadata time.Time
   Title string
   hadMetaData bool
-//  SourcePath string
+}
+
+func NewMetaData(name string, statTime time.Time) (*MetaData) {
+    return &MetaData{ name, statTime, time.Time{}, "", false }
 }
 
 // Converts an article name into its name as a formatted object.
@@ -37,7 +36,6 @@ func (md *MetaData) FormattedName() string {
 
 // Constructs a URL path equivalent to the given source file.
 func (md *MetaData) UrlForPath() string {
-  // Prefix file:///<path>/fname.html
   return "file://" + pathForContent + "/" + md.FormattedName();
 }
 

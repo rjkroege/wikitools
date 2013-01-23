@@ -50,16 +50,11 @@ func main() {
   
   for _, d := range dirs {
     if strings.HasSuffix(d.Name(), ".md") {
-      // TODO(rjkroege): could be a constructor like object.
-      // This code could be much more designed. And less hacky.
-      e[i] = &MetaData{ d.Name(), d.ModTime(), time.Time{}, "", false }
-//      e[i] = new(article.MetaData)
-//      e[i].Name = d.Name()
-//      e[i].DateFromStat = d.ModTime()
-      fd, _ :=  os.OpenFile(e[i].Name, os.O_RDONLY, 0)
-      e[i].RootThroughFileForMetadata(io.Reader(fd))
-      fd.Close()
-      i++;
+        e[i] = article.NewMetaData(d.Name(), d.ModTime())
+        fd, _ :=  os.OpenFile(e[i].Name, os.O_RDONLY, 0)
+        e[i].RootThroughFileForMetadata(io.Reader(fd))
+        fd.Close()
+        i++;
     }
   }
   e = e[0:i];  // fix up the slice
