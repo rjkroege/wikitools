@@ -3,15 +3,15 @@
     Moved here as a prelude to separating generation into a different package.
 */
 
-package article;
+package generate;
 
 import (
+   "github.com/rjkroege/wikitools/article"
    "time"
   "bufio"
   "fmt"
   "github.com/knieriem/markdown"
   "io"
-  "os"
   "strings"
   "text/template"
 )
@@ -33,23 +33,6 @@ type System interface {
     OpenFileForWriting(name string) (wr io.WriteCloser, err error)
 }
 
-func (md* MetaData) OpenFileForReading(name string) (rd io.ReadCloser, err error) {
-    rd, err = os.OpenFile(name, os.O_RDONLY, 0)
-    return
-}
-
-func (md* MetaData) ModTime(name string) (modtime time.Time, err error) {
-    statinfo, err := os.Stat(name)
-    if err != nil {
-         modtime = statinfo.ModTime()
-    }
-    return
-}
-
-func (md* MetaData) OpenFileForWriting(name string) (wr io.WriteCloser, err error) {
-    wr, err = os.OpenFile(name, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644)
-    return
-}
 
 var headerTemplate = template.Must(template.New("header").Parse(header));
 var footerTemplate = template.Must(template.New("footer").Parse(plumberfooter));
@@ -60,7 +43,7 @@ var footerTemplate = template.Must(template.New("footer").Parse(plumberfooter));
   Given a article.MetaData object containing some paths and stuff,
   does appropriate transformations to construct the HTML form.
 */
-func (md *MetaData) WriteHtmlFile(sys System) {
+func WriteHtmlFile(sys System, md *article.MetaData) {
   // TODO(rjkroege): it is silly to re-open these files when I 
   // have had them open before them. And to re-read chunks of
   // them when I have already done so. But this is easier. And
@@ -100,7 +83,7 @@ func (md *MetaData) WriteHtmlFile(sys System) {
     rd := bufio.NewReader(io.Reader(fd));
 
     // Trim the metadata here.
-    if md.hadMetaData {
+    if md.HadMetaData {
       for {
         line, rerr := rd.ReadString('\n');
         if rerr != nil {

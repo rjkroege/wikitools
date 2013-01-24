@@ -3,14 +3,15 @@
   timeline.
 */
 
-package article
+package generate
 
 import (
-  "io"
+   "github.com/rjkroege/wikitools/article"
   "encoding/json"
+  "io"
 )
 
-func WriteTimeline(fd io.Writer, e []*MetaData) {
+func WriteTimeline(fd io.Writer, e []*article.MetaData) {
   io.WriteString(fd, timeline_header);
 
   enc := json.NewEncoder(fd);

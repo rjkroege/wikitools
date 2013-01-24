@@ -16,6 +16,7 @@ package main
 import (
     "fmt"
     "github.com/rjkroege/wikitools/article"
+    "github.com/rjkroege/wikitools/generate"
     "io"
     "os"
     "strings"
@@ -32,6 +33,27 @@ func dateToString(ti time.Time) string {
 func dateForPeople(ti time.Time) string {
   return ti.Format("Monday, Jan _2, 2006");
 }
+
+type SystemImpl int;
+
+func (s SystemImpl) OpenFileForReading(name string) (rd io.ReadCloser, err error) {
+    rd, err = os.OpenFile(name, os.O_RDONLY, 0)
+    return
+}
+
+func (s SystemImpl) ModTime(name string) (modtime time.Time, err error) {
+    statinfo, err := os.Stat(name)
+    if err != nil {
+         modtime = statinfo.ModTime()
+    }
+    return
+}
+
+func (s SystemImpl) OpenFileForWriting(name string) (wr io.WriteCloser, err error) {
+    wr, err = os.OpenFile(name, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644)
+    return
+}
+
 
 
 // TODO(rjkroege): must read the directory from the command line?
@@ -65,14 +87,14 @@ func main() {
     fmt.Print(err);
   } else {
     // fmt.Print("attempt to print out the metadata\n")
-    article.WriteTimeline(ofd, e);
+    generate.WriteTimeline(ofd, e);
   }
 
   // Generate articles here so that we can inline the JavaScript data if
   // that would prove desirable.
   for _, d := range e {
     // fmt.Print("running WriteHtmlFile\n")
-    d.WriteHtmlFile(d)
+    generate.WriteHtmlFile(SystemImpl(0), d)
   }
 
 }

@@ -21,7 +21,7 @@ type MetaData struct {
   DateFromStat time.Time
   DateFromMetadata time.Time
   Title string
-  hadMetaData bool
+  HadMetaData bool
 }
 
 func NewMetaData(name string, statTime time.Time) (*MetaData) {

@@ -37,7 +37,7 @@ func parse(layout, value string) (time.Time, error) {
  *
  * Returns the first time corresponding to the first data match.
  */
-func parseDateUnix(ds string) (t time.Time, err error)  {
+func ParseDateUnix(ds string) (t time.Time, err error)  {
   timeformats := []string {
     time.UnixDate,
     lsdate,
@@ -80,7 +80,7 @@ func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
   rd := bufio.NewReader(reader)
   lc := 0
   inMetaData := false
-  md.hadMetaData = false
+  md.HadMetaData = false
 
   var resultLine string;
   var date time.Time;
@@ -101,17 +101,17 @@ func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
       // fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
       if strings.ToLower(m1[1]) == "title" { resultLine = m1[2]; }
       if strings.ToLower(m1[1]) == "date" {
-        date, de = parseDateUnix(strings.TrimSpace(m1[2]));
+        date, de = ParseDateUnix(strings.TrimSpace(m1[2]));
       }
-      md.hadMetaData = true
+      md.HadMetaData = true
     } else if len(m2) > 0 {
       // fmt.Print("matched for  <" + m2[1] + ">\n");
-      date, de = parseDateUnix(m2[1]);
+      date, de = ParseDateUnix(m2[1]);
     }
   
     if de != nil || date.IsZero() {
       //fmt.Print("date is zero, trying whole resultLine: <" + resultLine + ">\n");
-      date, de  = parseDateUnix(resultLine);
+      date, de  = ParseDateUnix(resultLine);
     }
     lc++;
   }

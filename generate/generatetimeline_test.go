@@ -1,7 +1,8 @@
-package article
+package generate
 
 import (
     "bytes"
+    "github.com/rjkroege/wikitools/article"
     "testing"
 )
 
@@ -20,14 +21,14 @@ var timeline_data = {  // save as a global variable
 
 func Test_WriteTimeline(t *testing.T) {
     /* General idea: create a constant string. Read from it., validate the resulting output. */
-    statdate, _ := parseDateUnix("1999/03/21 17:00:00")
-    tagdate, _ := parseDateUnix("2012/03/19 06:51:15")
-    SetPathForContent("/foo")
+    statdate, _ := article.ParseDateUnix("1999/03/21 17:00:00")
+    tagdate, _ := article.ParseDateUnix("2012/03/19 06:51:15")
+    article.SetPathForContent("/foo")
 
-    metadatas := []*MetaData {
-        &MetaData{"bar0.md", statdate, tagdate , "What I want 0", false},
-        &MetaData{"bar1.md", statdate, statdate , "What I want 1", false},
-        &MetaData{"bar2.md", statdate, tagdate , "What I want 2", false}}
+    metadatas := []*article.MetaData {
+        &article.MetaData{"bar0.md", statdate, tagdate , "What I want 0", false},
+        &article.MetaData{"bar1.md", statdate, statdate , "What I want 1", false},
+        &article.MetaData{"bar2.md", statdate, tagdate , "What I want 2", false}}
 
     buffy := make([]byte, 0, 5000)
     fd := bytes.NewBuffer(buffy)
