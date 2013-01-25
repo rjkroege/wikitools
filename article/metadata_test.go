@@ -3,6 +3,7 @@ package article
 import (
     "io"
     "strings"
+    "github.com/rjkroege/wikitools/testhelpers"
     "testing"
     "time"
 )
@@ -140,10 +141,10 @@ func Test_PrettyDate(t *testing.T) {
     tagdate, _ := ParseDateUnix("2012/03/19 06:51:15")
 
     md := MetaData{"", statdate, never , "What I want 0", false}
-    AssertString(t, "Sunday, Mar 21, 1999", md.PrettyDate())
+    testhelpers.AssertString(t, "Sunday, Mar 21, 1999", md.PrettyDate())
 
     md = MetaData{"", statdate, tagdate , "What I want 0", true}
-    AssertString(t, "Monday, Mar 19, 2012", md.PrettyDate())
+    testhelpers.AssertString(t, "Monday, Mar 19, 2012", md.PrettyDate())
 }
 
 type tEdMd struct {
@@ -170,6 +171,6 @@ func Test_JsonDate(t *testing.T) {
         if m.err != e {
             t.Errorf("error value wrong");
         }
-        AssertString(t, m.result, string(b))
+        testhelpers.AssertString(t, m.result, string(b))
     }
 }

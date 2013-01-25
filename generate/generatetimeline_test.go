@@ -3,6 +3,7 @@ package generate
 import (
     "bytes"
     "github.com/rjkroege/wikitools/article"
+    "github.com/rjkroege/wikitools/testhelpers"
     "testing"
 )
 
@@ -35,7 +36,7 @@ func Test_WriteTimeline(t *testing.T) {
     
     WriteTimeline(fd, metadatas)
     
-    AssertString(t, expected, fd.String())
+    testhelpers.AssertString(t, expected, fd.String())
 
 //    t.Errorf("output: {%s}", fd.String())    
 }

@@ -5,6 +5,7 @@ import (
     "github.com/rjkroege/wikitools/article"
     "io"
     "strings"
+    "github.com/rjkroege/wikitools/testhelpers"
     "testing"
     "time"
 )
@@ -126,18 +127,6 @@ tags: @journal
 
 I need to figure out what I want. 
 `
-func AssertInt(t *testing.T, expected int, actual int) {
-    if (expected != actual) {
-        t.Errorf("expected %s != actual %s", expected, actual)
-    }
-}
-
-// TODO(rjkroege): Move testing utilities into a library of they're own.
-func AssertString(t *testing.T, expected string, actual string) {
-    if (expected != actual) {
-        t.Errorf("expected %s != actual %s", expected, actual)
-    }
-}
 
 func Test_WriteHtmlFile(t *testing.T) {
     realisticdate1999, _ := article.ParseDateUnix("1999/03/21 17:00:00")
@@ -154,17 +143,17 @@ func Test_WriteHtmlFile(t *testing.T) {
     md := &article.MetaData{"one.md", realisticdate1999, realisticdate2012, "What I want", true};
     WriteHtmlFile(ms, md)
 
-   AssertInt(t, 1, len(ms.writefiles))
-    AssertInt(t, 1, len(ms.readfiles))
-    AssertInt(t, 1, int(ms.writefiles[0].closedCount))
-    AssertInt(t, 1, int(ms.readfiles[0].closedCount))
+   testhelpers.AssertInt(t, 1, len(ms.writefiles))
+    testhelpers.AssertInt(t, 1, len(ms.readfiles))
+    testhelpers.AssertInt(t, 1, int(ms.writefiles[0].closedCount))
+    testhelpers.AssertInt(t, 1, int(ms.readfiles[0].closedCount))
 
-    AssertString(t, "one.md", ms.readfiles[0].name )
-    AssertString(t, "one.html", ms.writefiles[0].name )
-    AssertString(t, "one.html", ms.timedfiles[0])
+    testhelpers.AssertString(t, "one.md", ms.readfiles[0].name )
+    testhelpers.AssertString(t, "one.html", ms.writefiles[0].name )
+    testhelpers.AssertString(t, "one.html", ms.timedfiles[0])
 
     // TODO(rjkroege): might want to diff the stirngs?
-    AssertString(t, generated_output_2, ms.writefiles[0].String())
+    testhelpers.AssertString(t, generated_output_2, ms.writefiles[0].String())
 
     // Output production skipped by date comparison.
     ms = &mockSystem { test_header_2,
@@ -176,12 +165,12 @@ func Test_WriteHtmlFile(t *testing.T) {
     md = &article.MetaData{"one.md", realisticdate1999, realisticdate2012, "What I want",  true};
     WriteHtmlFile(ms, md)
 
-    AssertInt(t, 0, len(ms.writefiles))
-    AssertInt(t, 1, len(ms.readfiles))
-    AssertInt(t, 1, int(ms.readfiles[0].closedCount))
+    testhelpers.AssertInt(t, 0, len(ms.writefiles))
+    testhelpers.AssertInt(t, 1, len(ms.readfiles))
+    testhelpers.AssertInt(t, 1, int(ms.readfiles[0].closedCount))
 
-    AssertString(t, "one.md", ms.readfiles[0].name )
-    AssertString(t, "one.html", ms.timedfiles[0])
+    testhelpers.AssertString(t, "one.md", ms.readfiles[0].name )
+    testhelpers.AssertString(t, "one.html", ms.timedfiles[0])
 
     // TODO(rjkroege): Add additional tests to support validating error handling, etc.
 }
