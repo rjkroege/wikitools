@@ -23,17 +23,6 @@ import (
     "time"
 )
 
-/**
- * Turns a time in ns since epoch into a string
- */
-func dateToString(ti time.Time) string {
-  return ti.Format(time.RFC3339);
-}
-
-func dateForPeople(ti time.Time) string {
-  return ti.Format("Monday, Jan _2, 2006");
-}
-
 type SystemImpl int;
 
 func (s SystemImpl) OpenFileForReading(name string) (rd io.ReadCloser, err error) {
@@ -53,8 +42,6 @@ func (s SystemImpl) OpenFileForWriting(name string) (wr io.WriteCloser, err erro
     wr, err = os.OpenFile(name, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644)
     return
 }
-
-
 
 // TODO(rjkroege): must read the directory from the command line?
 func main() {
