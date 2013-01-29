@@ -19,25 +19,12 @@ import (
 // TODO(rjkroege): I can refactor this with the other tool.
 type Article struct {
     filename string
-    filepath string
     Title string
     PrettyDate string
     Tags []string
     Buffy *bytes.Buffer
 }
 
-func filter(r rune) rune {
-    lut := map[rune]rune { 
-        ' ':  '-',
-        '/':  ',',
-        '#':  ',',
-        '\t': '-'  }
-    nr, ok := lut[r]
-    if !ok {
-        return r
-    }
-    return nr
-}
 
 const (
 basepath = "/Users/rjkroege/Dropbox/wiki2/"
@@ -46,25 +33,25 @@ extension = ".md"
 timeformat = "20060102-150405"
 )
 
-func Makearticle(args []string, tags []string) *Article {
-    s := strings.Join(args, " ");
-    a := Article{ strings.Map(filter, s), "", s, time.Now().Format(time.UnixDate), tags, nil}
-    return &a
+type SystemImpl int;
+
+func (s SystemImpl) Exists(path string) bool {
+    _,  err := os.Stat(path)
+    if err == nil {
+        return true
+    }
+    return false
 }
 
-func (md *Article) Filepath() string {
-    if md.filepath != "" {
-        return md.filepath
-    }
+func (s SystemImpl) Now() time.Time {
+    return time.Now()
+}
 
-    p :=  basepath + md.filename + extension
-    _,  err := os.Stat(p)
-    if err != nil {
-        md.filepath = p
-        return p
-    }
-    md.filepath = md.filename + "-" + time.Now().Format(timeformat) + extension
-    return md.filepath
+func Makearticle(args []string, tags []string) *Article {
+    s := strings.Join(args, " ")    
+    a := Article{ wiki.UniqueValidName(basepath, wiki.ValidBaseName(args), extension, SystemImpl(0)), 
+            s, time.Now().Format(time.UnixDate), tags, nil}
+    return &a
 }
 
 func (md *Article) Plumb() {
@@ -73,7 +60,7 @@ func (md *Article) Plumb() {
         log.Fatal(err)
     }
     
-    err =  win.Name(md.Filepath())
+    err =  win.Name(md.filename)
     if err != nil {
         log.Fatal(err)
     }

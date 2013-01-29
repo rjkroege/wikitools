@@ -2,6 +2,11 @@ package wiki
 
 import (
     "strings"
+   "time"
+)
+
+const (
+timeformat = "20060102-150405"
 )
 
 func filter(r rune) rune {
@@ -18,7 +23,20 @@ func filter(r rune) rune {
 }
 
 // Given an array of strings, convert this into a single valid file name.
-func Validname(words []string) string {
+func ValidBaseName(words []string) string {
     s := strings.Join(words, " ");
     return strings.Map(filter, s)
+}
+
+type System interface {
+    Exists(path string) bool
+    Now() time.Time
+}
+
+func UniqueValidName(basepath string, filename string, extension string,  system System) string {
+    p :=  basepath + filename + extension
+    if system.Exists(p) {
+        return basepath + filename + "-" + system.Now().Format(timeformat) + extension
+     }
+    return p
 }

@@ -129,13 +129,6 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
     }
 }
 
-
-
-
-
-
-
-
 func Test_PrettyDate(t *testing.T) {
     statdate, _ := ParseDateUnix("1999/03/21 17:00:00")
     tagdate, _ := ParseDateUnix("2012/03/19 06:51:15")

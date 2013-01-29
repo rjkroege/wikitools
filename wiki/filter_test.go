@@ -1,15 +1,41 @@
 package wiki
 
 import (
+     "github.com/rjkroege/wikitools/article"
     "github.com/rjkroege/wikitools/testhelpers"
-    "testing"
+    "time"
+   "testing"
 )
 
-func Test_Validname(t *testing.T) {
-    testhelpers.AssertString(t, "foo", Validname([]string{"foo"}))
-    testhelpers.AssertString(t, "foo-bar", Validname([]string{"foo", "bar"}))
-    testhelpers.AssertString(t, "fo,o-b-ar-,", Validname([]string{"fo/o", "b ar", "#"}))
-    testhelpers.AssertString(t, "fo-o-bar", Validname([]string{"fo	o", "bar"}))
-    testhelpers.AssertString(t, "one-two-three", Validname([]string{"one", "two", "three"}))
-    testhelpers.AssertString(t, "2012,12,12", Validname([]string{"2012/12/12"}))
+func Test_ValidBaseName(t *testing.T) {
+    testhelpers.AssertString(t, "foo", ValidBaseName([]string{"foo"}))
+    testhelpers.AssertString(t, "foo-bar", ValidBaseName([]string{"foo", "bar"}))
+    testhelpers.AssertString(t, "fo,o-b-ar-,", ValidBaseName([]string{"fo/o", "b ar", "#"}))
+    testhelpers.AssertString(t, "fo-o-bar", ValidBaseName([]string{"fo	o", "bar"}))
+    testhelpers.AssertString(t, "one-two-three", ValidBaseName([]string{"one", "two", "three"}))
+    testhelpers.AssertString(t, "2012,12,12", ValidBaseName([]string{"2012/12/12"}))
+}
+
+
+type MockSystem struct {
+    exists bool
+    now time.Time
+}
+
+func (m MockSystem) Exists(path string) bool {
+    return m.exists
+}
+
+func (m MockSystem) Now() time.Time {
+    return m.now
+}
+
+func Test_UniqueValidName(t *testing.T) {
+    realisticdate, _ := article.ParseDateUnix("1999/03/21 17:00:00")
+
+    nd := &MockSystem{false, time.Time{}}
+    testhelpers.AssertString(t, "hello/there.md", UniqueValidName("hello/", "there", ".md", nd))
+
+    nd = &MockSystem{true, realisticdate}
+    testhelpers.AssertString(t, "hello/there-19990321-170000.md", UniqueValidName("hello/", "there", ".md", nd))
 }
