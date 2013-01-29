@@ -22,7 +22,7 @@ type Article struct {
     Title string
     PrettyDate string
     Tags []string
-    Buffy *bytes.Buffer
+//    Buffy *bytes.Buffer
 }
 
 
@@ -50,11 +50,16 @@ func (s SystemImpl) Now() time.Time {
 func Makearticle(args []string, tags []string) *Article {
     s := strings.Join(args, " ")    
     a := Article{ wiki.UniqueValidName(basepath, wiki.ValidBaseName(args), extension, SystemImpl(0)), 
-            s, time.Now().Format(time.UnixDate), tags, nil}
+            s, time.Now().Format(time.UnixDate), tags}
     return &a
 }
 
-func (md *Article) Plumb() {
+type ExpandedArticle struct {
+   *Article
+    buffy *bytes.Buffer
+}
+
+func (md *ExpandedArticle) Plumb() {
     win, err  := acme.New();
     if err != nil {
         log.Fatal(err)
@@ -65,7 +70,7 @@ func (md *Article) Plumb() {
         log.Fatal(err)
     }
 
-    _, err = win.Write("body", md.Buffy.Bytes())
+    _, err = win.Write("body", md.buffy.Bytes())
     if err != nil {
         log.Fatal(err)
     }
@@ -80,12 +85,12 @@ func (md* Article) Tagstring() string {
     return strings.Join(md.Tags,  " ")
 }
 
-func (md *Article) Emit(tpl string) *Article {
+func Expand(a *Article, tpl string ) *ExpandedArticle {
     f :=  template.Must(template.New("footer").Parse(tpl));
 
-    md.Buffy = new(bytes.Buffer)
-    f.Execute(md.Buffy, md)
-    return md
+    b := new(bytes.Buffer)
+    f.Execute(b, a)
+    return &ExpandedArticle{a, b}
 }
 
 // TODO(rjkroege): add usage output on failure.
@@ -93,6 +98,6 @@ func main() {
     args, tags := wiki.Split(os.Args[1:])
     tm, args, tags := wiki.Picktemplate(args, tags)
 
-    Makearticle(args, tags).Emit(tm).Plumb()
+    Expand(Makearticle(args, tags), tm).Plumb()
 }
 
