@@ -27,9 +27,9 @@ func Test_WriteTimeline(t *testing.T) {
     article.SetPathForContent("/foo")
 
     metadatas := []*article.MetaData {
-        &article.MetaData{"bar0.md", statdate, tagdate , "What I want 0", false},
-        &article.MetaData{"bar1.md", statdate, statdate , "What I want 1", false},
-        &article.MetaData{"bar2.md", statdate, tagdate , "What I want 2", false}}
+        article.NewArticleTest("bar0.md", statdate, tagdate , "What I want 0", false),
+        article.NewArticleTest("bar1.md", statdate, statdate , "What I want 1", false),
+        article.NewArticleTest("bar2.md", statdate, tagdate , "What I want 2", false)}
 
     buffy := make([]byte, 0, 5000)
     fd := bytes.NewBuffer(buffy)

@@ -140,7 +140,7 @@ func Test_WriteHtmlFile(t *testing.T) {
             time.Time{},
             make([]string, 0, 4)}
 
-    md := &article.MetaData{"one.md", realisticdate1999, realisticdate2012, "What I want", true};
+    md := article.NewArticleTest("one.md", realisticdate1999, realisticdate2012, "What I want", true)
     WriteHtmlFile(ms, md)
 
    testhelpers.AssertInt(t, 1, len(ms.writefiles))
@@ -162,7 +162,7 @@ func Test_WriteHtmlFile(t *testing.T) {
             realisticdate2012,
             make([]string, 0, 4)}
 
-    md = &article.MetaData{"one.md", realisticdate1999, realisticdate2012, "What I want",  true};
+    md = article.NewArticleTest("one.md", realisticdate1999, realisticdate2012, "What I want",  true)
     WriteHtmlFile(ms, md)
 
     testhelpers.AssertInt(t, 0, len(ms.writefiles))

@@ -2,33 +2,19 @@ package main
 
 import (
     "bytes" 
-    // "fmt"			// needed for debugging.
+    "github.com/rjkroege/wikitools/article"
     "github.com/rjkroege/wikitools/wiki"
     "log"
     "os"
     "strings"
     "text/template"
+    // "fmt"			// needeebugging.
    "code.google.com/p/goplan9/plan9/acme"
    "time"
 )
 
-/*
-    Go is awesome.
-*/
-
-// TODO(rjkroege): I can refactor this with the other tool.
-type Article struct {
-    filename string
-    Title string
-    PrettyDate string
-    Tags []string
-//    Buffy *bytes.Buffer
-}
-
-
 const (
 basepath = "/Users/rjkroege/Dropbox/wiki2/"
-// basepath = "/Users/rjkroege/"
 extension = ".md"
 timeformat = "20060102-150405"
 )
@@ -47,15 +33,14 @@ func (s SystemImpl) Now() time.Time {
     return time.Now()
 }
 
-func Makearticle(args []string, tags []string) *Article {
-    s := strings.Join(args, " ")    
-    a := Article{ wiki.UniqueValidName(basepath, wiki.ValidBaseName(args), extension, SystemImpl(0)), 
-            s, time.Now().Format(time.UnixDate), tags}
-    return &a
+func Makearticle(args []string, tags []string) *article.MetaData {
+    s := strings.Join(args, " ")
+    filename :=  wiki.UniqueValidName(basepath, wiki.ValidBaseName(args), extension, SystemImpl(0))
+    return article.NewArticle(filename, s, tags)
 }
 
 type ExpandedArticle struct {
-   *Article
+   *article.MetaData
     buffy *bytes.Buffer
 }
 
@@ -65,7 +50,7 @@ func (md *ExpandedArticle) Plumb() {
         log.Fatal(err)
     }
     
-    err =  win.Name(md.filename)
+    err =  win.Name(md.Name)
     if err != nil {
         log.Fatal(err)
     }
@@ -81,11 +66,13 @@ func (md *ExpandedArticle) Plumb() {
     }
 }
 
+/*
 func (md* Article) Tagstring() string {
     return strings.Join(md.Tags,  " ")
 }
+*/
 
-func Expand(a *Article, tpl string ) *ExpandedArticle {
+func Expand(a *article.MetaData, tpl string) *ExpandedArticle {
     f :=  template.Must(template.New("footer").Parse(tpl));
 
     b := new(bytes.Buffer)
