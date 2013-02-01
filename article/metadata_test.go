@@ -95,10 +95,28 @@ tags: @journal
 
 I need to figure out what to code
 `
+const test_header_7 = 
+`plastic: yes
+Date: 2012/03/19 06:51:15
+Tag: empty
+Title: What I want
+tags: @journal   @fiddle
+
+I need to figure out what to code
+`
+const test_header_8 = 
+`plastic: yes
+Date: 2012/03/19 06:51:15
+Tag: empty
+Title: What I want
+tags: @journal  @hello     @bye
+
+I need to figure out what to code
+`
 
 type rtfSR struct {
     in string
-    err error
+    err error 
     ex MetaData
 }
 
@@ -111,11 +129,15 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
     date, _ := ParseDateUnix("2012/03/19 06:51:15")
     testfiles := []rtfSR {
         rtfSR{ test_header_1, nil, MetaData{"", realisticdate, date , "What I want", true, []string{}}}, 
-        rtfSR{ test_header_2, nil, MetaData{"", realisticdate, date , "What I want",  true, []string{}}}, 
-        rtfSR{ test_header_3, nil, MetaData{"", realisticdate, date , "What I want", true, []string{}}}, 
+        rtfSR{ test_header_2, nil, MetaData{"", realisticdate, date , "What I want",  true, []string{"@journal"}}}, 
+        rtfSR{ test_header_3, nil, MetaData{"", realisticdate, date , "What I want", true, []string{"@journal"}}}, 
         rtfSR{ test_header_4, nil, MetaData{"", realisticdate, never , "I need",  false, []string{}}},  
-        rtfSR{ test_header_5, nil, MetaData{"", realisticdate, date , "What I want", true, []string{}}},
-        rtfSR{ test_header_6, nil, MetaData{"", realisticdate, date , "What I want", true, []string{}}}  }
+        rtfSR{ test_header_5, nil, MetaData{"", realisticdate, date , "What I want", true, []string{"@journal"}}},
+        rtfSR{ test_header_6, nil, MetaData{"", realisticdate, date , "What I want", true, []string{"@journal"}}},
+        rtfSR{ test_header_7, nil, MetaData{"", realisticdate, date , "What I want", true, []string{"@journal", "@fiddle"}}},
+        rtfSR{ test_header_8, nil, MetaData{"", realisticdate, date , "What I want", true,
+                []string{"@journal", "@hello",  "@bye"}}},
+    }
 
     for _, tu := range(testfiles) {
         md := MetaData{"", realisticdate, never, "", false, []string{}};

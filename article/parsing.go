@@ -1,9 +1,3 @@
-/*
-  Metadata extraction  
-  ; fn gogo  {make test}
-
-*/
-
 package article;
 
 import (
@@ -12,7 +6,7 @@ import (
   "regexp"
   "strings"
   "time"
-//  "fmt";  // Need for debugging printfs.
+  // "fmt";  // Need for debugging printfs.
 )
 
 var metadataMatcher = regexp.MustCompile("^([A-Za-z]*):[ \t]*(.*)$");
@@ -61,6 +55,13 @@ func ParseDateUnix(ds string) (t time.Time, err error)  {
   return;
 }
 
+func trim(line string) string {
+    if len(line) > 0 {
+        return  line[0:len(line)-1]
+    }
+  return line
+}
+
 /**
  * Opens a specified file and attempts to extract meta data.
  * There are two possibilities for metadata. Without either,
@@ -76,45 +77,57 @@ func ParseDateUnix(ds string) (t time.Time, err error)  {
  * 5 lines.
  */
 func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
-  // fmt.Print("\nfile: " + md.Name + "\n");
   rd := bufio.NewReader(reader)
   lc := 0
-  inMetaData := false
   md.HadMetaData = false
 
-  var resultLine string;
   var date time.Time;
   var de error;
 
-  for !inMetaData && lc < 5 {
-    line, _ := rd.ReadString('\n');
-    if len(line) > 0 { line = line[0:len(line)-1]; }
-    
-    if lc == 0 { resultLine = line; }
-     // fmt.Print(line);
-     // fmt.Print("\n");
+  for lc < 5 || md.HadMetaData {
+    line, e := rd.ReadString('\n');
+    if e != nil || md.HadMetaData  && line == "\n" {
+        // Return e.
+        break;
+    }
+    line = trim(line)
+
+    if lc == 0 { 
+      md.Title  = line
+    }
 
     // fmt.Print("running regexp matcher...\n")
     m1 := metadataMatcher.FindStringSubmatch(line);
     m2 := commentDataMatcher.FindStringSubmatch(line);
     if len(m1) > 0 {
-      // fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
-      if strings.ToLower(m1[1]) == "title" { resultLine = m1[2]; }
-      if strings.ToLower(m1[1]) == "date" {
+      s  := strings.ToLower(m1[1])
+      if s  == "title" {
+        md.Title  = m1[2];
+      } else if s == "date" {
         date, de = ParseDateUnix(strings.TrimSpace(m1[2]));
+      } else if s == "tags" {
+        for _, u := range strings.Split(strings.TrimSpace(m1[2]), " ") {
+          if (u != "") {
+            md.tags = append(md.tags, u)
+          }
+        }
       }
+      // insert handling of all extra tags here.
+      // don't actually activate unless md.HadMetaData is true
       md.HadMetaData = true
     } else if len(m2) > 0 {
       // fmt.Print("matched for  <" + m2[1] + ">\n");
       date, de = ParseDateUnix(m2[1]);
     }
-  
+
+    // I have no test that actually enforces that this is valid.
+    // push to a helper  
     if de != nil || date.IsZero() {
       //fmt.Print("date is zero, trying whole resultLine: <" + resultLine + ">\n");
-      date, de  = ParseDateUnix(resultLine);
+      date, de  = ParseDateUnix(md.Title);
     }
     lc++;
   }
-  md.DateFromMetadata, md.Title = date, resultLine;
+  md.DateFromMetadata = date
 }
 
