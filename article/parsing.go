@@ -111,9 +111,9 @@ func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
             md.tags = append(md.tags, u)
           }
         }
+      } else {
+        md.extraKeys[s] = strings.TrimSpace(m1[2])
       }
-      // insert handling of all extra tags here.
-      // don't actually activate unless md.HadMetaData is true
       md.HadMetaData = true
     } else if len(m2) > 0 {
       // fmt.Print("matched for  <" + m2[1] + ">\n");

@@ -12,19 +12,30 @@ var now = time.Now()
 var never = time.Time{}
 
 func Test_Makearticle(t *testing.T) {
-    md := MetaData{ "foo.md", never, never, "", false, []string{}}
+    md := MetaData{ "foo.md", never, never, "", false, []string{}, map[string]string{}}
     if md.FormattedName() != "foo.html" {
         t.Errorf("expected  %s != to actual %s", "foo.html", md.Name)
     }    
 }
 
 func Test_UrlForName(t *testing.T) {
-    md := MetaData{ "foo.md", never, never, "", false, []string{}}
+    md := MetaData{ "foo.md", never, never, "", false, []string{}, map[string]string{}}
     SetPathForContent("flimmer/blo");
     s := md.UrlForPath()
     if s != "file://flimmer/blo/foo.html" {
         t.Errorf("expected  %s != to actual %s", "file://flimmer/blo/foo.html", s)
     }
+}
+
+func Test_ExtraKeysString(t *testing.T) {
+    m := MetaData{"", never, never , "", false, []string{}, map [string]string{"a": "b"}}
+    testhelpers.AssertString(t, "a:b", m.ExtraKeysString())
+
+    m = MetaData{"", never, never , "", false, []string{}, map [string]string{"a": "b", "c": "d"}}
+    testhelpers.AssertString(t, "a:b, c:d", m.ExtraKeysString())
+
+    m = MetaData{"", never, never , "", false, []string{}, map [string]string{"c": "d", "a": "b"}}
+    testhelpers.AssertString(t, "a:b, c:d", m.ExtraKeysString())
 }
 
 type pdSR struct {
@@ -115,6 +126,7 @@ I need to figure out what to code
 `
 
 type rtfSR struct {
+    testname string
     in string
     err error 
     ex MetaData
@@ -128,25 +140,40 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
     realisticdate, _ := ParseDateUnix("1999/03/21 17:00:00")
     date, _ := ParseDateUnix("2012/03/19 06:51:15")
     testfiles := []rtfSR {
-        rtfSR{ test_header_1, nil, MetaData{"", realisticdate, date , "What I want", true, []string{}}}, 
-        rtfSR{ test_header_2, nil, MetaData{"", realisticdate, date , "What I want",  true, []string{"@journal"}}}, 
-        rtfSR{ test_header_3, nil, MetaData{"", realisticdate, date , "What I want", true, []string{"@journal"}}}, 
-        rtfSR{ test_header_4, nil, MetaData{"", realisticdate, never , "I need",  false, []string{}}},  
-        rtfSR{ test_header_5, nil, MetaData{"", realisticdate, date , "What I want", true, []string{"@journal"}}},
-        rtfSR{ test_header_6, nil, MetaData{"", realisticdate, date , "What I want", true, []string{"@journal"}}},
-        rtfSR{ test_header_7, nil, MetaData{"", realisticdate, date , "What I want", true, []string{"@journal", "@fiddle"}}},
-        rtfSR{ test_header_8, nil, MetaData{"", realisticdate, date , "What I want", true,
-                []string{"@journal", "@hello",  "@bye"}}},
+        rtfSR{"test_header_1",  test_header_1, nil,
+                MetaData{"", realisticdate, date , "What I want", true, []string{}, map[string]string{}}}, 
+        rtfSR{ "test_header_2",  test_header_2, nil,
+                MetaData{"", realisticdate, date , "What I want",  true, []string{"@journal"}, map[string]string{}}}, 
+        rtfSR{ "test_header_3",  test_header_3, nil,
+                MetaData{"", realisticdate, date , "What I want", true, []string{"@journal"}, map[string]string{}}}, 
+        rtfSR{ "test_header_4",  test_header_4, nil,
+                MetaData{"", realisticdate, never , "I need",  false, []string{}, map[string]string{}}},  
+        rtfSR{"test_header_5",   test_header_5, nil,
+                MetaData{"", realisticdate, date , "What I want", true, []string{"@journal"}, map[string]string{}}},
+        rtfSR{ "test_header_6",  test_header_6, nil,
+                MetaData{"", realisticdate, date , "What I want", true, []string{"@journal"},
+                map[string]string{"tag":"empty",  "plastic":"yes"}}},
+        rtfSR{"test_header_7",   test_header_7, nil,
+                MetaData{"", realisticdate, date , "What I want", true, 
+                []string{"@journal", "@fiddle"},
+                map[string]string{"tag":"empty",  "plastic":"yes"}}},
+        rtfSR{ "test_header_8",  test_header_8, nil, 
+                MetaData{"", realisticdate, date , "What I want", true, 
+                []string{"@journal", "@hello",  "@bye"}, map[string]string{"tag":"empty",  "plastic":"yes"}}},
     }
 
     for _, tu := range(testfiles) {
-        md := MetaData{"", realisticdate, never, "", false, []string{}};
+        if !tu.ex.equals(&tu.ex) {
+            t.Errorf("%s: equals has failed for %s", tu.testname, tu)
+        }
+
+        md := MetaData{"", realisticdate, never, "", false, []string{}, map[string]string{}};
         rd := strings.NewReader(tu.in)
         md.RootThroughFileForMetadata(io.Reader(rd))
 
         // TODO(rjkroege): Add nicer String() on Metadata?   
         if !md.equals(&tu.ex) {
-            t.Errorf("expected %s != actual %s", tu.ex, md)
+            t.Errorf("%s: expected %s != actual %s", tu.testname, tu.ex, md)
         }
     }
 }
@@ -155,10 +182,10 @@ func Test_PrettyDate(t *testing.T) {
     statdate, _ := ParseDateUnix("1999/03/21 17:00:00")
     tagdate, _ := ParseDateUnix("2012/03/19 06:51:15")
 
-    md := MetaData{"", statdate, never , "What I want 0", false, []string{}}
+    md := MetaData{"", statdate, never , "What I want 0", false, []string{}, map[string]string{}}
     testhelpers.AssertString(t, "Sunday, Mar 21, 1999", md.PrettyDate())
 
-    md = MetaData{"", statdate, tagdate , "What I want 0", true, []string{}}
+    md = MetaData{"", statdate, tagdate , "What I want 0", true, []string{}, map[string]string{}}
     testhelpers.AssertString(t, "Monday, Mar 19, 2012", md.PrettyDate())
 }
 
@@ -178,8 +205,8 @@ func Test_JsonDate(t *testing.T) {
     SetPathForContent("/url-here")
 
     datas := []tEdMd {
-        { nil, json1, MetaData{"1.md", statdate, never , "What I want 0", false, []string{}}},
-        { nil, json2, MetaData{"2.md", statdate, tagdate , "What I want 0", true, []string{}}}}
+        { nil, json1, MetaData{"1.md", statdate, never , "What I want 0", false, []string{}, map[string]string{}}},
+        { nil, json2, MetaData{"2.md", statdate, tagdate , "What I want 0", true, []string{}, map[string]string{}}}}
 
     for _, m := range(datas) {
         b, e := m.md.MarshalJSON()
