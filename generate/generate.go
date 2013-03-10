@@ -73,7 +73,7 @@ func WriteHtmlFile(sys System, md *article.MetaData) {
     ofd, werr := sys.OpenFileForWriting(md.FormattedName());
     defer ofd.Close()
     if werr != nil {
-      // fmt.Print("one ", werr, "\n");
+      fmt.Print("WriteHtmlFile:OpenFileForWriting", werr, "\n");
       return
     }
 
@@ -87,7 +87,7 @@ func WriteHtmlFile(sys System, md *article.MetaData) {
       for {
         line, rerr := rd.ReadString('\n');
         if rerr != nil {
-          // fmt.Print("two ", werr, "\n");
+          fmt.Print("WriteHtmlFile:ReadString ", werr, "\n");
           return
         }
         if line == "\n" {

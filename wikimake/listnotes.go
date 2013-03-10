@@ -32,7 +32,7 @@ func (s SystemImpl) OpenFileForReading(name string) (rd io.ReadCloser, err error
 
 func (s SystemImpl) ModTime(name string) (modtime time.Time, err error) {
     statinfo, err := os.Stat(name)
-    if err != nil {
+    if err == nil {
          modtime = statinfo.ModTime()
     }
     return
