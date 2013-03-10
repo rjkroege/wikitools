@@ -143,7 +143,7 @@ func Test_WriteHtmlFile(t *testing.T) {
     md := article.NewArticleTest("one.md", realisticdate1999, realisticdate2012, "What I want", true)
     WriteHtmlFile(ms, md)
 
-   testhelpers.AssertInt(t, 1, len(ms.writefiles))
+    testhelpers.AssertInt(t, 1, len(ms.writefiles))
     testhelpers.AssertInt(t, 1, len(ms.readfiles))
     testhelpers.AssertInt(t, 1, int(ms.writefiles[0].closedCount))
     testhelpers.AssertInt(t, 1, int(ms.readfiles[0].closedCount))

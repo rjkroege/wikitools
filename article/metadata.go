@@ -88,6 +88,11 @@ func (md *MetaData) PrettyDate() string {
     return md.PreferredDate().Format(df);
 }
 
+func (md *MetaData) DetailedDate() string {
+    const df = "Mon _2 Jan 2006, 15:04:05 MST"
+    return md.PreferredDate().Format(df);
+}
+
 type jsonmetadata struct {
     Link string				`json:"link"`
     Start string				`json:"start"`
