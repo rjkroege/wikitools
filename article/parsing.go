@@ -18,6 +18,7 @@ lstring = "20060102150405 MST";
 slashdate = "2006/01/02 15:04:05 MST"
 sstring = "200601021504 MST";
 unixlike = "Mon _2 Jan 2006 15:04:05 MST"
+short = "Monday, Jan _2, 2006 MST"
 )
 
 func parse(layout, value string) (time.Time, error) {
@@ -38,7 +39,8 @@ func ParseDateUnix(ds string) (t time.Time, err error)  {
     lstring,
     slashdate,
     sstring,
-    unixlike };
+    unixlike,
+    short };
 
   for _, fs := range(timeformats) {
     t, err = parse(fs, ds);

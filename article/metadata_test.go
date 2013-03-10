@@ -46,6 +46,7 @@ type pdSR struct {
 
 func Test_ParseDateUnix(t *testing.T) {
     testdates := []pdSR {
+        pdSR{ "Mon Mar 11 00:00:00 EDT 2013", nil,  "Monday, Mar 11, 2013"},
         pdSR{ "Tue Sep 11 17:34:00 EDT 2012", nil,  "11 Sep 17:34:00 2012"},
         pdSR{ "Sat Oct 27 11:39:41 PDT 2012", nil,  "Sat Oct 27 11:39:41 PDT 2012"},
         pdSR{ "Wed Jun 15 08:24:39 EDT 2011", nil,  "2011/06/15 08:24:39"},
