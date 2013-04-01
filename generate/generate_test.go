@@ -102,7 +102,7 @@ const generated_output_2 =
 <hr />
 <p class="info">
    Source: <a href="plumb:/am-a-path/one.md">one.md</a><br />
-   <a href="plumb:/Users/rjkroege/Dropbox/wiki2/New">New Article</a><br />
+   <a href="plumb:/Users/rjkroege/gd/wiki2/New">New Article</a><br />
 </p>
 </div> <!-- note -->
 

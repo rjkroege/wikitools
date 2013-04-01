@@ -67,7 +67,7 @@ plumberfooter =
 <hr />
 <p class="info">
    Source: <a href="plumb:{{.SourceForPath}}">{{.Name}}</a><br />
-   <a href="plumb:/Users/rjkroege/Dropbox/wiki2/New">New Article</a><br />
+   <a href="plumb:/Users/rjkroege/gd/wiki2/New">New Article</a><br />
 </p>
 </div> <!-- note -->
 
