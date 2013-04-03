@@ -15,7 +15,7 @@ var timeline_data = {  // save as a global variable
 'wikiSection': "Simile Cubism Timeline",
 
 'events': 
-[{"link":"file:///foo/bar0.html","start":"Monday, Mar 19, 2012","title":"What I want 0"},{"link":"file:///foo/bar1.html","start":"Sunday, Mar 21, 1999","title":"What I want 1"},{"link":"file:///foo/bar2.html","start":"Monday, Mar 19, 2012","title":"What I want 2"}]
+[{"link":"file:///foo/bar0.html","start":"2012-03-19T06:51:15-04:00","title":"What I want 0"},{"link":"file:///foo/bar1.html","start":"1999-03-21T17:00:00-05:00","title":"What I want 1"},{"link":"file:///foo/bar2.html","start":"2012-03-19T06:51:15-04:00","title":"What I want 2"}]
 
  }
 `

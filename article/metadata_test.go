@@ -197,8 +197,8 @@ type tEdMd struct {
 }
 
 
-const json1 = `{"link":"file:///url-here/1.html","start":"Sunday, Mar 21, 1999","title":"What I want 0"}`
-const json2  = `{"link":"file:///url-here/2.html","start":"Monday, Mar 19, 2012","title":"What I want 0"}`
+const json1 = `{"link":"file:///url-here/1.html","start":"1999-03-21T17:00:00-05:00","title":"What I want 0"}`
+const json2  = `{"link":"file:///url-here/2.html","start":"2012-03-19T06:51:15-04:00","title":"What I want 0"}`
 
 func Test_JsonDate(t *testing.T) {
     statdate, _ := ParseDateUnix("1999/03/21 17:00:00")

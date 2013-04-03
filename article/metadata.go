@@ -100,7 +100,7 @@ type jsonmetadata struct {
 }
 
 func (md *MetaData) MarshalJSON() ([]byte, error) {
-    const df = "Monday, Jan _2, 2006"
-    jmd := jsonmetadata{ md.UrlForPath(), md.PreferredDate().Format(df), md.Title }
+    // const df = "Monday, Jan _2, 2006"
+    jmd := jsonmetadata{ md.UrlForPath(), md.PreferredDate().Format(time.RFC3339), md.Title }
     return json.Marshal(jmd)    
 }
