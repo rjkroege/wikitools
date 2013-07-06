@@ -8,6 +8,7 @@ header =
 <head>
    <title>{{.Title}}</title>
    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link rel="icon" href="icon.png">
 
   <!-- date argument for centering -->
   <script language="JavaScript" type="text/javascript">
