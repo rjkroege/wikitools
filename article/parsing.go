@@ -3,27 +3,25 @@ package article;
 import (
   "bufio"
   "io"
+  "log"	
   "regexp"
   "strings"
   "time"
-  // "fmt";  // Need for debugging printfs.
 )
 
 var metadataMatcher = regexp.MustCompile("^([A-Za-z]*):[ \t]*(.*)$");
 var commentDataMatcher = regexp.MustCompile("<!-- *([0-9]*) *-->");
 
 const (
-lsdate = "_2 Jan 15:04:05 2006 MST"
-lstring = "20060102150405 MST";
-slashdate = "2006/01/02 15:04:05 MST"
-sstring = "200601021504 MST";
-unixlike = "Mon _2 Jan 2006 15:04:05 MST"
-short = "Monday, Jan _2, 2006 MST"
+lsdate = "_2 Jan 15:04:05 2006"
+lstring = "20060102150405";
+slashdate = "2006/01/02 15:04:05"
+sstring = "200601021504";
+unixlike = "Mon _2 Jan 2006 15:04:05"
+short = "Monday, Jan _2, 2006"
 )
 
-func parse(layout, value string) (time.Time, error) {
-     return time.Parse(layout, value)
-}
+var easternTimeZone *time.Location
 
 /**
  * Attempts to parse the metadata of the file. I will require file
@@ -33,28 +31,33 @@ func parse(layout, value string) (time.Time, error) {
  * Returns the first time corresponding to the first data match.
  */
 func ParseDateUnix(ds string) (t time.Time, err error)  {
-  timeformats := []string {
-    time.UnixDate,
-    lsdate,
-    lstring,
-    slashdate,
-    sstring,
-    unixlike,
-    short };
+	timeformats := []string {
+		time.UnixDate,
+		lsdate,
+		lstring,
+		slashdate,
+		sstring,
+		unixlike,
+		short };
 
-  for _, fs := range(timeformats) {
-    t, err = parse(fs, ds);
-    if err == nil { return }
-  }
+	if easternTimeZone == nil {
+		easternTimeZone, err = time.LoadLocation("America/Toronto")
+		if err != nil {
+			log.Fatal("no eastern time zone?")
+		}
+	}
 
- for _, fs := range(timeformats) {
-    t, err  = parse(fs, ds + " EDT");
-    if err == nil && t.Location().String() == "Local" { return }
-    
-    t, err = parse(fs, ds + " EST");
-    if err == nil && t.Location().String() == "Local" { return }
-  }
-  return;
+	for _, fs := range(timeformats) {
+		// Have an explicit timezone  
+		 t, err = time.Parse(fs + " MST", ds);
+		if err == nil { return }
+
+		// Try to parse without a time zone.
+		t, err = time.ParseInLocation(fs, ds, easternTimeZone)
+		if err == nil { return }
+	}
+	// log.Print("Invalid time string ", ds, "\n")
+	return;
 }
 
 func trim(line string) string {
