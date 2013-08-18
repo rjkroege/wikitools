@@ -13,6 +13,7 @@ booktmpl =
 `title: {{.Title}}
 date: {{.DetailedDate}}
 tags: {{.Tagstring}}
+bib-type: 
 bib-address: Publisher's address (usually just the city, but can be the full address for lesser-known publishers)
 bib-author: The name(s) of the author(s) (in the case of more than one author, separated by and)
 bib-booktitle: The title of the book, if only part of it is being cited
