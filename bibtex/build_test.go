@@ -7,15 +7,21 @@ import (
 
 
 func Test_FilterExtrakeys_Empty(t *testing.T) {
-	 testhelpers.AssertStringArray(t, []string{}, FilterExtrakeys([]string{}))
+	m, v := FilterExtrakeys(map[string]string{})
+	testhelpers.AssertStringArray(t, []string{}, v)
+	testhelpers.AssertStringMap(t, map[string]string{}, m)
 }
 
 func Test_FilterExtrakeys_Removing(t *testing.T) {
-	 testhelpers.AssertStringArray(t, []string{}, FilterExtrakeys([]string{"foo"}))
+	m, v := FilterExtrakeys(map[string]string{"foo": "hello"})
+	testhelpers.AssertStringArray(t, []string{},v)
+	testhelpers.AssertStringMap(t, map[string]string{}, m)
 }
 
 func Test_FilterExtrakeys_Keeping(t *testing.T) {
-	 testhelpers.AssertStringArray(t, []string{"bar"}, FilterExtrakeys([]string{"foo", "bib-bar"}))
+	m, v := FilterExtrakeys(map[string]string{"foo": "hello", "bib-bar": "bye"})
+	 testhelpers.AssertStringArray(t, v, []string{"bar"})
+	 testhelpers.AssertStringMap(t, map[string]string{"bar": "bye"}, m)
 }
 
 func Test_ExtractBibTeXEntryType(t *testing.T) {
@@ -45,3 +51,8 @@ func Test_ExtractBibTeXEntryType(t *testing.T) {
 	}
 	
 }
+
+//
+//func Test_VerifyRequiredFields(t *testing.T) {
+//	
+//}
