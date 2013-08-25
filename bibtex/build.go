@@ -70,18 +70,19 @@ func ExtractBibTeXEntryType(tags []string) (entry string, biberror error) {
 	return
 }
 
-// TODO(rjkroege): Insert the code to generate the necessary goo
+/*
+	Holds all the list of necessary fields for each kind of BibTeX entry.
+*/
 var required_fields map[string][]string
 
-
-
-// TODO(rjkroege): add the bibkey
 func init() {
 	required_fields = make(map[string][]string)
 	required_fields["article"] = []string{"author", "title", "journal", "year"}
 	required_fields["book"] = []string{"author", "title", "publisher", "year"}
+	required_fields["book-editor"] = []string{"editor", "title", "publisher", "year"}
 	required_fields["booklet"] = []string{"title"}
-	required_fields["inbook"] = []string{"author", "title", "chapter", "publisher", "year"}
+	required_fields["inbook"] = []string{"author", "title", "chapter", "publisher", "year", "pages"}
+	required_fields["inbook-editor"] = []string{"editor", "title", "chapter", "publisher", "year", "pages"}
 	required_fields["incollection"] = []string{"author", "title", "booktitle", "publisher", "year"}
 	required_fields["inproceedings"] = []string{"author", "title", "booktitle", "year"}
 	required_fields["manual"] = []string{"title"}
@@ -92,23 +93,10 @@ func init() {
 	required_fields["techreport"] = []string{"author", "title", "institution", "year"}
 	required_fields["unpublished"] = []string{"author", "title", "note"}
 
-	for _, s := range(required_fields) {
-		// TODO(rjkroege): you are here...
-		// required_fields = append(required_fields
-		sort.Strings(s)
+	for s, _ := range(required_fields) {
+		required_fields[s] = append(required_fields[s], "bibkey")
+		sort.Strings(required_fields[s])
 	}
-}
-
-/*
-	Linear search: true if t is in fields.
-*/
-func isinlist(fields []string, t string) bool {
-	for _, s := range(fields) {
-		if s == t {
-			return true
-		}
-	}
-	return false
 }
 
 /*
@@ -116,7 +104,7 @@ func isinlist(fields []string, t string) bool {
 	that are not present in fields. fields and rf must both be
 	sorted.
 */
-func intersectsorted(fields []string, rf []string) []string {
+func intersectsorted(rf []string, fields []string) []string {
 	missing := []string{}
 	i := 0
 	for _, r := range(rf) {
@@ -132,7 +120,7 @@ func intersectsorted(fields []string, rf []string) []string {
 	Generates a BibTexError instance for entrytype for all the missing fields.
 */
 func createerror(entrytype string, missing []string) error {
-		return &BibTeXError{ "Missing required fields " + strings.Join(missing, " ") +
+		return &BibTeXError{ "Missing required fields: " + strings.Join(missing, " ") +
 			 " for entry type " + entrytype };
 }
 

@@ -52,7 +52,83 @@ func Test_ExtractBibTeXEntryType(t *testing.T) {
 	
 }
 
-//
-//func Test_VerifyRequiredFields(t *testing.T) {
-//	
-//}
+func Test_Intersectsorted_empty(t *testing.T) {
+	m := intersectsorted([]string{}, []string{})
+	testhelpers.AssertStringArray(t, []string{}, m)
+}
+
+func Test_VerifyRequiredFields(t *testing.T) {
+	// Lots of cases
+
+	err := VerifyRequiredFields("article", []string{"bibkey", "author", "title", "journal", "year"})
+	if err != nil {
+		t.Error("error should be nil for exact match")
+	}
+
+	err = VerifyRequiredFields("article", []string{"bibkey", "author", "title", "journal", "year", "extra-stuff"})
+	if err != nil {
+		t.Error("error should be nil for additional entry")
+	}
+
+	err = VerifyRequiredFields("article", []string{})
+	if err == nil {
+		t.Error("missing fields should have a non-nil error")
+	} else {
+		testhelpers.AssertString(t, "Missing required fields: author bibkey journal title year for entry type article", err.Error())
+	}
+}
+
+func Test_VerifyRequiredFields_bookeditor(t *testing.T) {
+	err := VerifyRequiredFields("book", []string{"bibkey", "author", "title", "publisher", "year"})
+	if err != nil {
+		t.Error("wrongly claim that valid author book keys are invalid: " + err.Error())		
+	}	
+
+	err = VerifyRequiredFields("book", []string{"bibkey", "editor", "title", "publisher", "year"})
+	if err != nil {
+		t.Error("wrongly claim that valid editor book keys are invalid: " + err.Error())	
+	}	
+
+	err = VerifyRequiredFields("book", []string{"bibkey", "flimflam", "title", "publisher", "year"})
+	if err == nil {
+		t.Error("book needs to have editor or author")
+	}
+}
+
+func Test_VerifyRequiredFields_inbook_editor(t *testing.T) {
+	err := VerifyRequiredFields("inbook", []string{"bibkey", "author", "title", "chapter", "publisher", "year"})
+	if err != nil {
+		t.Error("wrongly claim that valid author/chapter inbook keys are invalid: " + err.Error())		
+	}	
+
+	err = VerifyRequiredFields("inbook", []string{"bibkey", "editor", "title", "chapter", "publisher", "year"})
+	if err != nil {
+		t.Error("wrongly claim that valid editor/chapter inbook keys are invalid: " + err.Error())	
+	}
+
+	err = VerifyRequiredFields("inbook", []string{"bibkey", "author", "title", "pages", "publisher", "year"})
+	if err != nil {
+		t.Error("wrongly claim that valid author/pages inbook keys are invalid: " + err.Error())		
+	}	
+
+	err = VerifyRequiredFields("inbook", []string{"bibkey", "editor", "title", "pages", "publisher", "year"})
+	if err != nil {
+		t.Error("wrongly claim that valid editor/pages inbook keys are invalid: " + err.Error())	
+	}
+
+	err = VerifyRequiredFields("inbook", []string{"bibkey", "editor", "title", "publisher", "year"})
+	if err == nil {
+		t.Error("for editor inbook, wrongly claim missing both pages and chapter is correct")
+	} else {
+		testhelpers.AssertString(t, "Missing required fields: chapter pages for entry type inbook", err.Error())
+	}
+
+	err = VerifyRequiredFields("inbook", []string{"bibkey", "author", "title", "publisher", "year"})
+	if err == nil {
+		t.Error("for author inbook, wrongly claim missing both pages and chapter is correct")
+	} else {
+		testhelpers.AssertString(t, "Missing required fields: chapter pages for entry type inbook", err.Error())
+	}
+	
+
+}
