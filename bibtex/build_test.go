@@ -129,6 +129,31 @@ func Test_VerifyRequiredFields_inbook_editor(t *testing.T) {
 	} else {
 		testhelpers.AssertString(t, "Missing required fields: chapter pages for entry type inbook", err.Error())
 	}
-	
+}
 
+const (
+output1 =
+`@book(jones2013,
+	editor = "Peyton Jones",
+	publisher = "Penguin",
+	title = "Collected Angst",
+	year = "2013",
+)
+`
+)
+
+func Test_ExploreTemplating(t *testing.T) {
+	s, e := CreateBibTexEntry([]string{"@book"}, map[string]string{"bib-bibkey": "jones2013", "bib-editor": "Peyton Jones", "bib-title": "Collected Angst", "bib-publisher": "Penguin", "bib-year": "2013"})
+	if e != nil {
+		t.Error("CreateBibTexEntry wrongly failed with: " + e.Error())
+	}
+	testhelpers.AssertString(t, output1, s)
+
+	s, e = CreateBibTexEntry([]string{"@book",  "@bibtex-article"}, map[string]string{"bib-bibkey": "jones2013", "bib-editor": "Peyton Jones", "bib-title": "Collected Angst", "bib-publisher": "Penguin", "bib-year": "2013"})
+	if e == nil {
+		t.Error("CreateBibTexEntry wrongly succeeded")
+	} else {
+		testhelpers.AssertString(t, "", s)
+		testhelpers.AssertString(t, "Missing required fields: author journal for entry type article", e.Error())
+	}
 }

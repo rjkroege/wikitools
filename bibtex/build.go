@@ -5,6 +5,8 @@ package bibtex
 
 import (
 //    "github.com/rjkroege/wikitools/article"
+	"bytes"
+	"text/template"
 	"strings"
 	"sort"
 )
@@ -21,7 +23,8 @@ func (e *BibTeXError) Error() string {
 }
 
 /*
-	Creates a new map with the keys filtered and with the leading 'bib-' removed.
+	Creates a new map with the keys filtered and with the leading 'bib-' removed
+	and returns a list of the actual keys corresponding to what's in the map.
 */
 func FilterExtrakeys(extrakeys map[string]string) (filtered map[string]string, keys []string) {
 	filtered = make(map[string]string)	
@@ -126,7 +129,8 @@ func createerror(entrytype string, missing []string) error {
 
 /*
 	Determines if the list of BibTeX fields from the article has all the required
-	fields for the associated entry type.
+	fields for the associated entry type. Returns nil on success, error with
+	explanation if fields are missing.
 */
 func VerifyRequiredFields(entrytype string, fields []string) error {
 	_, err := required_fields[entrytype]
@@ -198,51 +202,31 @@ func VerifyRequiredFields(entrytype string, fields []string) error {
 	filteredkeys are all extra fields matching bib-.*
 
 */
-//func CreateBibTexEntry(tags []string, extrakeys map[string]string) string, err {
-	/*
-		This function is ill-considered. We get a map. We need to produce two things
-		A map from field->value without the bib- and a list of field names so that verifier
-		works.
-	*/
-	// TODO(rjkroege): fix this per above.
-//	filtered_kv := FilterExtrakeys(extrakeys)
 
-	/*
-		TODO(rjkroege): Are here. Decide how to get the article type.	
-		I could make it part of the toplevel tags. That sort of pollutes the
-		top-level namespace? In particular: journal, book are semantically
-		overlapped with the bibtex entry types. 
+type BibEntryForTemplate struct {
+	EntryType string
+	RefKey string
+	Fields map[string]string
+}
 
-		I could have bibtex/book bibtex/article etc.?
+func CreateBibTexEntry(tags []string, extrakeys map[string]string) (string, error) {
+	filtered_kv, filtered_k := FilterExtrakeys(extrakeys)
+	entrytype, err := ExtractBibTeXEntryType(tags)
+	if err != nil { return "", err }
 
-		I could have @book @article
+	err = VerifyRequiredFields(entrytype, filtered_k)
+	if err != nil { return "", err }
 
-		I could have @book @bibtex-article. Which defaults to @book @bibtex-book. Hm. I like it.
-	*/
-//	entrytype, err := ExtractBibTeXEntryType(tags)
+	// ref_key is the identifier for this BibTex entry for use in LaTeX.
+	// TODO(rjkroege): I should get autolinks / autocomplete to it.
+	refkey := filtered_kv["bibkey"]
+	delete(filtered_kv, "bibkey")
 
-/*
-	look up the validate table and prove that every required tag for type is in the
-	the filtered list. The lists are sort of short. Because you've typed them. But...
-*/
-//	err = VerifyRequiredFields(entrytype, filtered)
-
-/*
-	Use the entry type to choose a template. Generate 
-
-	// TODO(rjkroege): Create templates.
-	f := template.Must(template.New("bibtex").Parse(bibtex_template[entrytype])
+	e := &BibEntryForTemplate{entrytype, refkey, filtered_kv}
+	f := template.Must(template.New("bibtex").Parse(bibtextmpl))
 	b := new(bytes.Buffer)
+	f.Execute(b, e)
 
-	// TODO(rjkroege): Learn how to use a map in a template. Must be possible...
-	f.Execute(b, filtered)
-	// TODO(rjkroege): make right
-	return b.toString();
-
-*/
-
-
-
-//	
-//}
+	return b.String(), nil;
+}
 
