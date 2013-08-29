@@ -2,12 +2,25 @@ package wiki
 
 import (
     "log"
+    "github.com/rjkroege/wikitools/bibtex"
 )
 
 func Picktemplate(args []string, tags []string) (tm string, oargs []string, otags []string)  {
     templatemap := map[string]string {
         "journal": journaltmpl,
-        "book": booktmpl }
+        "book": booktmpl,
+        "article": articletmpl,
+     }
+
+    booktype, err := bibtex.ExtractBibTeXEntryType(tags)
+    if err == nil {
+        tm, ok := templatemap[booktype]
+        if ok {
+            return tm, args, tags
+        } else {
+           log.Fatal("Selected a BibTex entry type without a matching template")
+        }
+    }
 
     for _, v := range(tags) {
         tm, ok := templatemap[v[1:]]

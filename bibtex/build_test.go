@@ -49,7 +49,13 @@ func Test_ExtractBibTeXEntryType(t *testing.T) {
 	if e == nil || (e.Error() != "More than one supplementary @bibtex-(.*) tag." && te != "phd" ) {
 		t.Error("bad error for missing @book")
 	}
-	
+
+	te, e = ExtractBibTeXEntryType([]string{ "@fuddle", "@fee",  "@fo" })
+	if e == nil {
+		t.Error("bad error for not a book entry")
+	} else if (e != nil && e.Error() != "No book tag present.") {
+		t.Error("bad error for not a book entry: " + e.Error())
+	}
 }
 
 func Test_Intersectsorted_empty(t *testing.T) {

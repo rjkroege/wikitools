@@ -61,12 +61,12 @@ func ExtractBibTeXEntryType(tags []string) (entry string, biberror error) {
 	}
 
 	switch {
+	case !book_tag_present:
+		biberror = &BibTeXError{ "No book tag present." }
 	case entry_set == 0:
 		entry = "book"
 	case entry_set > 1:
 		biberror = &BibTeXError{"More than one supplementary @bibtex-(.*) tag."}
-	case !book_tag_present:
-		biberror = &BibTeXError{ "No book tag present." }
 	default:
 		biberror = nil
 	}

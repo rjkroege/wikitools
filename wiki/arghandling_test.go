@@ -36,7 +36,7 @@ func TestPicktemplate_firstarg(t *testing.T) {
     ar, tg := Split([]string { "@flong", "journal", "@fling" })
     tm, ar, tg := Picktemplate(ar, tg)
     if tm != journaltmpl {
-        t.Error("didn't pick correct template")
+        t.Error("didn't pick correct template, instead chose: " + tm)
     }
     expect(t, []string{"@flong", "@fling", "@journal"}, tg)
     if len(ar) != 0 {
