@@ -1,8 +1,9 @@
 package article;
 
 import (
-     // "fmt"
     "encoding/json"
+    "github.com/rjkroege/wikitools/bibtex"
+    "log"	
     "sort"
     "strings"
     "time"
@@ -103,4 +104,24 @@ func (md *MetaData) MarshalJSON() ([]byte, error) {
     // const df = "Monday, Jan _2, 2006"
     jmd := jsonmetadata{ md.UrlForPath(), md.PreferredDate().Format(time.RFC3339), md.Title }
     return json.Marshal(jmd)    
+}
+
+/*
+	Returns true if this article has a BibTeX entry.
+*/
+func (md *MetaData) HaveBibTex() bool {
+	_, err := bibtex.ExtractBibTeXEntryType(md.tags)
+	return err == nil
+}
+
+/*
+	Returns a BibTex Entry for this article.
+*/
+func (md *MetaData) BibTexEntry() string {
+	s, err := bibtex.CreateBibTexEntry(md.tags, md.extraKeys)
+	if err != nil {
+		// TODO(rjkroege): Do something more rational with errors.
+		log.Print("Problem with bibtex entry: " + err.Error());
+	}
+	return s
 }

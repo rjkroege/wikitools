@@ -65,7 +65,12 @@ footer =
 
 plumberfooter =
 `
-<hr />
+<hr />{{if .HaveBibTex}}
+<!-- force this to be a bounded size -->
+<pre>
+{{.BibTexEntry}}
+</pre>
+{{end}}
 <p class="info">
    Source: <a href="plumb:{{.SourceForPath}}">{{.Name}}</a><br />
    <a href="plumb:/Users/rjkroege/gd/wiki2/New">New Article</a><br />

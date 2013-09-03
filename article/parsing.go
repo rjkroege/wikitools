@@ -9,7 +9,7 @@ import (
   "time"
 )
 
-var metadataMatcher = regexp.MustCompile("^([A-Za-z]*):[ \t]*(.*)$");
+var metadataMatcher = regexp.MustCompile("^([-A-Za-z]*):[ \t]*(.*)$");
 var commentDataMatcher = regexp.MustCompile("<!-- *([0-9]*) *-->");
 
 const (
