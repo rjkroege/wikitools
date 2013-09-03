@@ -53,7 +53,8 @@ func Test_ParseDateUnix(t *testing.T) {
         pdSR{ "Tue Dec 27 17:46:16 EST 2011", nil,  "2011/12/27 17:46:16"},
         pdSR{ "Sun Mar 14 08:00:00 EST 2004", nil,  "200403140800"},
         pdSR{ "Tue Dec 11 17:34:00 EST 2012", nil,  "11 Dec 17:34:00 2012"},
-        pdSR{ "Sat Dec  1 17:34:00 EST 2012", nil,  "1 Dec 17:34:00 2012"}     }
+        pdSR{ "Fri Jun 14 07:25:48 EDT 2013", nil,  "Fri 14 Jun 2013, 07:25:48 EDT"},
+       pdSR{ "Sat Dec  1 17:34:00 EST 2012", nil,  "1 Dec 17:34:00 2012"}     }
 
     for _, tu := range(testdates) {
         r, err := ParseDateUnix(tu.in)
@@ -126,6 +127,19 @@ tags: @journal  @hello     @bye
 I need to figure out what to code
 `
 
+const test_header_9 =
+`title: Business Korea
+date: 2012/03/19 06:51:15
+tags: @book
+bib-bibkey: kenna97
+bib-author: Peggy Kenna and Sondra Lacy
+bib-title: Business Korea
+bib-publisher: Passport Books
+bib-year:  1997
+
+Business book.
+`
+
 type rtfSR struct {
     testname string
     in string
@@ -161,6 +175,9 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
         rtfSR{ "test_header_8",  test_header_8, nil, 
                 MetaData{"", realisticdate, date , "What I want", true, 
                 []string{"@journal", "@hello",  "@bye"}, map[string]string{"tag":"empty",  "plastic":"yes"}}},
+        rtfSR{ "test_header_9",  test_header_9, nil, 
+                MetaData{"", realisticdate, date , "Business Korea", true, 
+                []string{"@book"}, map[string]string{"bib-bibkey":"kenna97", "bib-author":"Peggy Kenna and Sondra Lacy", "bib-title":"Business Korea", "bib-publisher":"Passport Books", "bib-year":"1997"}}},
     }
 
     for _, tu := range(testfiles) {
