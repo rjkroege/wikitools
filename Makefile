@@ -30,15 +30,10 @@ include $(GOROOT)/src/Make.cmd
 #	6l -o $@ testdriver.6
 
 # Runs the test too.
-all: article wikimake targettest
+all: article wikimake
 	
 article: article/article.go article/metadata.go article/generatetimeline.go
 	make -C article install
-
-targettest: wikimake
-	rm -f note_list.js
-	cd testdata ; ../wikimake
-	diff -q testdata/note_list.js testdata/note_list.js.baseline
 
 install			: all
 	$(INSTALL) -d $(bindir)

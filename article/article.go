@@ -177,6 +177,8 @@ func (md *MetaData) WriteHtmlFile() {
   // them when I have already done so. But this is easier. And
 	// it probably doesn't matter given that most files don't need
 	// to be regenerated.
+  
+  fmt.Println("processing " + md.Name)
   fd, err := os.Open(md.Name, os.O_RDONLY, 0)
   
   if err != nil {
@@ -187,23 +189,23 @@ func (md *MetaData) WriteHtmlFile() {
   // TODO(rjkroege): if the md file is not as new as the HTML file, 
 	// skip all of this work.
   ofd, werr := os.Open(md.FormattedName(), os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
-  
-  fmt.Println("processing")
 
   if werr != nil {
     fmt.Print(werr);
+    // Close the input file descriptor
     return
   } else {
     body := "";
     rd := bufio.NewReader(io.Reader(fd));
 
-    // TODO(rjkroege): trim the metadata here.
+    // Trim the metadata here.
     if md.hadMetaData {
       for {
         line, rerr := rd.ReadString('\n');
         if rerr != nil {
           break
           // TODO(rjkroege): skip this file
+          // Close the input file descriptor.
         }
         if line == "\n" {
           break
@@ -219,8 +221,7 @@ func (md *MetaData) WriteHtmlFile() {
 				break
 			}
     }
-  
-    fmt.Println("processing a file...2 ")
+
     w := bufio.NewWriter(ofd)
 
    // 4. replace special symbols with some properties.
@@ -236,5 +237,6 @@ func (md *MetaData) WriteHtmlFile() {
     w.Flush()
     ofd.Close()
   }
+  fd.Close()
 }
 

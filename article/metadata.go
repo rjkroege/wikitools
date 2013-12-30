@@ -7,7 +7,7 @@
 package article;
 
 import (
-  // "fmt";
+  "fmt";
   "os";
   "bufio";
   "io";
@@ -60,9 +60,10 @@ func parseDateCmdFmt(numericDate string) int64 {
  * Returns the first time corresponding to the first data match.
  */
 func parseDateUnix(numericDate string) int64 {
-  dateFormats := [2]string {
+  dateFormats := []string {
       "Mon _2 Jan 2006 15:04:05 MST",
-      "2006/01/02 15:04:05" };
+      "2006/01/02 15:04:05",
+      "200601021504" };
   resultDate := parseDateCmdFmt(numericDate);
   if resultDate > int64(0) { return resultDate; }
 
@@ -113,7 +114,7 @@ func (md *MetaData) RootThroughFileForMetadata() {
     m1 := metadataMatcher.FindStringSubmatch(line);
     m2 := commentDataMatcher.FindStringSubmatch(line);
     if len(m1) > 0 {
-      // fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
+      fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
       if strings.ToLower(m1[1]) == "title" { resultLine = m1[2]; }
       if strings.ToLower(m1[1]) == "date" { resultDate = parseDateUnix(m1[2]); }
       md.hadMetaData = true

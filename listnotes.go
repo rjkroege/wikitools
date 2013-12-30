@@ -76,18 +76,18 @@ func main() {
   }
   
   // Generate the timeline datafile.
-  ofd, err := os.Open("note_list.js", os.O_WRONLY | os.O_CREATE, 0644);
+  ofd, err := os.Open("note_list.js", os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
   if err != nil {
     fmt.Print(err);
   } else {
-    fmt.Print("attempt to print out the metadata\n")
+    // fmt.Print("attempt to print out the metadata\n")
     article.WriteTimeline(ofd, e);
   }
 
   // Generate articles here so that we can inline the JavaScript data if
   // that would prove desirable.
   for _, d := range e {
-    fmt.Print("running WriteHtmlFile\n")
+    // fmt.Print("running WriteHtmlFile\n")
     d.WriteHtmlFile()
   }
 
