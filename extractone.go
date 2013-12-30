@@ -31,15 +31,17 @@ singleEmitter =
 `
 main "./main";
 string = "'%s'";
-titleField = "title = %s";
+titleField = "entrytitle = %s";
 urlField = "link = %s";
-dateField = "start = %s";
+dateField = "titledate = %s";
 main.FileMetaData =
     Title:titleField "\n"
     Url:urlField "\n"
     FinalDate:dateField "\n";
 ptr = * : main.FileMetaData;
 `;
+
+titleTimeFormat = "Mon Jan _2, 2006";
 )
 
 
@@ -57,7 +59,8 @@ func makeUrlFromName(f string, path string) string {
  */
 func dateToString(ti uint64) string {
   t := time.SecondsToLocalTime(int64(ti / 1e9));
-  return t.Format(time.ISO8601);
+  // return t.Format(time.ISO8601);
+  return t.Format(titleTimeFormat);
 }
 
 
