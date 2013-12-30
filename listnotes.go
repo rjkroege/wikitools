@@ -18,8 +18,8 @@ import (
 type FileMetaData struct {
   Name string;
   Url string;
-  DateFromStat uint64;
-  DateFromMetadata uint64;
+  DateFromStat int64;
+  DateFromMetadata int64;
   Title string;
   FinalDate string;
 }
@@ -36,9 +36,9 @@ func makeUrlFromName(f string, path string) string {
 /**
  * Turns a time in ns since epoch into a string
  */
-func dateToString(ti uint64) string {
+func dateToString(ti int64) string {
   t := time.SecondsToLocalTime(int64(ti / 1e9));
-  return t.Format(time.ISO8601);
+  return t.Format(time.RFC3339);
 }
 
 
@@ -69,7 +69,7 @@ func main() {
   // Update the metadata objects with the desired date.
   for _, d := range e {
     // TODO(rjkroege): insert computing the Date string here.
-    if (d.DateFromMetadata > uint64(0)) {
+    if (d.DateFromMetadata > int64(0)) {
       d.FinalDate = dateToString(d.DateFromMetadata);
     } else {
       d.FinalDate = dateToString(d.DateFromStat);

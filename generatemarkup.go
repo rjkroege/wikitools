@@ -8,6 +8,7 @@ package main
 
 import (
   "fmt";
+  "bytes";
   "io";
 //  "io";
 //  "strings";
@@ -15,7 +16,6 @@ import (
 //  "regexp";
 //  "time";
   "exp/datafmt";
-  "strings";
 )
 
 
@@ -66,7 +66,7 @@ array = { * / ",\n" };
 
 func writeMarkup(fd io.Writer, e []*FileMetaData) {
   io.WriteString(fd, header);
-  df, err := datafmt.Parse("listnotes.go", strings.Bytes(emitter), nil);
+  df, err := datafmt.Parse("listnotes.go", bytes.NewBufferString(emitter).Bytes(), nil);
   if err != nil {
     fmt.Print(err);
   } else {

@@ -6,12 +6,13 @@
 package main
 
 import (
+  "bytes";
+  "exp/datafmt";
+  "flag";
   "fmt";
   "os";
   "strings";
   "time";
-  "flag";
-  "exp/datafmt";
 )
 
 // TODO(rjkroege): refactor into something different
@@ -19,8 +20,8 @@ import (
 type FileMetaData struct {
   Name string;
   Url string;
-  DateFromStat uint64;
-  DateFromMetadata uint64;
+  DateFromStat int64;
+  DateFromMetadata int64;
   Title string;
   FinalDate string;
 }
@@ -57,7 +58,7 @@ func makeUrlFromName(f string, path string) string {
 /**
  * Turns a time in ns since epoch into a string
  */
-func dateToString(ti uint64) string {
+func dateToString(ti int64) string {
   t := time.SecondsToLocalTime(int64(ti / 1e9));
   // return t.Format(time.ISO8601);
   return t.Format(titleTimeFormat);
@@ -68,8 +69,8 @@ func main() {
   flag.Parse();
   pwd, _ := os.Getwd();
   
-  // fmt.Print("running\n");
-  df, err1 := datafmt.Parse("extractone.go", strings.Bytes(singleEmitter), nil);
+  df, err1 := datafmt.Parse("extractone.go",
+      bytes.NewBufferString(singleEmitter).Bytes(), nil);
   if err1 != nil {
     fmt.Print(err1);
   }
@@ -87,7 +88,7 @@ func main() {
       e.DateFromStat = fi.Mtime_ns;
       e.DateFromMetadata, e.Title = rootThroughFileForMetadata(fname);
 
-      if (e.DateFromMetadata > uint64(0)) {
+      if (e.DateFromMetadata > int64(0)) {
         e.FinalDate = dateToString(e.DateFromMetadata);
       } else {
         e.FinalDate = dateToString(e.DateFromStat);

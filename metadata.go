@@ -24,8 +24,8 @@ var commentDataMatcher = regexp.MustCompile("<!-- *([0-9]*) *-->");
  * Attempts to parse the date sequence that I have used in multiple
  * files that consists of a string of digits.
  */
-func parseDateCmdFmt(numericDate string) uint64 {
-  d0 := uint64(0);
+func parseDateCmdFmt(numericDate string) int64 {
+  d0 := int64(0);
   t := time.LocalTime();
   var e os.Error;
 
@@ -49,7 +49,7 @@ func parseDateCmdFmt(numericDate string) uint64 {
   t.Second, e = strconv.Atoi(numericDate[12:14]);
   if e != nil { return d0; }
   
-  return uint64(t.Seconds() * 1e9);
+  return int64(t.Seconds() * 1e9);
 }
 
 /**
@@ -59,17 +59,17 @@ func parseDateCmdFmt(numericDate string) uint64 {
  *
  * Returns the first time corresponding to the first data match.
  */
-func parseDateUnix(numericDate string) uint64 {
+func parseDateUnix(numericDate string) int64 {
   dateFormats := [2]string {
       "Mon _2 Jan 2006 15:04:05 MST",
       "2006/01/02 15:04:05" };
   resultDate := parseDateCmdFmt(numericDate);
-  if resultDate > uint64(0) { return resultDate; }
+  if resultDate > int64(0) { return resultDate; }
 
   for _, df := range(dateFormats) {
     t, e := time.Parse(df, numericDate);
     if e == nil {
-      resultDate = uint64(t.Seconds() * 1e9);
+      resultDate = int64(t.Seconds() * 1e9);
       break;
     }
   }
@@ -91,7 +91,7 @@ func parseDateUnix(numericDate string) uint64 {
  * To keep this from being too inefficient, it must be found in the top
  * 5 lines.
  */
-func rootThroughFileForMetadata(name string) (uint64, string) {
+func rootThroughFileForMetadata(name string) (int64, string) {
   fd, _ := os.Open(name, os.O_RDONLY, 0);
   // Collect the metadata in a struct?  
   
@@ -102,7 +102,7 @@ func rootThroughFileForMetadata(name string) (uint64, string) {
   inMetaData := false;
 
   var resultLine string;
-  resultDate := uint64(0);
+  resultDate := int64(0);
 
   for !inMetaData && lc < 5 {
     line, _ := rd.ReadString('\n');
@@ -111,9 +111,10 @@ func rootThroughFileForMetadata(name string) (uint64, string) {
     if lc == 0 { resultLine = line; }
     // fmt.Print(line);
     // fmt.Print("\n");
-    
-    m1 := metadataMatcher.MatchStrings(line);
-    m2 := commentDataMatcher.MatchStrings(line);
+
+    // fmt.Print("running regexp matcher...\n")
+    m1 := metadataMatcher.FindStringSubmatch(line);
+    m2 := commentDataMatcher.FindStringSubmatch(line);
     if len(m1) > 0 {
       // fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
       if strings.ToLower(m1[1]) == "title" { resultLine = m1[2]; }
@@ -123,7 +124,7 @@ func rootThroughFileForMetadata(name string) (uint64, string) {
       resultDate = parseDateCmdFmt(m2[1]);
     }
   
-    if resultDate == uint64(0) {
+    if resultDate == int64(0) {
       // fmt.Print("zero resultData, trying to parse title");
       resultDate = parseDateUnix(resultLine);
     }
