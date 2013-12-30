@@ -19,15 +19,15 @@ import (
 // and clean up.
 // TODO(rjkroege): Make the structure members private.
 type MetaData struct {
-  Name string;    // Relative file name
-  Url string;     // Url of the generated file.
-  DateFromStat time.Time;
-  DateFromMetadata time.Time;
-  Title string;
-  FinalDate string;
-  hadMetaData bool;
-  PrettyDate string;
-  SourcePath string;
+  Name string					`json:"-"`
+  Url string					`json:"link"`
+  DateFromStat time.Time		`json:"-"`
+  DateFromMetadata time.Time	`json:"-"`
+  Title string					`json:"title"`
+  FinalDate string				`json:"start"`
+  hadMetaData bool 			`json:"-"`
+  PrettyDate string				`json:"-"`
+  SourcePath string			`json:"-"`
 }
 
 // Contains large string contants.
