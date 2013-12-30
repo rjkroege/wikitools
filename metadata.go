@@ -1,13 +1,13 @@
 /*
   Metadata extraction  
-  ; fn gogo  {make  && ./entrylist ; echo}
+  ; fn gogo  {make test}
 
 */
 
 package main
 
 import (
-//  "fmt";
+  // "fmt";
   "os";
   "bufio";
   "io";
@@ -25,14 +25,27 @@ var commentDataMatcher = regexp.MustCompile("<!-- *([0-9]*) *-->");
  * files that consists of a string of digits.
  */
 func parseDateCmdFmt(numericDate string) uint64 {
+  d0 := uint64(0);
   t := time.LocalTime();
+  var e os.Error;
   
-  t.Year, _ = strconv.Atoi64(numericDate[0:4]);
-  t.Month, _ = strconv.Atoi(numericDate[4:6]);
-  t.Day, _ = strconv.Atoi(numericDate[6:8]);
-  t.Hour, _ = strconv.Atoi(numericDate[8:10]);
-  t.Minute, _ = strconv.Atoi(numericDate[10:12]);
-  t.Second, _ = strconv.Atoi(numericDate[12:14]);
+  t.Year, e = strconv.Atoi64(numericDate[0:4]);
+  if e != nil { return d0; }
+
+  t.Month, e = strconv.Atoi(numericDate[4:6]);
+  if e != nil { return d0; }
+
+  t.Day, e = strconv.Atoi(numericDate[6:8]);
+  if e != nil { return d0; }
+
+  t.Hour, e = strconv.Atoi(numericDate[8:10]);
+  if e != nil { return d0; }
+
+  t.Minute, e = strconv.Atoi(numericDate[10:12]);
+  if e != nil { return d0; }
+
+  t.Second, e = strconv.Atoi(numericDate[12:14]);
+  if e != nil { return d0; }
   
   return uint64(t.Seconds() * 1e9);
 }
@@ -48,7 +61,8 @@ func parseDateUnix(numericDate string) uint64 {
   dateFormats := [2]string {
       "Mon _2 Jan 2006 15:04:05 MST",
       "2006/01/02 15:04:05" };
-  resultDate := uint64(0);
+  resultDate := parseDateCmdFmt(numericDate);
+  if resultDate > uint64(0) { return resultDate; }
 
   for _, df := range(dateFormats) {
     t, e := time.Parse(df, numericDate);
