@@ -6,7 +6,7 @@ TARG = wikimake
 
 # Add the rest of the files here.
 # GOFILES = article.go generatemarkup.go listnotes.go metadata.go
-GOFILES = listnotes.go generatemarkup.go
+GOFILES = listnotes.go
 
 # hypothesis: 2011/2/28
 # extractone.go is unnecessary.
@@ -32,7 +32,7 @@ include $(GOROOT)/src/Make.cmd
 # Runs the test too.
 all: article wikimake targettest
 	
-article: article/article.go article/metadata.go
+article: article/article.go article/metadata.go article/generatemarkup.go
 	make -C article install
 
 targettest: wikimake

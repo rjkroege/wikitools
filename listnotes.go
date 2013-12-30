@@ -69,14 +69,13 @@ func main() {
     }
   }
   
-  // Time to generate the stuff...
-  //ofd, err := os.Open("note_list.js", os.O_WRONLY | os.O_CREATE, 0644);
-  _, err := os.Open("note_list.js", os.O_WRONLY | os.O_CREATE, 0644);
+  // Generate the timeline datafile.
+  ofd, err := os.Open("note_list.js", os.O_WRONLY | os.O_CREATE, 0644);
   if err != nil {
     fmt.Print(err);
   } else {
-    fmt.Print("ought to be printing here\n")
-    // writeMarkup(ofd, e);
+    fmt.Print("attempt to print out the metadata\n")
+    article.WriteTimeline(ofd, e);
   }
 
 

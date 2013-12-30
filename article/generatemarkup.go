@@ -4,10 +4,9 @@
 
 */
 
-package main
+package article
 
 import (
-	"liqui.org/article"
   "fmt";
   "bytes";
   "io";
@@ -17,13 +16,14 @@ import (
 //  "regexp";
 //  "time";
   "exp/datafmt";
+  "go/token"
 )
 
 
 const (
 
 // Insert at the top of each generated file.
-  header =
+  timeline_header =
 `
 var timeline_data = {  // save as a global variable
 'dateTimeFormat': 'iso8601',
@@ -34,7 +34,7 @@ var timeline_data = {  // save as a global variable
 `;
 
 // Insert at the bottom of each generated file.
-footer = 
+timeline_footer = 
 `
 ] }
 `;
@@ -66,23 +66,26 @@ array = { * / ",\n" };
 )
 
 
-func writeMarkup(fd io.Writer, e []*article.MetaData) {
-  io.WriteString(fd, header);
-  df, err := datafmt.Parse(nil, "foo", bytes.NewBufferString(emitter).Bytes(), nil);
+func WriteTimeline(fd io.Writer, e []*MetaData) {
+  io.WriteString(fd, timeline_header);
+  
+  // it is highly unclear to me how to do this
+  df, err := datafmt.Parse(token.NewFileSet(), "article.go",
+      bytes.NewBufferString(emitter).Bytes(), nil);
   if err != nil {
 		fmt.Print("Something went wrong with the formatted output: ")
     fmt.Println(err);
   } else {
-
     // mind that you have no looping (will add repetition
     // TODO(rjkroege): add repetition to the format.
     _, err2  := df.Fprint(fd, nil, e);
+    fmt.Println("supposedly, I have generated output here")
     if (err2 != nil) {
       fmt.Print(err2);
       return;
     }
   }
-  io.WriteString(fd, footer);
+  io.WriteString(fd, timeline_footer);
 }
 
 
