@@ -6,16 +6,8 @@
 package article
 
 import (
-  "fmt";
-  "bytes";
   "io";
-//  "io";
-//  "strings";
-//  "strconv";
-//  "regexp";
-//  "time";
-  "exp/datafmt";
-  "go/token"
+  "text/template";
 )
 
 
@@ -45,45 +37,54 @@ timeline_footer =
 
 // Use to actually generate the output using the formatter.
 // 
-emitter =
-`
-article "liqui.org/article";
-main "./main";
-string = "'%s'";
-titleField = "'title': '%s'";
-urlField = "'link': '%s'";
-dateField = "'start': '%s'";
-article.MetaData = "  {" ( "    " >>  "\n"
-    Title:titleField ",\n"
-    Url:urlField ",\n"
-    FinalDate:dateField
-    ) "\n  }";
-ptr = * : article.MetaData;
-array = { * / ",\n" };
-`;
 
+
+emittercore =
+`{{ define "core" }}   'title': '{{.Title}}',
+    'link': '{{.Url}}',
+    'start': '{{.FinalDate}}'{{end}}
+`
+
+// There should be a nicer way to do this.
+emitter =
+`  {
+ {{template "core" .}}
+  },
+`
+
+lastemitter =
+`  {
+ {{template "core" .}}
+  }`
 )
 
-
+// It feels like it there are nicer ways to write this.
 func WriteTimeline(fd io.Writer, e []*MetaData) {
   io.WriteString(fd, timeline_header);
-  
-  // it is highly unclear to me how to do this
-  df, err := datafmt.Parse(token.NewFileSet(), "article.go",
-      bytes.NewBufferString(emitter).Bytes(), nil);
-  if err != nil {
-		fmt.Print("Something went wrong with the formatted output: ")
-    fmt.Println(err);
-  } else {
-    // mind that you have no looping (will add repetition
-    // TODO(rjkroege): add repetition to the format.
-    _, err2  := df.Fprint(fd, nil, e);
-    fmt.Println("supposedly, I have generated output here")
-    if (err2 != nil) {
-      fmt.Print(err2);
-      return;
+
+  te, err := template.New("lastemitter").Parse(lastemitter);
+  if err != nil { panic(err) }
+  te, err = te.Parse(emittercore);
+  if err != nil { panic(err) }
+
+  t, err := template.New("emitter").Parse(emitter);
+  if err != nil { panic(err) }
+  t, err = t.Parse(emittercore);
+  if err != nil { panic(err) }
+
+  for i := 0; i < len(e) - 1; i++ {
+    err = t.Execute(fd, e[i])
+    if err != nil { 
+      panic(err)
     }
   }
+  if len(e) > 0 {  
+    err = te.Execute(fd, e[len(e) - 1])
+    if err != nil { 
+      panic(err)
+    }
+  }
+
   io.WriteString(fd, timeline_footer);
 }
 

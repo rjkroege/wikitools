@@ -20,7 +20,9 @@ import (
   "io"
   "os"
   "github.com/knieriem/markdown"
-  "template"
+  "text/template"
+  "strings"
+  "time"
 )
 
 // TODO(rjkroege): make sure that each entry has a nice comment
@@ -28,8 +30,8 @@ import (
 type MetaData struct {
   Name string;    // Relative file name
   Url string;     // Url of the generated file.
-  DateFromStat int64;
-  DateFromMetadata int64;
+  DateFromStat time.Time;
+  DateFromMetadata time.Time;
   Title string;
   FinalDate string;
   hadMetaData bool;
@@ -44,15 +46,15 @@ header =
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-   <title>{Title}</title>
+   <title>{{.Title}}</title>
    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
   <!-- date argument for centering -->
   <script language="JavaScript" type="text/javascript">
-    var external_titledate = '{PrettyDate}';
-    function modifyTheUrl(event) {.meta-left}
+    var external_titledate = '{{.PrettyDate}}';
+    function modifyTheUrl(event) {
       event.currentTarget.href += Date.now() + '.md';
-      return true; {.meta-right}
+      return true; }
   </script>
 
   <!-- timeline CSS -->
@@ -80,8 +82,8 @@ header =
    <div id="container">
       <div id="title">
         <!-- Add editing functionality? -->
-        <h1 class="left">{Title}</h1>
-        <h1 class="right">{PrettyDate}</h1>
+        <h1 class="left">{{.Title}}</h1>
+        <h1 class="right">{{.PrettyDate}}</h1>
       </div> <!-- title -->
 
       <!-- Timeline -->
@@ -116,7 +118,7 @@ textmateFooter =
 `
 <hr />
 <p class="info">
-   Source: <a href="txmt://open?url={SourceUrl}">{Name}</a><br />
+   Source: <a href="txmt://open?url={{.SourceUrl}}">{{.Name}}</a><br />
    <!-- new ones not handled -->
    <a onclick="modifyTheUrl(event)" href="txmt://open?url=file:///Users/rjkroege/Documents/wiki2/ca_">New Article</a><br />
 </p>
@@ -132,8 +134,8 @@ test = "foo foo {Title} bar bar\n{PrettyDate}\n{SourceUrl}\n{Name}\n"
 
 )
 
-var headerTemplate = template.MustParse(header, nil);
-var footerTemplate = template.MustParse(textmateFooter, nil);
+var headerTemplate = template.Must(template.New("header").Parse(header));
+var footerTemplate = template.Must(template.New("footer").Parse(textmateFooter));
 
 // Converts an article name into its name as a formatted object.s
 func (md *MetaData) FormattedName() string {
@@ -167,7 +169,7 @@ func (md *MetaData) WriteHtmlFile() {
 	// to be regenerated.
   
 
-  fd, err := os.Open(md.Name, os.O_RDONLY, 0)
+  fd, err := os.OpenFile(md.Name, os.O_RDONLY, 0)
   defer fd.Close()
   if err != nil {
     fmt.Print(err)
@@ -175,11 +177,12 @@ func (md *MetaData) WriteHtmlFile() {
   }
   
   statinfo, serr := os.Stat(md.FormattedName())
-  if serr != nil || statinfo.Mtime_ns < md.DateFromStat {
+   // This might be suspect?
+  if serr != nil || statinfo.ModTime().Before(md.DateFromStat) {
     // TODO(rjkroege): if the md file is not as new as the HTML file, 
-	  // skip all of this work.
+    // skip all of this work.
     fmt.Println("processing " + md.Name)
-    ofd, werr := os.Open(md.FormattedName(), os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
+    ofd, werr := os.OpenFile(md.FormattedName(), os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
     defer ofd.Close()
     if werr != nil {
       fmt.Print("one ", werr, "\n");
@@ -209,7 +212,7 @@ func (md *MetaData) WriteHtmlFile() {
     // Read errors will wipe out previously generated output. Do I care?
     for {
       line, rerr := rd.ReadString('\n');
-			if rerr == os.EOF {
+			if rerr == io.EOF {
         break
 			} else if rerr != nil {
 			  fmt.Print("WriteHtmlFile: read error ", rerr, "\n")
@@ -223,10 +226,10 @@ func (md *MetaData) WriteHtmlFile() {
 
     // Header with substitutions
     headerTemplate.Execute(w, md)
-    
-		// Convert the markdown file into a HTML
-		doc := markdown.Parse(body, markdown.Extensions{Smart: true})
-    doc.WriteHtml(w)
+
+    // Convert the markdown file into a HTML
+    p := markdown.NewParser(&markdown.Extensions{Smart: true});
+    p.Markdown(strings.NewReader(body), markdown.ToHTML(w));
 
     // Footer with substitutions
     footerTemplate.Execute(w, md)

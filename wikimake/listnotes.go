@@ -14,25 +14,22 @@
 package main
 
 import (
-  "liqui.org/article"
+  "github.com/rjkroege/wikitools/article"
   "fmt";
-//	"./mkd"
   "os";
   "strings";
   "time";
 )
 
-/**a
+/**
  * Turns a time in ns since epoch into a string
  */
-func dateToString(ti int64) string {
-  t := time.SecondsToLocalTime(int64(ti / 1e9));
-  return t.Format(time.RFC3339);
+func dateToString(ti time.Time) string {
+  return ti.Format(time.RFC3339);
 }
 
-func dateForPeople(ti int64) string {
-  t := time.SecondsToLocalTime(int64(ti / 1e9));
-  return t.Format("Monday, Jan _2, 2006");
+func dateForPeople(ti time.Time) string {
+  return ti.Format("Monday, Jan _2, 2006");
 }
 
 
@@ -42,7 +39,7 @@ func main() {
   pwd, _ := os.Getwd();
   
   // get a directory listing
-  fd, _ := os.Open(".", os.O_RDONLY, 0);
+  fd, _ := os.OpenFile(".", os.O_RDONLY, 0);
   dirs, _ := fd.Readdir(-1);	// < 0 means get all of them
   
   e := make([]*article.MetaData, len(dirs));
@@ -51,15 +48,15 @@ func main() {
   // Can finess the "template" here.
   
   for _, d := range dirs {
-    if strings.HasSuffix(d.Name, ".md") {
+    if strings.HasSuffix(d.Name(), ".md") {
       // TODO(rjkroege): could be a constructor like object.
       // This code could be much more designed. And less hacky.
-      e[i] = new(article.MetaData);
-      e[i].Name = d.Name;
+      e[i] = new(article.MetaData)
+      e[i].Name = d.Name()
       e[i].SourceForName(pwd)
-      e[i].UrlForName(pwd);
-      e[i].DateFromStat = d.Mtime_ns;
-      e[i].RootThroughFileForMetadata();
+      e[i].UrlForName(pwd)
+      e[i].DateFromStat = d.ModTime()
+      e[i].RootThroughFileForMetadata()
       i++;
     }
   }
@@ -68,7 +65,7 @@ func main() {
   // Update the metadata objects with the desired date.
   for _, d := range e {
     // TODO(rjkroege): insert computing the Date string here.
-    if (d.DateFromMetadata > int64(0)) {
+    if (!d.DateFromMetadata.IsZero()) {
       d.FinalDate = dateToString(d.DateFromMetadata);
       d.PrettyDate = dateForPeople(d.DateFromMetadata);
     } else {
@@ -78,7 +75,7 @@ func main() {
   }
   
   // Generate the timeline datafile.
-  ofd, err := os.Open("note_list.js", os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
+  ofd, err := os.OpenFile("note_list.js", os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
   if err != nil {
     fmt.Print(err);
   } else {

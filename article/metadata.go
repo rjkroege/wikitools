@@ -15,68 +15,83 @@ import (
   "strconv";
   "regexp";
   "time";
+  "errors";
 )
 
 var metadataMatcher = regexp.MustCompile("^([A-Za-z]*):[ \t]*(.*)$");
 var commentDataMatcher = regexp.MustCompile("<!-- *([0-9]*) *-->");
 
+// I don't think this is named well.
 /**
  * Attempts to parse the date sequence that I have used in multiple
  * files that consists of a string of digits.
  */
-func parseDateCmdFmt(numericDate string) int64 {
-  d0 := int64(0);
-  t := time.LocalTime();
-  var e os.Error;
+func parseDateCmdFmt(numericDate string) (t time.Time, err error) {
+  t = time.Now();
+  if len(numericDate) != 14 {
+    return t, errors.New("numeric date string contained wrong number of characters")
+  }
 
-  if len(numericDate) != 14 { return d0; }
-  
-  t.Year, e = strconv.Atoi64(numericDate[0:4]);
-  if e != nil { return d0; }
+  err = nil;
+  year, err := strconv.ParseInt(numericDate[0:4], 10, 32);
+  month, err := strconv.ParseInt(numericDate[4:6], 10, 32);
+  day, err := strconv.ParseInt(numericDate[6:8], 10, 32);
+  hour, err := strconv.ParseInt(numericDate[8:10], 10, 32);
+  minute, err := strconv.ParseInt(numericDate[10:12], 10, 32);
+  second, err := strconv.ParseInt(numericDate[12:14], 10, 32);
+  if err != nil { return }
 
-  t.Month, e = strconv.Atoi(numericDate[4:6]);
-  if e != nil { return d0; }
+  location, err := time.LoadLocation("Local")
+  if err != nil { return }
 
-  t.Day, e = strconv.Atoi(numericDate[6:8]);
-  if e != nil { return d0; }
-
-  t.Hour, e = strconv.Atoi(numericDate[8:10]);
-  if e != nil { return d0; }
-
-  t.Minute, e = strconv.Atoi(numericDate[10:12]);
-  if e != nil { return d0; }
-
-  t.Second, e = strconv.Atoi(numericDate[12:14]);
-  if e != nil { return d0; }
-  
-  return int64(t.Seconds() * 1e9);
+  return time.Date(int(year), time.Month(month), int(day),
+                                         int(hour), int(minute), int(second), 0, location), nil;
 }
+
+const (
+lstring = "20060102150405 MST";
+sstring = "200601021504 MST";
+slashdate = "2006/01/02 15:04:05 MST"
+unixlike = "Mon _2 Jan 2006 15:04:05 MST"
+)
 
 /**
  * Attempts to parse the metadata of the file. I will require file
- * metadata to be in UNIX data format (because I can since there
+ * metadata to be in UNIX date format (because I can since there
  * is no legacy.)
  *
  * Returns the first time corresponding to the first data match.
  */
-func parseDateUnix(numericDate string) int64 {
-  dateFormats := []string {
-      "Mon _2 Jan 2006 15:04:05 MST",
-      "2006/01/02 15:04:05",
-      "200601021504" };
-  resultDate := parseDateCmdFmt(numericDate);
-  if resultDate > int64(0) { return resultDate; }
+func parseDateUnix(ds string) (t time.Time, err error)  {
+  fmt.Print("time string <" + ds + ">\n");
 
-  for _, df := range(dateFormats) {
-    t, e := time.Parse(df, numericDate);
-    if e == nil {
-      resultDate = int64(t.Seconds() * 1e9);
-      break;
-    }
+  // Formats where the data does have a timezone.
+  unzoned := []string {
+      unixlike,
+      time.UnixDate };
+
+  for _, fs := range(unzoned) {
+    t, err = time.Parse(fs, ds);
+    if err == nil { return }
   }
-  return resultDate;
-}
 
+  // Formats where the data does not have an included timezone.
+  zoned := []string {
+      lstring,
+      sstring,
+      slashdate};
+
+ for _, fs := range(zoned) {
+    t, err = time.Parse(fs, ds + " EDT");
+    fmt.Print("<" + fs + "> for <" + ds + " EDT> gives location: " + t.Location().String());
+    if err == nil && t.Location().String() == "Local" { return }
+    
+    t, err = time.Parse(fs, ds + " EST");
+    fmt.Print("<" + fs + "> for <" + ds + " EST> gives location: " + t.Location().String());
+    if err == nil && t.Location().String() == "Local" { return }
+  }
+  return;
+}
 
 /**
  * Opens a specified file and attempts to extract meta data.
@@ -88,49 +103,52 @@ func parseDateUnix(numericDate string) int64 {
  * defined for MetaMarkdown. This format consists of key: value with
  * a following blank line.
  *
- * 2. The data is contained in a comment as a sequence of numbers.
+ * 2. The date is contained in a comment as a sequence of numbers.
  * To keep this from being too inefficient, it must be found in the top
  * 5 lines.
  */
 func (md *MetaData) RootThroughFileForMetadata() {
-  fd, _ := os.Open(md.Name, os.O_RDONLY, 0)
+  fmt.Print("\nfile: " + md.Name + "\n");
+  fd, _ := os.OpenFile(md.Name, os.O_RDONLY, 0)
   rd := bufio.NewReader(io.Reader(fd))
   lc := 0
   inMetaData := false
   md.hadMetaData = false
 
   var resultLine string;
-  resultDate := int64(0);
+  var date time.Time;
+  var de error;
 
   for !inMetaData && lc < 5 {
     line, _ := rd.ReadString('\n');
     if len(line) > 0 { line = line[0:len(line)-1]; }
     
     if lc == 0 { resultLine = line; }
-    // fmt.Print(line);
-    // fmt.Print("\n");
+     fmt.Print(line);
+     fmt.Print("\n");
 
-    // fmt.Print("running regexp matcher...\n")
+    fmt.Print("running regexp matcher...\n")
     m1 := metadataMatcher.FindStringSubmatch(line);
     m2 := commentDataMatcher.FindStringSubmatch(line);
     if len(m1) > 0 {
       fmt.Print("matched for " + m1[1] + " <" + m1[2] + ">\n");
       if strings.ToLower(m1[1]) == "title" { resultLine = m1[2]; }
-      if strings.ToLower(m1[1]) == "date" { resultDate = parseDateUnix(m1[2]); }
+      if strings.ToLower(m1[1]) == "date" {
+        date, de = parseDateUnix(strings.TrimSpace(m1[2]));
+      }
       md.hadMetaData = true
     } else if len(m2) > 0 {
-      // fmt.Print("matched for  <" + m2[1] + ">\n");
-      resultDate = parseDateCmdFmt(m2[1]);
+      fmt.Print("matched for  <" + m2[1] + ">\n");
+      date, de = parseDateUnix(m2[1]);
     }
   
-    if resultDate == int64(0) {
-      // fmt.Print("zero resultData, trying to parse title");
-      resultDate = parseDateUnix(resultLine);
+    if de != nil || date.IsZero() {
+      fmt.Print("date is zero, trying whole resultLine: <" + resultLine + ">\n");
+      date, de  = parseDateUnix(resultLine);
     }
-  
     lc++;
   }
   fd.Close();
-  md.DateFromMetadata, md.Title = resultDate, resultLine;
+  md.DateFromMetadata, md.Title = date, resultLine;
 }
 
