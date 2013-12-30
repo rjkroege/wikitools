@@ -48,6 +48,8 @@ func main() {
   e := make([]*article.MetaData, len(dirs));
   i := 0;
   
+  // Can finess the "template" here.
+  
   for _, d := range dirs {
     if strings.HasSuffix(d.Name, ".md") {
       // TODO(rjkroege): could be a constructor like object.

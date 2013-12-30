@@ -23,10 +23,11 @@ import (
   "template"
 )
 
-
+// TODO(rjkroege): make sure that each entry has a nice comment
+// and clean up.
 type MetaData struct {
-  Name string;
-  Url string;
+  Name string;    // Relative file name
+  Url string;     // Url of the generated file.
   DateFromStat int64;
   DateFromMetadata int64;
   Title string;
@@ -122,30 +123,13 @@ textmateFooter =
 </html>
 `
 
+// Used for exploring how the template facility works.
 test = "foo foo {Title} bar bar\n{PrettyDate}\n{SourceUrl}\n{Name}\n"
 
 )
 
 var headerTemplate = template.MustParse(header, nil);
 var footerTemplate = template.MustParse(textmateFooter, nil);
-
-
-/*
-  How to proceed?
-  
-  We need some testing infrastructure. And other good stuff.
-  
-  I want to have less cruft in the wiki directory proper. It should be
-  clean. Which behooves placing the template data inline here (in the
-  go source).
-  
-  This is somewhat offensive but because compiles are fast, I can
-  largely deal. It is however (in the long term) not the right approach.
-  A better way might be to store them as html for proper editing and
-  then suck them into Go code during the build process.
-
-*/
-
 
 // Converts an article name into its name as a formatted object.s
 func (md *MetaData) FormattedName() string {
@@ -178,23 +162,28 @@ func (md *MetaData) WriteHtmlFile() {
 	// it probably doesn't matter given that most files don't need
 	// to be regenerated.
   
-  fmt.Println("processing " + md.Name)
+
   fd, err := os.Open(md.Name, os.O_RDONLY, 0)
-  
+  defer fd.Close()
   if err != nil {
     fmt.Print(err)
     return
   }
+  
+  statinfo, serr := os.Stat(md.FormattedName())
+  if serr != nil || statinfo.Mtime_ns < md.DateFromStat {
+    // TODO(rjkroege): if the md file is not as new as the HTML file, 
+	  // skip all of this work.
+    fmt.Println("processing " + md.Name)
+    ofd, werr := os.Open(md.FormattedName(), os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
+    defer ofd.Close()
+    if werr != nil {
+      fmt.Print("one ", werr, "\n");
+      return
+    }
 
-  // TODO(rjkroege): if the md file is not as new as the HTML file, 
-	// skip all of this work.
-  ofd, werr := os.Open(md.FormattedName(), os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0644);
-
-  if werr != nil {
-    fmt.Print(werr);
-    // Close the input file descriptor
-    return
-  } else {
+    // TODO(rjkroege): using a byte slice might be faster?
+    // learn to improve perf on Go.
     body := "";
     rd := bufio.NewReader(io.Reader(fd));
 
@@ -203,9 +192,8 @@ func (md *MetaData) WriteHtmlFile() {
       for {
         line, rerr := rd.ReadString('\n');
         if rerr != nil {
-          break
-          // TODO(rjkroege): skip this file
-          // Close the input file descriptor.
+          fmt.Print("two ", werr, "\n");
+          return
         }
         if line == "\n" {
           break
@@ -214,29 +202,31 @@ func (md *MetaData) WriteHtmlFile() {
     }
     
     // TODO(rjkroege): don't read the file into memory.
+    // Read errors will wipe out previously generated output. Do I care?
     for {
       line, rerr := rd.ReadString('\n');
-      body += line;
-			if rerr != nil {
-				break
+			if rerr == os.EOF {
+        break
+			} else if rerr != nil {
+			  fmt.Print("WriteHtmlFile: read error ", rerr, "\n")
+			  return
 			}
+      body += line;
     }
 
     w := bufio.NewWriter(ofd)
+    defer w.Flush()
 
-   // 4. replace special symbols with some properties.
+    // Header with substitutions
     headerTemplate.Execute(w, md)
     
 		// Convert the markdown file into a HTML
 		doc := markdown.Parse(body, markdown.Extensions{Smart: true})
     doc.WriteHtml(w)
 
-   // 4. replace special symbols with some properties.
+    // Footer with substitutions
     footerTemplate.Execute(w, md)
-    
-    w.Flush()
-    ofd.Close()
+    fmt.Println("done " + md.Name)
   }
-  fd.Close()
 }
 
