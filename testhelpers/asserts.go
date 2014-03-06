@@ -4,6 +4,12 @@ import (
     "testing"
 )
 
+func AssertBool(t *testing.T, expected bool, actual bool) {
+	if (expected != actual) {
+		t.Errorf("expected %t != actual %t", expected, actual)
+	}
+}
+
 func AssertString(t *testing.T, expected string, actual string) {
     if (expected != actual) {
         t.Errorf("expected %s != actual %s", expected, actual)
