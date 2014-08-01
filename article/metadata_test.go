@@ -54,7 +54,9 @@ func Test_ParseDateUnix(t *testing.T) {
 		pdSR{"Sun Mar 14 08:00:00 EST 2004", nil, "200403140800"},
 		pdSR{"Tue Dec 11 17:34:00 EST 2012", nil, "11 Dec 17:34:00 2012"},
 		pdSR{"Fri Jun 14 07:25:48 EDT 2013", nil, "Fri 14 Jun 2013, 07:25:48 EDT"},
-		pdSR{"Sat Dec  1 17:34:00 EST 2012", nil, "1 Dec 17:34:00 2012"}     }
+		pdSR{"Sat Dec  1 17:34:00 EST 2012", nil, "1 Dec 17:34:00 2012"},
+		pdSR{"Tue Sep  5 11:14:03 PDT 2006", nil, "Tue Sep  5 11:14:03 PDT 2006"},
+	}
 
 	for _, tu := range testdates {
 		r, err := ParseDateUnix(tu.in)

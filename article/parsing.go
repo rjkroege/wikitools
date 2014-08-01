@@ -20,6 +20,7 @@ const (
 	unixlike  = "Mon _2 Jan 2006 15:04:05"
 	short     = "Monday, Jan _2, 2006"
 	df        = "Mon _2 Jan 2006, 15:04:05"
+//	odf = "Mon Jan _2 15:04:05 MST 2006"
 )
 
 var easternTimeZone *time.Location
@@ -33,7 +34,6 @@ var easternTimeZone *time.Location
  */
 func ParseDateUnix(ds string) (t time.Time, err error) {
 	timeformats := []string{
-		time.UnixDate,
 		lsdate,
 		lstring,
 		slashdate,
@@ -41,6 +41,10 @@ func ParseDateUnix(ds string) (t time.Time, err error) {
 		unixlike,
 		short,
 		df}
+
+	timeswithzones := []string {
+		time.UnixDate,
+	}
 
 	if easternTimeZone == nil {
 		easternTimeZone, err = time.LoadLocation("America/Toronto")
@@ -62,6 +66,15 @@ func ParseDateUnix(ds string) (t time.Time, err error) {
 			return
 		}
 	}
+
+	for _, fs := range timeswithzones {
+		// These always have an explicit timezone.
+		t, err = time.Parse(fs, ds)
+		if err == nil {
+			return
+		}
+	}
+
 	// log.Print("Invalid time string ", ds, "\n")
 	return
 }
