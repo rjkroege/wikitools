@@ -1,16 +1,14 @@
 package wiki
 
 const (
-journaltmpl = 
-`title: {{.Title}}
+	journaltmpl = `title: {{.Title}}
 date: {{.DetailedDate}}
 tags: {{.Tagstring}}
 
 Yo dawg! Write stuff here.
 `
 
-booktmpl =
-`title: {{.Title}}
+	booktmpl = `title: {{.Title}}
 date: {{.DetailedDate}}
 tags: {{.Tagstring}}
 bib-bibkey: The reference key for this book. Required.
@@ -31,8 +29,7 @@ bib-url: (Optional, non-standard) A URL for an e-book.
 Yo dawg! Put the bookreview here. Delete the undesired tags. Remove the blank line.
 `
 
-articletmpl = 
-`title: {{.Title}}
+	articletmpl = `title: {{.Title}}
 date: {{.DetailedDate}}
 tags: {{.Tagstring}}
 bib-bibkey: The reference key for this book. Required.

@@ -1,10 +1,9 @@
 package bibtex
 
 import (
-    "testing"
-    "github.com/rjkroege/wikitools/testhelpers"
+	"github.com/rjkroege/wikitools/testhelpers"
+	"testing"
 )
-
 
 func Test_FilterExtrakeys_Empty(t *testing.T) {
 	m, v := FilterExtrakeys(map[string]string{})
@@ -14,46 +13,46 @@ func Test_FilterExtrakeys_Empty(t *testing.T) {
 
 func Test_FilterExtrakeys_Removing(t *testing.T) {
 	m, v := FilterExtrakeys(map[string]string{"foo": "hello"})
-	testhelpers.AssertStringArray(t, []string{},v)
+	testhelpers.AssertStringArray(t, []string{}, v)
 	testhelpers.AssertStringMap(t, map[string]string{}, m)
 }
 
 func Test_FilterExtrakeys_Keeping(t *testing.T) {
 	m, v := FilterExtrakeys(map[string]string{"foo": "hello", "bib-bar": "bye"})
-	 testhelpers.AssertStringArray(t, v, []string{"bar"})
-	 testhelpers.AssertStringMap(t, map[string]string{"bar": "bye"}, m)
+	testhelpers.AssertStringArray(t, v, []string{"bar"})
+	testhelpers.AssertStringMap(t, map[string]string{"bar": "bye"}, m)
 }
 
 func Test_ExtractBibTeXEntryType(t *testing.T) {
-	te, e := ExtractBibTeXEntryType([]string{ "@book" })
+	te, e := ExtractBibTeXEntryType([]string{"@book"})
 	if te != "book" && e != nil {
 		t.Error("book is not the default entry type")
 	}
-	
-	te, e = ExtractBibTeXEntryType([]string{ "@bibtex-article", "@book" })
+
+	te, e = ExtractBibTeXEntryType([]string{"@bibtex-article", "@book"})
 	if te != "article" && e != nil {
 		t.Error("entry type is 'article' but have selected: ", te)
 	}
 
-	te, e = ExtractBibTeXEntryType([]string{ "@book", "@bibtex-article" })
+	te, e = ExtractBibTeXEntryType([]string{"@book", "@bibtex-article"})
 	if te != "article" && e != nil {
 		t.Error("article specified, not selected")
 	}
-	
-	te, e = ExtractBibTeXEntryType([]string{ "@journal", "@bibtex-article" })
-	if e == nil || e.Error() != "No book tag present."  {
+
+	te, e = ExtractBibTeXEntryType([]string{"@journal", "@bibtex-article"})
+	if e == nil || e.Error() != "No book tag present." {
 		t.Error("bad error for missing @book")
 	}
 
-	te, e = ExtractBibTeXEntryType([]string{ "@book", "@bibtex-article",  "@bibtex-phd" })
-	if e == nil || (e.Error() != "More than one supplementary @bibtex-(.*) tag." && te != "phd" ) {
+	te, e = ExtractBibTeXEntryType([]string{"@book", "@bibtex-article", "@bibtex-phd"})
+	if e == nil || (e.Error() != "More than one supplementary @bibtex-(.*) tag." && te != "phd") {
 		t.Error("bad error for missing @book")
 	}
 
-	te, e = ExtractBibTeXEntryType([]string{ "@fuddle", "@fee",  "@fo" })
+	te, e = ExtractBibTeXEntryType([]string{"@fuddle", "@fee", "@fo"})
 	if e == nil {
 		t.Error("bad error for not a book entry")
-	} else if (e != nil && e.Error() != "No book tag present.") {
+	} else if e != nil && e.Error() != "No book tag present." {
 		t.Error("bad error for not a book entry: " + e.Error())
 	}
 }
@@ -87,13 +86,13 @@ func Test_VerifyRequiredFields(t *testing.T) {
 func Test_VerifyRequiredFields_bookeditor(t *testing.T) {
 	err := VerifyRequiredFields("book", []string{"bibkey", "author", "title", "publisher", "year"})
 	if err != nil {
-		t.Error("wrongly claim that valid author book keys are invalid: " + err.Error())		
-	}	
+		t.Error("wrongly claim that valid author book keys are invalid: " + err.Error())
+	}
 
 	err = VerifyRequiredFields("book", []string{"bibkey", "editor", "title", "publisher", "year"})
 	if err != nil {
-		t.Error("wrongly claim that valid editor book keys are invalid: " + err.Error())	
-	}	
+		t.Error("wrongly claim that valid editor book keys are invalid: " + err.Error())
+	}
 
 	err = VerifyRequiredFields("book", []string{"bibkey", "flimflam", "title", "publisher", "year"})
 	if err == nil {
@@ -104,22 +103,22 @@ func Test_VerifyRequiredFields_bookeditor(t *testing.T) {
 func Test_VerifyRequiredFields_inbook_editor(t *testing.T) {
 	err := VerifyRequiredFields("inbook", []string{"bibkey", "author", "title", "chapter", "publisher", "year"})
 	if err != nil {
-		t.Error("wrongly claim that valid author/chapter inbook keys are invalid: " + err.Error())		
-	}	
+		t.Error("wrongly claim that valid author/chapter inbook keys are invalid: " + err.Error())
+	}
 
 	err = VerifyRequiredFields("inbook", []string{"bibkey", "editor", "title", "chapter", "publisher", "year"})
 	if err != nil {
-		t.Error("wrongly claim that valid editor/chapter inbook keys are invalid: " + err.Error())	
+		t.Error("wrongly claim that valid editor/chapter inbook keys are invalid: " + err.Error())
 	}
 
 	err = VerifyRequiredFields("inbook", []string{"bibkey", "author", "title", "pages", "publisher", "year"})
 	if err != nil {
-		t.Error("wrongly claim that valid author/pages inbook keys are invalid: " + err.Error())		
-	}	
+		t.Error("wrongly claim that valid author/pages inbook keys are invalid: " + err.Error())
+	}
 
 	err = VerifyRequiredFields("inbook", []string{"bibkey", "editor", "title", "pages", "publisher", "year"})
 	if err != nil {
-		t.Error("wrongly claim that valid editor/pages inbook keys are invalid: " + err.Error())	
+		t.Error("wrongly claim that valid editor/pages inbook keys are invalid: " + err.Error())
 	}
 
 	err = VerifyRequiredFields("inbook", []string{"bibkey", "editor", "title", "publisher", "year"})
@@ -138,8 +137,7 @@ func Test_VerifyRequiredFields_inbook_editor(t *testing.T) {
 }
 
 const (
-output1 =
-`@book(jones2013,
+	output1 = `@book(jones2013,
 	editor = "Peyton Jones",
 	publisher = "Penguin",
 	title = "Collected Angst",
@@ -155,7 +153,7 @@ func Test_ExploreTemplating(t *testing.T) {
 	}
 	testhelpers.AssertString(t, output1, s)
 
-	s, e = CreateBibTexEntry([]string{"@book",  "@bibtex-article"}, map[string]string{"bib-bibkey": "jones2013", "bib-editor": "Peyton Jones", "bib-title": "Collected Angst", "bib-publisher": "Penguin", "bib-year": "2013"})
+	s, e = CreateBibTexEntry([]string{"@book", "@bibtex-article"}, map[string]string{"bib-bibkey": "jones2013", "bib-editor": "Peyton Jones", "bib-title": "Collected Angst", "bib-publisher": "Penguin", "bib-year": "2013"})
 	if e == nil {
 		t.Error("CreateBibTexEntry wrongly succeeded")
 	} else {

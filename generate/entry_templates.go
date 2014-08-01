@@ -1,8 +1,7 @@
-package generate;
+package generate
 
 const (
-header =
-`<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	header = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
@@ -44,10 +43,9 @@ header =
         <h1 class="right">{{.PrettyDate}}</h1>
       </div> <!-- title -->
       <div id="note">
-`;
-
-footer =
 `
+
+	footer = `
 <hr />
 <p class="info">
    Source: <a href="plumb://open?url=file://$mdpath">$mdpath</a><br />
@@ -63,8 +61,7 @@ footer =
 </html>
 `
 
-plumberfooter =
-`
+	plumberfooter = `
 <hr />{{if .HaveBibTex}}
 <!-- force this to be a bounded size -->
 <pre>
@@ -92,9 +89,8 @@ plumberfooter =
 </html>
 `
 
-// Insert at the top of each generated file.
-  timeline_header =
-`
+	// Insert at the top of each generated file.
+	timeline_header = `
 var timeline_data = {  // save as a global variable
 'dateTimeFormat': 'iso8601',
 'wikiURL': "http://simile.mit.edu/shelf/",
@@ -103,10 +99,8 @@ var timeline_data = {  // save as a global variable
 'events': 
 `
 
-// Insert at the bottom of each generated file.
-timeline_footer = 
-`
+	// Insert at the bottom of each generated file.
+	timeline_footer = `
  }
 `
-
 )

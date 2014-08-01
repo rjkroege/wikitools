@@ -6,17 +6,19 @@
 package generate
 
 import (
-   "github.com/rjkroege/wikitools/article"
-  "encoding/json"
-  "io"
+	"encoding/json"
+	"github.com/rjkroege/wikitools/article"
+	"io"
 )
 
 func WriteTimeline(fd io.Writer, e []*article.MetaData) {
-  io.WriteString(fd, timeline_header);
+	io.WriteString(fd, timeline_header)
 
-  enc := json.NewEncoder(fd);
-  err := enc.Encode(e); 
-  if err != nil { panic(err) }
+	enc := json.NewEncoder(fd)
+	err := enc.Encode(e)
+	if err != nil {
+		panic(err)
+	}
 
-  io.WriteString(fd, timeline_footer);
+	io.WriteString(fd, timeline_footer)
 }

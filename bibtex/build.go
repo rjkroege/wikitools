@@ -4,18 +4,18 @@
 package bibtex
 
 import (
-//    "github.com/rjkroege/wikitools/article"
+	//    "github.com/rjkroege/wikitools/article"
 	"bytes"
-	"text/template"
-	"strings"
 	"sort"
+	"strings"
+	"text/template"
 )
 
 /*
 	Reports error conditions.
 */
 type BibTeXError struct {
-    what string
+	what string
 }
 
 func (e *BibTeXError) Error() string {
@@ -27,9 +27,9 @@ func (e *BibTeXError) Error() string {
 	and returns a list of the actual keys corresponding to what's in the map.
 */
 func FilterExtrakeys(extrakeys map[string]string) (filtered map[string]string, keys []string) {
-	filtered = make(map[string]string)	
+	filtered = make(map[string]string)
 	keys = make([]string, 0, len(extrakeys))
-	for s, _ := range(extrakeys) {
+	for s, _ := range extrakeys {
 		if strings.HasPrefix(s, "bib-") {
 			nk := s[len("bib-"):]
 			keys = append(keys, nk)
@@ -43,26 +43,26 @@ func FilterExtrakeys(extrakeys map[string]string) (filtered map[string]string, k
 	Finds the entry type from an array of article tags. The bibtex entry type is specified
 	either implicitly (we have a @book tag) or we have a @book tag and a supplementary
 	@bibtex-(.*) tag where the matched substring is the entry types. Entries are as per
-	the documentation such as 
+	the documentation such as
 	http://newton.ex.ac.uk/tex/pack/bibtex/btxdoc/node6.html#SECTION00031000000000000000
 	Entry types do not include the leading '@'
 */
 func ExtractBibTeXEntryType(tags []string) (entry string, biberror error) {
 	entry_set := 0
 	book_tag_present := false
-	for _, s := range(tags) {
+	for _, s := range tags {
 		switch {
-		case  s == "@book":
+		case s == "@book":
 			book_tag_present = true
 		case strings.HasPrefix(s, "@bibtex-"):
 			entry = s[len("@bibtex-"):]
-			entry_set ++
+			entry_set++
 		}
 	}
 
 	switch {
 	case !book_tag_present:
-		biberror = &BibTeXError{ "No book tag present." }
+		biberror = &BibTeXError{"No book tag present."}
 	case entry_set == 0:
 		entry = "book"
 	case entry_set > 1:
@@ -96,7 +96,7 @@ func init() {
 	required_fields["techreport"] = []string{"author", "title", "institution", "year"}
 	required_fields["unpublished"] = []string{"author", "title", "note"}
 
-	for s, _ := range(required_fields) {
+	for s, _ := range required_fields {
 		required_fields[s] = append(required_fields[s], "bibkey")
 		sort.Strings(required_fields[s])
 	}
@@ -110,8 +110,9 @@ func init() {
 func intersectsorted(rf []string, fields []string) []string {
 	missing := []string{}
 	i := 0
-	for _, r := range(rf) {
-		for ; i < len(fields) && fields[i] < r; i++ { }
+	for _, r := range rf {
+		for ; i < len(fields) && fields[i] < r; i++ {
+		}
 		if i >= len(fields) || fields[i] > r {
 			missing = append(missing, r)
 		}
@@ -123,8 +124,8 @@ func intersectsorted(rf []string, fields []string) []string {
 	Generates a BibTexError instance for entrytype for all the missing fields.
 */
 func createerror(entrytype string, missing []string) error {
-		return &BibTeXError{ "Missing required fields: " + strings.Join(missing, " ") +
-			 " for entry type " + entrytype };
+	return &BibTeXError{"Missing required fields: " + strings.Join(missing, " ") +
+		" for entry type " + entrytype}
 }
 
 /*
@@ -144,7 +145,7 @@ func VerifyRequiredFields(entrytype string, fields []string) error {
 	case "book":
 		// handle the or cases.
 		missing := intersectsorted(required_fields["book"], fields)
-		missing_editor :=  intersectsorted(required_fields["book-editor"], fields)
+		missing_editor := intersectsorted(required_fields["book-editor"], fields)
 		switch {
 		case len(missing) == 0 || len(missing_editor) == 0:
 			return nil
@@ -152,10 +153,10 @@ func VerifyRequiredFields(entrytype string, fields []string) error {
 			return createerror(entrytype, missing_editor)
 		default:
 			return createerror(entrytype, missing)
-		}			
+		}
 	case "inbook":
 		missing := intersectsorted(required_fields["inbook"], fields)
-		missing_editor :=  intersectsorted(required_fields["inbook-editor"], fields)
+		missing_editor := intersectsorted(required_fields["inbook-editor"], fields)
 		switch {
 		case len(missing) == 0 || len(missing_editor) == 0:
 			return nil
@@ -189,14 +190,14 @@ func VerifyRequiredFields(entrytype string, fields []string) error {
 
 	Presumption: extra keys matching bib-.* are valid.
 	Presumption: we have an argument that specifies which kind of entry it is. (It needs to be supplementary
-	to the article type.) 
+	to the article type.)
 
 	TODO(rjkroege): Need an entry type.
 	TODO(rjkroege): Need a stable mechanism for generating a book key. Does it have to be stable.
 
 	Why: because I can't remember the kind of entries that BibTeX would expect.
 
-	Presumption: we pick 
+	Presumption: we pick
 
 	entrytype is the type of entry
 	filteredkeys are all extra fields matching bib-.*
@@ -205,17 +206,21 @@ func VerifyRequiredFields(entrytype string, fields []string) error {
 
 type BibEntryForTemplate struct {
 	EntryType string
-	RefKey string
-	Fields map[string]string
+	RefKey    string
+	Fields    map[string]string
 }
 
 func CreateBibTexEntry(tags []string, extrakeys map[string]string) (string, error) {
 	filtered_kv, filtered_k := FilterExtrakeys(extrakeys)
 	entrytype, err := ExtractBibTeXEntryType(tags)
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 
 	err = VerifyRequiredFields(entrytype, filtered_k)
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 
 	// ref_key is the identifier for this BibTex entry for use in LaTeX.
 	// TODO(rjkroege): I should get autolinks / autocomplete to it.
@@ -227,6 +232,5 @@ func CreateBibTexEntry(tags []string, extrakeys map[string]string) (string, erro
 	b := new(bytes.Buffer)
 	f.Execute(b, e)
 
-	return b.String(), nil;
+	return b.String(), nil
 }
-
