@@ -2,15 +2,16 @@ package main
 
 import (
 	"bytes"
-	"github.com/rjkroege/wikitools/article"
-	"github.com/rjkroege/wikitools/wiki"
 	"log"
 	"os"
 	"strings"
 	"text/template"
 	// "fmt"			// needeebugging.
-	"code.google.com/p/goplan9/plan9/acme"
 	"time"
+
+	"9fans.net/go/acme"
+	"github.com/rjkroege/wikitools/article"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 const (
