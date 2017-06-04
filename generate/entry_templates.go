@@ -70,7 +70,7 @@ const (
 {{end}}
 <p class="info">
    Source: <a href="plumb:{{.SourceForPath}}">{{.Name}}</a><br />
-   <a href="plumb:/Users/rjkroege/gd/wiki2/New">New Article</a><br />
+   <a href="plumb:/Users/rjkroege/gda/wiki2/New">New Article</a><br />
 </p>
 </div> <!-- note -->
 
