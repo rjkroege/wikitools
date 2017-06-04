@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	basepath   = "/Users/rjkroege/gd/wiki2/"
+	basepath   = "/Users/rjkroege/gda/wiki2/"
 	extension  = ".md"
 	timeformat = "20060102-150405"
 )
