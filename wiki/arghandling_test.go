@@ -34,7 +34,7 @@ func TestSplit_Unordered(t *testing.T) {
 
 func TestPicktemplate_firstarg(t *testing.T) {
 	journaltimepicker = func() bool { return true }
-	defer func(){ journaltimepicker = BeforeNoon}()
+	defer func() { journaltimepicker = BeforeNoon }()
 
 	ar, tg := Split([]string{"@flong", "journal", "@fling"})
 	tm, ar, tg := Picktemplate(ar, tg)
@@ -45,7 +45,7 @@ func TestPicktemplate_firstarg(t *testing.T) {
 	if len(ar) != 0 {
 		t.Error("should not have any args")
 	}
-	
+
 	ar, tg = Split([]string{"@flong", "@code"})
 	tm, ar, tg = Picktemplate(ar, tg)
 	if tm != codetmpl {

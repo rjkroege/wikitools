@@ -1,23 +1,21 @@
 package wiki
 
 import (
-	"time"
 	"log"
+	"time"
 
 	"github.com/rjkroege/wikitools/bibtex"
 )
-
-
 
 // Picktemplate chooses a template for a new wiki entry bases on the provided
 // arguments and tags.
 func Picktemplate(args []string, tags []string) (tm string, oargs []string, otags []string) {
 	templatemap := map[string]string{
 		"journal": "journal",
-		"entry": entrytmpl,
+		"entry":   entrytmpl,
 		"book":    booktmpl,
 		"article": articletmpl,
-		"code": codetmpl,
+		"code":    codetmpl,
 	}
 
 	// Handle book/article entries
@@ -83,7 +81,7 @@ func journalfortime(tm string) string {
 			tm = journalamtmpl
 		} else {
 			tm = journalpmtmpl
-		}				
+		}
 	}
 	return tm
 }

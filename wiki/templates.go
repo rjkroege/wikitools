@@ -66,7 +66,6 @@ tags: {{.Tagstring}}
 *how to tell that it's right*
 `
 
-
 	booktmpl = `title: {{.Title}}
 date: {{.DetailedDate}}
 tags: {{.Tagstring}}
