@@ -1,17 +1,26 @@
 package wiki
 
 import (
-	"github.com/rjkroege/wikitools/bibtex"
+	"time"
 	"log"
+
+	"github.com/rjkroege/wikitools/bibtex"
 )
 
+
+
+// Picktemplate chooses a template for a new wiki entry bases on the provided
+// arguments and tags.
 func Picktemplate(args []string, tags []string) (tm string, oargs []string, otags []string) {
 	templatemap := map[string]string{
-		"journal": journaltmpl,
+		"journal": "journal",
+		"entry": entrytmpl,
 		"book":    booktmpl,
 		"article": articletmpl,
+		"code": codetmpl,
 	}
 
+	// Handle book/article entries
 	booktype, err := bibtex.ExtractBibTeXEntryType(tags)
 	if err == nil {
 		tm, ok := templatemap[booktype]
@@ -25,7 +34,7 @@ func Picktemplate(args []string, tags []string) (tm string, oargs []string, otag
 	for _, v := range tags {
 		tm, ok := templatemap[v[1:]]
 		if ok {
-			return tm, args, tags
+			return journalfortime(tm), args, tags
 		}
 	}
 
@@ -38,14 +47,14 @@ func Picktemplate(args []string, tags []string) (tm string, oargs []string, otag
 	tm, ok := templatemap[args[0]]
 	if ok {
 		s := "@" + args[0]
-		otags = append(tags, s)
-		oargs = args[1:]
-		return
+		return journalfortime(tm), args[1:], append(tags, s)
 	}
 	log.Fatal("No tag or first argument selecting a journal type")
 	return
 }
 
+// Split divides the provided arguments into those that wil serve as tags
+// on the journal entry and those that are conventional arguments.
 func Split(all []string) (args []string, tags []string) {
 	for _, v := range all {
 		if v[0] == '@' {
@@ -55,4 +64,26 @@ func Split(all []string) (args []string, tags []string) {
 		}
 	}
 	return
+}
+
+// For mockability.
+var journaltimepicker = BeforeNoon
+
+// BeforeNoon is a convenience function that determines if
+// the current time is before or after noon.
+func BeforeNoon() bool {
+	now := time.Now()
+	return now.Hour() < 12
+}
+
+// journalfortime adjusts the journal template based on time of day.
+func journalfortime(tm string) string {
+	if tm == "journal" {
+		if journaltimepicker() {
+			tm = journalamtmpl
+		} else {
+			tm = journalpmtmpl
+		}				
+	}
+	return tm
 }

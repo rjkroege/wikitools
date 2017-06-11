@@ -33,15 +33,40 @@ func TestSplit_Unordered(t *testing.T) {
 }
 
 func TestPicktemplate_firstarg(t *testing.T) {
+	journaltimepicker = func() bool { return true }
+	defer func(){ journaltimepicker = BeforeNoon}()
+
 	ar, tg := Split([]string{"@flong", "journal", "@fling"})
 	tm, ar, tg := Picktemplate(ar, tg)
-	if tm != journaltmpl {
+	if tm != journalamtmpl {
 		t.Error("didn't pick correct template, instead chose: " + tm)
 	}
 	expect(t, []string{"@flong", "@fling", "@journal"}, tg)
 	if len(ar) != 0 {
 		t.Error("should not have any args")
 	}
+	
+	ar, tg = Split([]string{"@flong", "@code"})
+	tm, ar, tg = Picktemplate(ar, tg)
+	if tm != codetmpl {
+		t.Error("didn't pick correct template, instead chose: " + tm)
+	}
+	expect(t, []string{"@flong", "@code"}, tg)
+	if len(ar) != 0 {
+		t.Error("should not have any args")
+	}
+
+	journaltimepicker = func() bool { return false }
+	ar, tg = Split([]string{"@flong", "@journal"})
+	tm, ar, tg = Picktemplate(ar, tg)
+	if tm != journalpmtmpl {
+		t.Error("didn't pick correct template, instead chose: " + tm)
+	}
+	expect(t, []string{"@flong", "@journal"}, tg)
+	if len(ar) != 0 {
+		t.Error("should not have any args")
+	}
+
 }
 
 func TestPicktemplate_tagpriority(t *testing.T) {

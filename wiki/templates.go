@@ -1,12 +1,71 @@
 package wiki
 
+// Templates for new journal entries.
 const (
-	journaltmpl = `title: {{.Title}}
+	// For personal improvement
+	journalamtmpl = `title: {{.Title}}
+date: {{.DetailedDate}}
+tags: {{.Tagstring}}
+
+# Today I am grateful for
+1. 
+2. 
+3. 
+
+# What would make today great?
+1. 
+2.  
+3.  
+
+# Daily affirmations. I am
+1. 
+2.  
+3. 
+`
+
+	journalpmtmpl = `title: {{.Title}}
+date: {{.DetailedDate}}
+tags: {{.Tagstring}}
+
+# Three Amazing Things Today
+1. 
+2. 
+3. 
+
+# How Could I Have Made Today Better
+1. 
+2.  
+3.  
+
+`
+	// For notes and such.
+	entrytmpl = `title: {{.Title}}
 date: {{.DetailedDate}}
 tags: {{.Tagstring}}
 
 Yo dawg! Write stuff here.
 `
+
+	codetmpl = `title: {{.Title}}
+date: {{.DetailedDate}}
+tags: {{.Tagstring}}
+
+# Summary of change
+*what's happening here anyway?*
+*can I divide this?*
+
+# Dillgence
+## Landscape
+*what process are we in?*
+*what thread*
+*callstack*
+*plumbing map*
+
+## Testing
+*how to tell if I'm done*
+*how to tell that it's right*
+`
+
 
 	booktmpl = `title: {{.Title}}
 date: {{.DetailedDate}}
