@@ -61,7 +61,7 @@ func (md *ExpandedArticle) Plumb() {
 		log.Fatal(err)
 	}
 
-	err = win.Fprintf("tag", "wikimake")
+	err = win.Fprintf("tag", "mdpreview wikimake")
 	if err != nil {
 		log.Fatal(err)
 	}
