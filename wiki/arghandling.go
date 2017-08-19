@@ -1,23 +1,71 @@
 package wiki
 
 import (
+	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
 	"github.com/rjkroege/wikitools/bibtex"
 )
 
-// Picktemplate chooses a template for a new wiki entry bases on the provided
-// arguments and tags.
-func Picktemplate(args []string, tags []string) (tm string, oargs []string, otags []string) {
-	templatemap := map[string]string{
-		"journal": "journal",
-		"entry":   entrytmpl,
-		"book":    booktmpl,
-		"article": articletmpl,
-		"code":    codetmpl,
-	}
+type Template struct {
+	Template   string
+	Custombody string
+}
 
+type TemplatePalette map[string]Template
+
+func NewTemplatePalette() TemplatePalette {
+	return map[string]Template{
+		"journalam": {basetmpl, journalamtmpl},
+		"journalpm": {basetmpl, journalpmtmpl},
+		"entry":     {basetmpl, entrytmpl},
+		"book":      {booktmpl, ""},
+		"article":   {articletmpl, ""},
+		"code":      {basetmpl, codetmpl},
+	}
+}
+
+// AddDynamicTemplate aguments the provided TemplatePalette
+// with templates read from disk. Errors are inlined into the template
+// body to help the user figure out why there was a problem.
+func (tm TemplatePalette) AddDynamcTemplates(config map[string]string) {
+	for k, v := range config {
+		if _, ok := tm[k]; !ok {
+			tm[k] = Template{
+				Template:   basetmpl,
+				Custombody: "",
+			}
+		}
+
+		fd, err := os.Open(v)
+		if err != nil {
+			tm[k] = Template{
+				Template:   tm[k].Template,
+				Custombody: fmt.Sprintf("File %s for key %s had error: %v", v, k, err),
+			}
+			continue
+		}
+		byteslice, err := ioutil.ReadAll(fd)
+		if err != nil {
+			tm[k] = Template{
+				Template:   tm[k].Template,
+				Custombody: fmt.Sprintf("File %s for key %s had error: %v", v, k, err),
+			}
+			continue
+		}
+		tm[k] = Template{
+			Template:   tm[k].Template,
+			Custombody: string(byteslice),
+		}
+	}
+}
+
+// Picktemplate chooses a template for a new wiki entry bases on
+// the provided arguments and tags.
+func (templatemap TemplatePalette) Picktemplate(args []string, tags []string) (Template, []string, []string) {
 	// Handle book/article entries
 	booktype, err := bibtex.ExtractBibTeXEntryType(tags)
 	if err == nil {
@@ -30,25 +78,29 @@ func Picktemplate(args []string, tags []string) (tm string, oargs []string, otag
 	}
 
 	for _, v := range tags {
-		tm, ok := templatemap[v[1:]]
+		templatespecifyingtag := v[1:]
+		templatespecifyingtag = journalfortime(templatespecifyingtag)
+		tm, ok := templatemap[templatespecifyingtag]
 		if ok {
-			return journalfortime(tm), args, tags
+			return tm, args, tags
 		}
 	}
 
 	// If we do not have a @tag that is choosing a journal format, we use the first
 	// argument and it becomes a tag.
 	if len(args) < 1 {
-		log.Fatal("No candidate argument to specify a t enough arguments\n")
+		log.Fatal("No candidate argument to specify a template\n")
 	}
 
-	tm, ok := templatemap[args[0]]
+	templatespecifyingarg := args[0]
+	templatespecifyingarg = journalfortime(templatespecifyingarg)
+	tm, ok := templatemap[templatespecifyingarg]
 	if ok {
 		s := "@" + args[0]
-		return journalfortime(tm), args[1:], append(tags, s)
+		return tm, args[1:], append(tags, s)
 	}
 	log.Fatal("No tag or first argument selecting a journal type")
-	return
+	return templatemap["entry"], []string{}, []string{}
 }
 
 // Split divides the provided arguments into those that wil serve as tags
@@ -78,9 +130,9 @@ func BeforeNoon() bool {
 func journalfortime(tm string) string {
 	if tm == "journal" {
 		if journaltimepicker() {
-			tm = journalamtmpl
+			return "journalam"
 		} else {
-			tm = journalpmtmpl
+			return "journalpm"
 		}
 	}
 	return tm

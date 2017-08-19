@@ -2,12 +2,14 @@ package wiki
 
 // Templates for new journal entries.
 const (
-	// For personal improvement
-	journalamtmpl = `title: {{.Title}}
+	basetmpl = `title: {{.Title}}
 date: {{.DetailedDate}}
 tags: {{.Tagstring}}
 
-# Today I am grateful for
+{{.Dynamicstring}}
+`
+
+	journalamtmpl = `# Today I am grateful for
 1. 
 2. 
 3. 
@@ -23,11 +25,7 @@ tags: {{.Tagstring}}
 3. 
 `
 
-	journalpmtmpl = `title: {{.Title}}
-date: {{.DetailedDate}}
-tags: {{.Tagstring}}
-
-# Three Amazing Things Today
+	journalpmtmpl = `# Three Amazing Things Today
 1. 
 2. 
 3. 
@@ -39,18 +37,10 @@ tags: {{.Tagstring}}
 
 `
 	// For notes and such.
-	entrytmpl = `title: {{.Title}}
-date: {{.DetailedDate}}
-tags: {{.Tagstring}}
-
-Yo dawg! Write stuff here.
+	entrytmpl = `Yo dawg! Write stuff here.
 `
 
-	codetmpl = `title: {{.Title}}
-date: {{.DetailedDate}}
-tags: {{.Tagstring}}
-
-# Summary of change
+	codetmpl = `# Summary of change
 *what's happening here anyway?*
 *can I divide this?*
 

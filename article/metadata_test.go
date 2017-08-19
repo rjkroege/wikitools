@@ -12,14 +12,14 @@ var now = time.Now()
 var never = time.Time{}
 
 func Test_Makearticle(t *testing.T) {
-	md := MetaData{"foo.md", never, never, "", false, []string{}, map[string]string{}}
+	md := NewArticleTest("foo.md", never, never, "", false)
 	if md.FormattedName() != "foo.html" {
 		t.Errorf("expected  %s != to actual %s", "foo.html", md.Name)
 	}
 }
 
 func Test_UrlForName(t *testing.T) {
-	md := MetaData{"foo.md", never, never, "", false, []string{}, map[string]string{}}
+	md := NewArticleTest("foo.md", never, never, "", false)
 	SetPathForContent("flimmer/blo")
 	s := md.UrlForPath()
 	if s != "file://flimmer/blo/foo.html" {
@@ -28,13 +28,13 @@ func Test_UrlForName(t *testing.T) {
 }
 
 func Test_ExtraKeysString(t *testing.T) {
-	m := MetaData{"", never, never, "", false, []string{}, map[string]string{"a": "b"}}
+	m := MetaData{"", never, never, "", "", false, []string{}, map[string]string{"a": "b"}}
 	testhelpers.AssertString(t, "a:b", m.ExtraKeysString())
 
-	m = MetaData{"", never, never, "", false, []string{}, map[string]string{"a": "b", "c": "d"}}
+	m = MetaData{"", never, never, "", "", false, []string{}, map[string]string{"a": "b", "c": "d"}}
 	testhelpers.AssertString(t, "a:b, c:d", m.ExtraKeysString())
 
-	m = MetaData{"", never, never, "", false, []string{}, map[string]string{"c": "d", "a": "b"}}
+	m = MetaData{"", never, never, "", "", false, []string{}, map[string]string{"c": "d", "a": "b"}}
 	testhelpers.AssertString(t, "a:b, c:d", m.ExtraKeysString())
 }
 
@@ -149,27 +149,27 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 	date, _ := ParseDateUnix("2012/03/19 06:51:15")
 	testfiles := []rtfSR{
 		rtfSR{"test_header_1", test_header_1, nil,
-			MetaData{"", realisticdate, date, "What I want", true, []string{}, map[string]string{}}},
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{}, map[string]string{}}},
 		rtfSR{"test_header_2", test_header_2, nil,
-			MetaData{"", realisticdate, date, "What I want", true, []string{"@journal"}, map[string]string{}}},
+			MetaData{"", realisticdate, date, "What I want", "",true, []string{"@journal"}, map[string]string{}}},
 		rtfSR{"test_header_3", test_header_3, nil,
-			MetaData{"", realisticdate, date, "What I want", true, []string{"@journal"}, map[string]string{}}},
+			MetaData{"", realisticdate, date, "What I want", "",true, []string{"@journal"}, map[string]string{}}},
 		rtfSR{"test_header_4", test_header_4, nil,
-			MetaData{"", realisticdate, never, "I need", false, []string{}, map[string]string{}}},
+			MetaData{"", realisticdate, never, "I need", "",false, []string{}, map[string]string{}}},
 		rtfSR{"test_header_5", test_header_5, nil,
-			MetaData{"", realisticdate, date, "What I want", true, []string{"@journal"}, map[string]string{}}},
+			MetaData{"", realisticdate, date, "What I want", "",true, []string{"@journal"}, map[string]string{}}},
 		rtfSR{"test_header_6", test_header_6, nil,
-			MetaData{"", realisticdate, date, "What I want", true, []string{"@journal"},
+			MetaData{"", realisticdate, date, "What I want", "",true, []string{"@journal"},
 				map[string]string{"tag": "empty", "plastic": "yes"}}},
 		rtfSR{"test_header_7", test_header_7, nil,
-			MetaData{"", realisticdate, date, "What I want", true,
+			MetaData{"", realisticdate, date, "What I want", "",true,
 				[]string{"@journal", "@fiddle"},
 				map[string]string{"tag": "empty", "plastic": "yes"}}},
 		rtfSR{"test_header_8", test_header_8, nil,
-			MetaData{"", realisticdate, date, "What I want", true,
+			MetaData{"", realisticdate, date, "What I want", "",true,
 				[]string{"@journal", "@hello", "@bye"}, map[string]string{"tag": "empty", "plastic": "yes"}}},
 		rtfSR{"test_header_9", test_header_9, nil,
-			MetaData{"", realisticdate, date, "Business Korea", true,
+			MetaData{"", realisticdate, date, "Business Korea", "",true,
 				[]string{"@book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}}},
 	}
 
@@ -178,7 +178,7 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 			t.Errorf("%s: equals has failed for %s", tu.testname, tu)
 		}
 
-		md := MetaData{"", realisticdate, never, "", false, []string{}, map[string]string{}}
+		md := MetaData{"", realisticdate, never, "",  "",false, []string{}, map[string]string{}}
 		rd := strings.NewReader(tu.in)
 		md.RootThroughFileForMetadata(io.Reader(rd))
 
@@ -193,10 +193,10 @@ func Test_PrettyDate(t *testing.T) {
 	statdate, _ := ParseDateUnix("1999/03/21 17:00:00")
 	tagdate, _ := ParseDateUnix("2012/03/19 06:51:15")
 
-	md := MetaData{"", statdate, never, "What I want 0", false, []string{}, map[string]string{}}
+	md := MetaData{"", statdate, never, "What I want 0", "", false, []string{}, map[string]string{}}
 	testhelpers.AssertString(t, "Sunday, Mar 21, 1999", md.PrettyDate())
 
-	md = MetaData{"", statdate, tagdate, "What I want 0", true, []string{}, map[string]string{}}
+	md = MetaData{"", statdate, tagdate, "What I want 0", "", true, []string{}, map[string]string{}}
 	testhelpers.AssertString(t, "Monday, Mar 19, 2012", md.PrettyDate())
 }
 
@@ -215,8 +215,8 @@ func Test_JsonDate(t *testing.T) {
 	SetPathForContent("/url-here")
 
 	datas := []tEdMd{
-		{nil, json1, MetaData{"1.md", statdate, never, "What I want 0", false, []string{}, map[string]string{}}},
-		{nil, json2, MetaData{"2.md", statdate, tagdate, "What I want 0", true, []string{}, map[string]string{}}}}
+		{nil, json1, MetaData{"1.md", statdate, never, "What I want 0", "", false, []string{}, map[string]string{}}},
+		{nil, json2, MetaData{"2.md", statdate, tagdate, "What I want 0", "", true, []string{}, map[string]string{}}}}
 
 	for _, m := range datas {
 		b, e := m.md.MarshalJSON()

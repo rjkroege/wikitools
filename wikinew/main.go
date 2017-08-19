@@ -73,8 +73,9 @@ func (md* Article) Tagstring() string {
 }
 */
 
-func Expand(a *article.MetaData, tpl string) *ExpandedArticle {
-	f := template.Must(template.New("footer").Parse(tpl))
+func Expand(a *article.MetaData, tpl wiki.Template) *ExpandedArticle {
+	f := template.Must(template.New("newwiki").Parse(tpl.Template))
+	a.Dynamicstring = tpl.Custombody
 
 	b := new(bytes.Buffer)
 	f.Execute(b, a)
@@ -83,8 +84,11 @@ func Expand(a *article.MetaData, tpl string) *ExpandedArticle {
 
 // TODO(rjkroege): add usage output on failure.
 func main() {
-	args, tags := wiki.Split(os.Args[1:])
-	tm, args, tags := wiki.Picktemplate(args, tags)
+	config := wiki.ReadConfiguration()
+	tmpls := wiki.NewTemplatePalette()
+	tmpls.AddDynamcTemplates(config)
 
+	args, tags := wiki.Split(os.Args[1:])
+	tm, args, tags := tmpls.Picktemplate(args, tags)
 	Expand(Makearticle(args, tags), tm).Plumb()
 }

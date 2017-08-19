@@ -21,22 +21,52 @@ type MetaData struct {
 	DateFromStat     time.Time
 	DateFromMetadata time.Time
 	Title            string
+	Dynamicstring string
 	HadMetaData      bool
 	tags             []string
 	extraKeys        map[string]string
 }
 
 func NewMetaData(name string, statTime time.Time) *MetaData {
-	return &MetaData{name, statTime, time.Time{}, "", false, []string{}, map[string]string{}}
+	return &MetaData{
+		Name: name, 
+		DateFromStat: statTime, 
+		DateFromMetadata: time.Time{}, 
+		Title:"", 
+		Dynamicstring: "",
+		HadMetaData: false, 
+		tags: []string{}, 
+		extraKeys: map[string]string{},
+	}
 }
 
 func NewArticle(name string, title string, tags []string) *MetaData {
-	return &MetaData{name, time.Time{}, time.Now(), title, false, tags, map[string]string{}}
+	return &MetaData{
+		Name: name, 
+		DateFromStat: time.Time{}, 
+		DateFromMetadata: time.Now(), 
+		Title:title, 
+		Dynamicstring: "",
+		HadMetaData: false, 
+		tags: tags, 
+		extraKeys: map[string]string{},
+	}
 }
 
-// Use only from tests. (How could I enforce this?)
+// Use only from tests. (How could I enforce this?) (By moving it to the
+// test code but having it in the same package and giving it a lower-case
+// name?
 func NewArticleTest(name string, stat time.Time, meta time.Time, title string, has bool) *MetaData {
-	return &MetaData{name, stat, meta, title, has, []string{}, map[string]string{}}
+	return &MetaData{
+		Name: name, 
+		DateFromStat: stat, 
+		DateFromMetadata:meta, 
+		Title:title, 
+		Dynamicstring: "",
+		HadMetaData: has, 
+		tags: []string{}, 
+		extraKeys: map[string]string{},
+	}
 }
 
 // Generate the string from the list of tags.
@@ -106,17 +136,13 @@ func (md *MetaData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(jmd)
 }
 
-/*
-	Returns true if this article has a BibTeX entry.
-*/
+// HaveBibTex returns true if this article has a BibTeX entry.
 func (md *MetaData) HaveBibTex() bool {
 	_, err := bibtex.ExtractBibTeXEntryType(md.tags)
 	return err == nil
 }
 
-/*
-	Returns a BibTex Entry for this article.
-*/
+// BibTexEntry return a BibTex Entry for this article.
 func (md *MetaData) BibTexEntry() string {
 	s, err := bibtex.CreateBibTexEntry(md.tags, md.extraKeys)
 	if err != nil {
