@@ -57,7 +57,7 @@ func TestPicktemplate_firstarg(t *testing.T) {
 	ar, tg = Split([]string{"@flong", "@code"})
 	tm, ar, tg = tmpls.Picktemplate(ar, tg)
 	if tm != tmpls["code"] {
-		t.Error("didn't pick correct template, instead chose: %v", tm)
+		t.Errorf("didn't pick correct template, instead chose: %v", tm)
 	}
 	expect(t, []string{"@flong", "@code"}, tg)
 	if len(ar) != 0 {
@@ -68,7 +68,7 @@ func TestPicktemplate_firstarg(t *testing.T) {
 	ar, tg = Split([]string{"@flong", "@journal"})
 	tm, ar, tg = tmpls.Picktemplate(ar, tg)
 	if tm != tmpls["journalpm"] {
-		t.Error("didn't pick correct template, instead chose: %v", tm)
+		t.Errorf("didn't pick correct template, instead chose: %v", tm)
 	}
 	expect(t, []string{"@flong", "@journal"}, tg)
 	if len(ar) != 0 {
