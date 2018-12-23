@@ -175,7 +175,7 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 
 	for _, tu := range testfiles {
 		if !tu.ex.equals(&tu.ex) {
-			t.Errorf("%s: equals has failed for %s", tu.testname, tu)
+			t.Errorf("%s: equals has failed for %v", tu.testname, tu)
 		}
 
 		md := MetaData{"", realisticdate, never, "",  "",false, []string{}, map[string]string{}}
@@ -184,7 +184,7 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 
 		// TODO(rjkroege): Add nicer String() on Metadata?
 		if !md.equals(&tu.ex) {
-			t.Errorf("%s: expected %s != actual %s", tu.testname, tu.ex, md)
+			t.Errorf("%s: expected %v != actual %v", tu.testname, tu.ex, md)
 		}
 	}
 }

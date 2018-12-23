@@ -18,7 +18,7 @@ func AssertString(t *testing.T, expected string, actual string) {
 
 func AssertInt(t *testing.T, expected int, actual int) {
 	if expected != actual {
-		t.Errorf("expected %s != actual %s", expected, actual)
+		t.Errorf("expected %v != actual %v", expected, actual)
 	}
 }
 
@@ -43,10 +43,10 @@ func AssertStringMap(t *testing.T, expected map[string]string, actual map[string
 	for i, _ := range expected {
 		_, ok := actual[i]
 		if !ok {
-			t.Errorf("expected[%d] not in actual", i)
+			t.Errorf("expected[%s] not in actual", i)
 		}
 		if expected[i] != actual[i] {
-			t.Errorf("expected[%d] %s != actual[%d] %s", i, expected[i], i, actual[i])
+			t.Errorf("expected[%s] %s != actual[%s] %s", i, expected[i], i, actual[i])
 			return
 		}
 	}
