@@ -1,2 +1,4 @@
 CSINDEX
-
+cmd/bearimport/bearimport
+coverage.out
+cmd/wikinew/wikinew
