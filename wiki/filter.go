@@ -3,6 +3,7 @@ package wiki
 import (
 	"strings"
 	"time"
+	"path/filepath"
 )
 
 const (
@@ -34,9 +35,9 @@ type System interface {
 }
 
 func UniqueValidName(basepath string, filename string, extension string, system System) string {
-	p := basepath + filename + extension
+	p := filepath.Join(basepath, filename + extension)
 	if system.Exists(p) {
-		return basepath + filename + "-" + system.Now().Format(timeformat) + extension
+		return filepath.Join(basepath ,  filename + "-" + system.Now().Format(timeformat) + extension)
 	}
 	return p
 }

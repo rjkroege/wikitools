@@ -7,7 +7,6 @@ import (
 	"strings"
 	"text/template"
 	// "fmt"			// needeebugging.
-	"time"
 
 	"9fans.net/go/acme"
 	"github.com/rjkroege/wikitools/article"
@@ -17,26 +16,11 @@ import (
 const (
 	basepath   = "/Users/rjkroege/gda/wiki2/"
 	extension  = ".md"
-	timeformat = "20060102-150405"
 )
-
-type SystemImpl int
-
-func (s SystemImpl) Exists(path string) bool {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true
-	}
-	return false
-}
-
-func (s SystemImpl) Now() time.Time {
-	return time.Now()
-}
 
 func Makearticle(args []string, tags []string) *article.MetaData {
 	s := strings.Join(args, " ")
-	filename := wiki.UniqueValidName(basepath, wiki.ValidBaseName(args), extension, SystemImpl(0))
+	filename := wiki.UniqueValidName(basepath, wiki.ValidBaseName(args), extension, wiki.SystemImpl(0))
 	return article.NewArticle(filename, s, tags)
 }
 
