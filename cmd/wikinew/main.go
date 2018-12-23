@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	basepath   = "/Users/rjkroege/gda/wiki2/"
-	extension  = ".md"
+	basepath  = "/Users/rjkroege/gda/wiki2/"
+	extension = ".md"
 )
 
 func Makearticle(args []string, tags []string) *article.MetaData {

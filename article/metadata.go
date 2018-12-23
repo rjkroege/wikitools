@@ -21,7 +21,7 @@ type MetaData struct {
 	DateFromStat     time.Time
 	DateFromMetadata time.Time
 	Title            string
-	Dynamicstring string
+	Dynamicstring    string
 	HadMetaData      bool
 	tags             []string
 	extraKeys        map[string]string
@@ -29,27 +29,27 @@ type MetaData struct {
 
 func NewMetaData(name string, statTime time.Time) *MetaData {
 	return &MetaData{
-		Name: name, 
-		DateFromStat: statTime, 
-		DateFromMetadata: time.Time{}, 
-		Title:"", 
-		Dynamicstring: "",
-		HadMetaData: false, 
-		tags: []string{}, 
-		extraKeys: map[string]string{},
+		Name:             name,
+		DateFromStat:     statTime,
+		DateFromMetadata: time.Time{},
+		Title:            "",
+		Dynamicstring:    "",
+		HadMetaData:      false,
+		tags:             []string{},
+		extraKeys:        map[string]string{},
 	}
 }
 
 func NewArticle(name string, title string, tags []string) *MetaData {
 	return &MetaData{
-		Name: name, 
-		DateFromStat: time.Time{}, 
-		DateFromMetadata: time.Now(), 
-		Title:title, 
-		Dynamicstring: "",
-		HadMetaData: false, 
-		tags: tags, 
-		extraKeys: map[string]string{},
+		Name:             name,
+		DateFromStat:     time.Time{},
+		DateFromMetadata: time.Now(),
+		Title:            title,
+		Dynamicstring:    "",
+		HadMetaData:      false,
+		tags:             tags,
+		extraKeys:        map[string]string{},
 	}
 }
 
@@ -58,14 +58,14 @@ func NewArticle(name string, title string, tags []string) *MetaData {
 // name?
 func NewArticleTest(name string, stat time.Time, meta time.Time, title string, has bool) *MetaData {
 	return &MetaData{
-		Name: name, 
-		DateFromStat: stat, 
-		DateFromMetadata:meta, 
-		Title:title, 
-		Dynamicstring: "",
-		HadMetaData: has, 
-		tags: []string{}, 
-		extraKeys: map[string]string{},
+		Name:             name,
+		DateFromStat:     stat,
+		DateFromMetadata: meta,
+		Title:            title,
+		Dynamicstring:    "",
+		HadMetaData:      has,
+		tags:             []string{},
+		extraKeys:        map[string]string{},
 	}
 }
 

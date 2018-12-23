@@ -151,25 +151,25 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 		rtfSR{"test_header_1", test_header_1, nil,
 			MetaData{"", realisticdate, date, "What I want", "", true, []string{}, map[string]string{}}},
 		rtfSR{"test_header_2", test_header_2, nil,
-			MetaData{"", realisticdate, date, "What I want", "",true, []string{"@journal"}, map[string]string{}}},
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"}, map[string]string{}}},
 		rtfSR{"test_header_3", test_header_3, nil,
-			MetaData{"", realisticdate, date, "What I want", "",true, []string{"@journal"}, map[string]string{}}},
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"}, map[string]string{}}},
 		rtfSR{"test_header_4", test_header_4, nil,
-			MetaData{"", realisticdate, never, "I need", "",false, []string{}, map[string]string{}}},
+			MetaData{"", realisticdate, never, "I need", "", false, []string{}, map[string]string{}}},
 		rtfSR{"test_header_5", test_header_5, nil,
-			MetaData{"", realisticdate, date, "What I want", "",true, []string{"@journal"}, map[string]string{}}},
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"}, map[string]string{}}},
 		rtfSR{"test_header_6", test_header_6, nil,
-			MetaData{"", realisticdate, date, "What I want", "",true, []string{"@journal"},
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"},
 				map[string]string{"tag": "empty", "plastic": "yes"}}},
 		rtfSR{"test_header_7", test_header_7, nil,
-			MetaData{"", realisticdate, date, "What I want", "",true,
+			MetaData{"", realisticdate, date, "What I want", "", true,
 				[]string{"@journal", "@fiddle"},
 				map[string]string{"tag": "empty", "plastic": "yes"}}},
 		rtfSR{"test_header_8", test_header_8, nil,
-			MetaData{"", realisticdate, date, "What I want", "",true,
+			MetaData{"", realisticdate, date, "What I want", "", true,
 				[]string{"@journal", "@hello", "@bye"}, map[string]string{"tag": "empty", "plastic": "yes"}}},
 		rtfSR{"test_header_9", test_header_9, nil,
-			MetaData{"", realisticdate, date, "Business Korea", "",true,
+			MetaData{"", realisticdate, date, "Business Korea", "", true,
 				[]string{"@book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}}},
 	}
 
@@ -178,7 +178,7 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 			t.Errorf("%s: equals has failed for %v", tu.testname, tu)
 		}
 
-		md := MetaData{"", realisticdate, never, "",  "",false, []string{}, map[string]string{}}
+		md := MetaData{"", realisticdate, never, "", "", false, []string{}, map[string]string{}}
 		rd := strings.NewReader(tu.in)
 		md.RootThroughFileForMetadata(io.Reader(rd))
 
