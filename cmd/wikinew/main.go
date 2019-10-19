@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	basepath  = "/Users/rjkroege/gda/wiki2/"
+	basepath  = "/Users/rjkroege/Documents/wiki2/"
 	extension = ".md"
 )
 
