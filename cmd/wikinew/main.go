@@ -14,13 +14,15 @@ import (
 )
 
 const (
-	basepath  = "/Users/rjkroege/Documents/wiki2/"
+	basepath  = "/Users/rjkroege/wrks/wiki"
 	extension = ".md"
+	newarticlespath = "unsorted"
 )
 
 func Makearticle(args []string, tags []string) *article.MetaData {
 	s := strings.Join(args, " ")
-	filename := wiki.UniqueValidName(basepath, wiki.ValidBaseName(args), extension, wiki.SystemImpl(0))
+	unsortedpath := filepath.Join(basepath, newarticlespath)
+	filename := wiki.UniqueValidName(unsortedpath, wiki.ValidBaseName(args), extension, wiki.SystemImpl(0))
 	return article.NewArticle(filename, s, tags)
 }
 
