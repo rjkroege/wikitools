@@ -58,7 +58,7 @@ func main() {
 
 	for _, d := range dirs {
 		if strings.HasSuffix(d.Name(), ".md") {
-			e[i] = article.NewMetaData(d.Name(), d.ModTime())
+			e[i] = article.MakeMetaData(d.Name(), d.ModTime())
 			fd, _ := os.OpenFile(e[i].Name, os.O_RDONLY, 0)
 			e[i].RootThroughFileForMetadata(io.Reader(fd))
 			fd.Close()

@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"path/filepath"
+	"fmt"
 )
 
 var pathForContent = ""
@@ -25,9 +27,14 @@ type MetaData struct {
 	HadMetaData      bool
 	tags             []string
 	extraKeys        map[string]string
+
+	// The path where the article would go in the date-based article
+	// categorization.
+	datepath	string
 }
 
-func NewMetaData(name string, statTime time.Time) *MetaData {
+// TODO(rjk): specify if name should be absolute or not.
+func MakeMetaData(name string, statTime time.Time) *MetaData {
 	return &MetaData{
 		Name:             name,
 		DateFromStat:     statTime,
@@ -72,6 +79,15 @@ func NewArticleTest(name string, stat time.Time, meta time.Time, title string, h
 // Generate the string from the list of tags.
 func (md *MetaData) Tagstring() string {
 	return strings.Join(md.tags, " ")
+}
+
+// RelativeDateDirectory generates the name of the file in the structured
+// date-based sorting.
+func (md *MetaData) RelativeDateDirectory() string {
+	t := md.PreferredDate()
+	
+	return filepath.Join( fmt.Sprintf("%d", t.Year()), fmt.Sprintf("%d", t.Month()), fmt.Sprintf("%d", t.Day())) 
+	
 }
 
 // Generate the string of the extra keys.

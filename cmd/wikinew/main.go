@@ -12,18 +12,13 @@ import (
 	"9fans.net/go/acme"
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/wiki"
-)
-
-const (
-	basepath  = "/Users/rjkroege/wrks/wiki"
-	extension = ".md"
-	newarticlespath = "unsorted"
+	"github.com/rjkroege/wikitools/config"
 )
 
 func Makearticle(args []string, tags []string) *article.MetaData {
 	s := strings.Join(args, " ")
-	unsortedpath := filepath.Join(basepath, newarticlespath)
-	filename := wiki.UniqueValidName(unsortedpath, wiki.ValidBaseName(args), extension, wiki.SystemImpl(0))
+	unsortedpath := filepath.Join(config.Basepath, config.Newarticlespath)
+	filename := wiki.UniqueValidName(unsortedpath, wiki.ValidBaseName(args), config.Extension, wiki.SystemImpl(0))
 	return article.NewArticle(filename, s, tags)
 }
 

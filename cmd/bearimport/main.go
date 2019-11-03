@@ -13,6 +13,9 @@ import (
 	"github.com/rjkroege/wikitools/wiki"
 )
 
+// TODO(rjk): Do I need this program?
+// TODO(rjk): Correct the pathing assumptions.
+
 var outputdir = flag.String("odir", "./converted", "Output directory for importable files")
 var wikidir = flag.String("wdir", "/Users/rjkroege/gda/wiki2", "Where the wiki files are for naming")
 

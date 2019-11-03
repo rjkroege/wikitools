@@ -103,6 +103,8 @@ func trim(line string) string {
  * To keep this from being too inefficient, it must be found in the top
  * 5 lines.
  */
+// TODO(rjk): Consider having some kind of error response? There
+// could be I/O errors.
 func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
 	rd := bufio.NewReader(reader)
 	lc := 0
