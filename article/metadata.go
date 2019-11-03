@@ -2,13 +2,13 @@ package article
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/rjkroege/wikitools/bibtex"
 	"log"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
-	"path/filepath"
-	"fmt"
 )
 
 var pathForContent = ""
@@ -30,7 +30,7 @@ type MetaData struct {
 
 	// The path where the article would go in the date-based article
 	// categorization.
-	datepath	string
+	datepath string
 }
 
 // TODO(rjk): specify if name should be absolute or not.
@@ -85,9 +85,9 @@ func (md *MetaData) Tagstring() string {
 // date-based sorting.
 func (md *MetaData) RelativeDateDirectory() string {
 	t := md.PreferredDate()
-	
-	return filepath.Join( fmt.Sprintf("%d", t.Year()), fmt.Sprintf("%d", t.Month()), fmt.Sprintf("%d", t.Day())) 
-	
+
+	return filepath.Join(fmt.Sprintf("%d", t.Year()), fmt.Sprintf("%d", t.Month()), fmt.Sprintf("%d", t.Day()))
+
 }
 
 // Generate the string of the extra keys.

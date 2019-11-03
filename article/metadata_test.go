@@ -28,13 +28,13 @@ func Test_UrlForName(t *testing.T) {
 }
 
 func Test_ExtraKeysString(t *testing.T) {
-	m := MetaData{"", never, never, "", "", false, []string{}, map[string]string{"a": "b"}}
+	m := MetaData{"", never, never, "", "", false, []string{}, map[string]string{"a": "b"}, ""}
 	testhelpers.AssertString(t, "a:b", m.ExtraKeysString())
 
-	m = MetaData{"", never, never, "", "", false, []string{}, map[string]string{"a": "b", "c": "d"}}
+	m = MetaData{"", never, never, "", "", false, []string{}, map[string]string{"a": "b", "c": "d"}, ""}
 	testhelpers.AssertString(t, "a:b, c:d", m.ExtraKeysString())
 
-	m = MetaData{"", never, never, "", "", false, []string{}, map[string]string{"c": "d", "a": "b"}}
+	m = MetaData{"", never, never, "", "", false, []string{}, map[string]string{"c": "d", "a": "b"}, ""}
 	testhelpers.AssertString(t, "a:b, c:d", m.ExtraKeysString())
 }
 
@@ -46,16 +46,16 @@ type pdSR struct {
 
 func Test_ParseDateUnix(t *testing.T) {
 	testdates := []pdSR{
-		pdSR{"Mon Mar 11 00:00:00 EDT 2013", nil, "Monday, Mar 11, 2013"},
-		pdSR{"Tue Sep 11 17:34:00 EDT 2012", nil, "11 Sep 17:34:00 2012"},
-		pdSR{"Sat Oct 27 11:39:41 PDT 2012", nil, "Sat Oct 27 11:39:41 PDT 2012"},
-		pdSR{"Wed Jun 15 08:24:39 EDT 2011", nil, "2011/06/15 08:24:39"},
-		pdSR{"Tue Dec 27 17:46:16 EST 2011", nil, "2011/12/27 17:46:16"},
-		pdSR{"Sun Mar 14 08:00:00 EST 2004", nil, "200403140800"},
-		pdSR{"Tue Dec 11 17:34:00 EST 2012", nil, "11 Dec 17:34:00 2012"},
-		pdSR{"Fri Jun 14 07:25:48 EDT 2013", nil, "Fri 14 Jun 2013, 07:25:48 EDT"},
-		pdSR{"Sat Dec  1 17:34:00 EST 2012", nil, "1 Dec 17:34:00 2012"},
-		pdSR{"Tue Sep  5 11:14:03 PDT 2006", nil, "Tue Sep  5 11:14:03 PDT 2006"},
+		{"Mon Mar 11 00:00:00 EDT 2013", nil, "Monday, Mar 11, 2013"},
+		{"Tue Sep 11 17:34:00 EDT 2012", nil, "11 Sep 17:34:00 2012"},
+		{"Sat Oct 27 11:39:41 PDT 2012", nil, "Sat Oct 27 11:39:41 PDT 2012"},
+		{"Wed Jun 15 08:24:39 EDT 2011", nil, "2011/06/15 08:24:39"},
+		{"Tue Dec 27 17:46:16 EST 2011", nil, "2011/12/27 17:46:16"},
+		{"Sun Mar 14 08:00:00 EST 2004", nil, "200403140800"},
+		{"Tue Dec 11 17:34:00 EST 2012", nil, "11 Dec 17:34:00 2012"},
+		{"Fri Jun 14 07:25:48 EDT 2013", nil, "Fri 14 Jun 2013, 07:25:48 EDT"},
+		{"Sat Dec  1 17:34:00 EST 2012", nil, "1 Dec 17:34:00 2012"},
+		{"Tue Sep  5 11:14:03 PDT 2006", nil, "Tue Sep  5 11:14:03 PDT 2006"},
 	}
 
 	for _, tu := range testdates {
@@ -148,29 +148,29 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 	realisticdate, _ := ParseDateUnix("1999/03/21 17:00:00")
 	date, _ := ParseDateUnix("2012/03/19 06:51:15")
 	testfiles := []rtfSR{
-		rtfSR{"test_header_1", test_header_1, nil,
-			MetaData{"", realisticdate, date, "What I want", "", true, []string{}, map[string]string{}}},
-		rtfSR{"test_header_2", test_header_2, nil,
-			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"}, map[string]string{}}},
-		rtfSR{"test_header_3", test_header_3, nil,
-			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"}, map[string]string{}}},
-		rtfSR{"test_header_4", test_header_4, nil,
-			MetaData{"", realisticdate, never, "I need", "", false, []string{}, map[string]string{}}},
-		rtfSR{"test_header_5", test_header_5, nil,
-			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"}, map[string]string{}}},
-		rtfSR{"test_header_6", test_header_6, nil,
-			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"},
-				map[string]string{"tag": "empty", "plastic": "yes"}}},
-		rtfSR{"test_header_7", test_header_7, nil,
+		{"test_header_1", test_header_1, nil,
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{}, map[string]string{}, ""}},
+		{"test_header_2", test_header_2, nil,
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"}, map[string]string{}, ""}},
+		{"test_header_3", test_header_3, nil,
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"}, map[string]string{}, ""}},
+		{"test_header_4", test_header_4, nil,
+			MetaData{"", realisticdate, never, "I need", "", false, []string{}, map[string]string{}, ""}},
+		{"test_header_5", test_header_5, nil,
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"}, map[string]string{}, ""}},
+		{"test_header_6", test_header_6, nil,
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal", ""},
+				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
+		{"test_header_7", test_header_7, nil,
 			MetaData{"", realisticdate, date, "What I want", "", true,
 				[]string{"@journal", "@fiddle"},
-				map[string]string{"tag": "empty", "plastic": "yes"}}},
-		rtfSR{"test_header_8", test_header_8, nil,
+				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
+		{"test_header_8", test_header_8, nil,
 			MetaData{"", realisticdate, date, "What I want", "", true,
-				[]string{"@journal", "@hello", "@bye"}, map[string]string{"tag": "empty", "plastic": "yes"}}},
-		rtfSR{"test_header_9", test_header_9, nil,
+				[]string{"@journal", "@hello", "@bye"}, map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
+		{"test_header_9", test_header_9, nil,
 			MetaData{"", realisticdate, date, "Business Korea", "", true,
-				[]string{"@book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}}},
+				[]string{"@book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
 	}
 
 	for _, tu := range testfiles {
@@ -178,7 +178,7 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 			t.Errorf("%s: equals has failed for %v", tu.testname, tu)
 		}
 
-		md := MetaData{"", realisticdate, never, "", "", false, []string{}, map[string]string{}}
+		md := MetaData{"", realisticdate, never, "", "", false, []string{}, map[string]string{}, ""}
 		rd := strings.NewReader(tu.in)
 		md.RootThroughFileForMetadata(io.Reader(rd))
 
@@ -193,10 +193,10 @@ func Test_PrettyDate(t *testing.T) {
 	statdate, _ := ParseDateUnix("1999/03/21 17:00:00")
 	tagdate, _ := ParseDateUnix("2012/03/19 06:51:15")
 
-	md := MetaData{"", statdate, never, "What I want 0", "", false, []string{}, map[string]string{}}
+	md := MetaData{"", statdate, never, "What I want 0", "", false, []string{}, map[string]string{}, ""}
 	testhelpers.AssertString(t, "Sunday, Mar 21, 1999", md.PrettyDate())
 
-	md = MetaData{"", statdate, tagdate, "What I want 0", "", true, []string{}, map[string]string{}}
+	md = MetaData{"", statdate, tagdate, "What I want 0", "", true, []string{}, map[string]string{}, ""}
 	testhelpers.AssertString(t, "Monday, Mar 19, 2012", md.PrettyDate())
 }
 
@@ -215,8 +215,8 @@ func Test_JsonDate(t *testing.T) {
 	SetPathForContent("/url-here")
 
 	datas := []tEdMd{
-		{nil, json1, MetaData{"1.md", statdate, never, "What I want 0", "", false, []string{}, map[string]string{}}},
-		{nil, json2, MetaData{"2.md", statdate, tagdate, "What I want 0", "", true, []string{}, map[string]string{}}}}
+		{nil, json1, MetaData{"1.md", statdate, never, "What I want 0", "", false, []string{}, map[string]string{}, ""}},
+		{nil, json2, MetaData{"2.md", statdate, tagdate, "What I want 0", "", true, []string{}, map[string]string{}, ""}}}
 
 	for _, m := range datas {
 		b, e := m.md.MarshalJSON()
