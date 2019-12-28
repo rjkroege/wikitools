@@ -16,7 +16,7 @@ type MetaDataForOutput struct {
 	HadMetaData      bool
 	Tags             []string
 	ExtraKeys        map[string]string
-	Datepath string
+	Datepath         string
 }
 
 const MDFOtemplate = `MetaData:
