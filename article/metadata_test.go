@@ -1,11 +1,12 @@
 package article
 
 import (
-	"github.com/rjkroege/wikitools/testhelpers"
 	"io"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/rjkroege/wikitools/testhelpers"
 )
 
 var now = time.Now()
@@ -56,6 +57,7 @@ func Test_ParseDateUnix(t *testing.T) {
 		{"Fri Jun 14 07:25:48 EDT 2013", nil, "Fri 14 Jun 2013, 07:25:48 EDT"},
 		{"Sat Dec  1 17:34:00 EST 2012", nil, "1 Dec 17:34:00 2012"},
 		{"Tue Sep  5 11:14:03 PDT 2006", nil, "Tue Sep  5 11:14:03 PDT 2006"},
+		{"Tue Feb  5 08:52:22 -0700 2019", nil, "2019-02-05 08:52:22.000000000 -0700"},
 	}
 
 	for _, tu := range testdates {
@@ -159,7 +161,7 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 		{"test_header_5", test_header_5, nil,
 			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"}, map[string]string{}, ""}},
 		{"test_header_6", test_header_6, nil,
-			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal", ""},
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"},
 				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
 		{"test_header_7", test_header_7, nil,
 			MetaData{"", realisticdate, date, "What I want", "", true,
@@ -178,13 +180,13 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 			t.Errorf("%s: equals has failed for %v", tu.testname, tu)
 		}
 
-		md := MetaData{"", realisticdate, never, "", "", false, []string{}, map[string]string{}, ""}
+		md := &MetaData{"", realisticdate, never, "", "", false, []string{}, map[string]string{}, ""}
 		rd := strings.NewReader(tu.in)
 		md.RootThroughFileForMetadata(io.Reader(rd))
 
 		// TODO(rjkroege): Add nicer String() on Metadata?
 		if !md.equals(&tu.ex) {
-			t.Errorf("%s: expected %v != actual %v", tu.testname, tu.ex, md)
+			t.Errorf("%s: got %v, want %v\n", tu.testname, md.Dump(), (&tu.ex).Dump())
 		}
 	}
 }

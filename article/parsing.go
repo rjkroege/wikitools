@@ -21,6 +21,7 @@ const (
 	almostunixlike = "Monday _2 Jan 2006 15:04:05"
 	short          = "Monday, Jan _2, 2006"
 	df             = "Mon _2 Jan 2006, 15:04:05"
+	iso	= "2006-01-02 15:04:05.999999999 -0700"
 
 //	odf = "Mon Jan _2 15:04:05 MST 2006"
 )
@@ -43,7 +44,9 @@ func ParseDateUnix(ds string) (t time.Time, err error) {
 		unixlike,
 		almostunixlike,
 		short,
-		df}
+		df,
+		iso,
+	}
 
 	timeswithzones := []string{
 		time.UnixDate,

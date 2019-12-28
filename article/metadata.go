@@ -167,3 +167,4 @@ func (md *MetaData) BibTexEntry() string {
 	}
 	return s
 }
+
