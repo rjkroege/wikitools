@@ -1,7 +1,7 @@
 package config
 
 const (
-	Basepath        = "/Users/rjkroege/wrks/wiki"
+	Basepath        = "/Users/rjkroege/Documents/wiki"
 	Extension       = ".md"
 	Newarticlespath = "unsorted"
 )
