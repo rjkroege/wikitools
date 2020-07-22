@@ -2,9 +2,11 @@ package wiki
 
 // Templates for new journal entries.
 const (
-	basetmpl = `title: {{.Title}}
+	basetmpl = `---
+title: {{.Title}}
 date: {{.DetailedDate}}
 tags: {{.Tagstring}}
+--
 
 {{.Dynamicstring}}
 `
@@ -56,7 +58,8 @@ tags: {{.Tagstring}}
 *how to tell that it's right*
 `
 
-	booktmpl = `title: {{.Title}}
+	booktmpl = `---
+title: {{.Title}}
 date: {{.DetailedDate}}
 tags: {{.Tagstring}}
 bib-bibkey: The reference key for this book. Required.
@@ -64,7 +67,6 @@ bib-author: The name(s) of the author(s) (in the case of more than one author, s
 bib-title: {{.Title}}
 bib-publisher: The publisher's name
 bib-year: The year of publication (or, if unpublished, the year of creation)
-
 bib-address: (Optional) Publisher's address (usually just the city, but can be the full address for lesser-known publishers)
 bib-number: (Optional) The "(issue) number" of a journal, magazine, or tech-report, if applicable. (Most publications have a "volume", but no "number" field.)
 bib-volume: (Optional) The volume of a journal or multi-volume book
@@ -73,11 +75,13 @@ bib-edition: (Optional) The edition of a book, long form (such as "first" or "se
 bib-month:  (Optional) The month the book was issued.
 bib-isbn: (Optional, non-standard) The ISBN for this book.
 bib-url: (Optional, non-standard) A URL for an e-book.
+---
 
 Yo dawg! Put the bookreview here. Delete the undesired tags. Remove the blank line.
 `
 
-	articletmpl = `title: {{.Title}}
+	articletmpl = `---
+title: {{.Title}}
 date: {{.DetailedDate}}
 tags: {{.Tagstring}}
 bib-bibkey: The reference key for this book. Required.
@@ -85,12 +89,12 @@ bib-author: The name(s) of the author(s) (in the case of more than one author, s
 bib-title: {{.Title}}
 bib-journal: The journal or magazine the work was published in
 bib-year: The year of publication (or, if unpublished, the year of creation)
-
 bib-volume: (Optional) The volume of a journal or multi-volume book
 bib-number: (Optional) The "(issue) number" of a journal, magazine, or tech-report, if applicable. (Most publications have a "volume", but no "number" field.)
 bib-pages: (Optional) Page numbers, separated either by commas or double-hyphens.
 bib-month:  (Optional) The month the book was issued.
 bib-url: (Optional, non-standard) A URL for an e-journal.
+---
 
 Yo dawg! Put the bookreview here. Delete the undesired tags. Remove the blank line.
 `
