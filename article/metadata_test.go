@@ -77,6 +77,14 @@ date: 2012/03/19 06:51:15
 I need to figure out what I want. 
 `
 
+const test_header_1_dash = `---
+title: What I want
+date: 2012/03/19 06:51:15
+---
+
+I need to figure out what I want. 
+`
+
 const test_header_2 = `title: What I want
 date: 2012/03/19 06:51:15
 tags: @journal
@@ -106,6 +114,18 @@ tags: @journal
 
 I need to figure out what to code
 `
+
+const test_header_6_dash = `---
+plastic: yes
+Date: 2012/03/19 06:51:15
+Tag: empty
+Title: What I want
+tags: @journal
+---
+
+I need to figure out what to code
+`
+
 const test_header_7 = `plastic: yes
 Date: 2012/03/19 06:51:15
 Tag: empty
@@ -135,6 +155,20 @@ bib-year:  1997
 Business book.
 `
 
+const test_header_9_dash = `---
+title: Business Korea
+date: 2012/03/19 06:51:15
+tags: @book
+bib-bibkey: kenna97
+bib-author: Peggy Kenna and Sondra Lacy
+bib-title: Business Korea
+bib-publisher: Passport Books
+bib-year:  1997
+---
+
+Business book.
+`
+
 type rtfSR struct {
 	testname string
 	in       string
@@ -152,6 +186,8 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 	testfiles := []rtfSR{
 		{"test_header_1", test_header_1, nil,
 			MetaData{"", realisticdate, date, "What I want", "", true, []string{}, map[string]string{}, ""}},
+		{"test_header_1_dash", test_header_1_dash, nil,
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{}, map[string]string{}, ""}},
 		{"test_header_2", test_header_2, nil,
 			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"}, map[string]string{}, ""}},
 		{"test_header_3", test_header_3, nil,
@@ -163,6 +199,9 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 		{"test_header_6", test_header_6, nil,
 			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"},
 				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
+		{"test_header_6_dash", test_header_6_dash, nil,
+			MetaData{"", realisticdate, date, "What I want", "", true, []string{"@journal"},
+				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
 		{"test_header_7", test_header_7, nil,
 			MetaData{"", realisticdate, date, "What I want", "", true,
 				[]string{"@journal", "@fiddle"},
@@ -171,6 +210,9 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 			MetaData{"", realisticdate, date, "What I want", "", true,
 				[]string{"@journal", "@hello", "@bye"}, map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
 		{"test_header_9", test_header_9, nil,
+			MetaData{"", realisticdate, date, "Business Korea", "", true,
+				[]string{"@book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
+		{"test_header_9_dash", test_header_9_dash, nil,
 			MetaData{"", realisticdate, date, "Business Korea", "", true,
 				[]string{"@book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
 	}

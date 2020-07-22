@@ -92,20 +92,23 @@ func trim(line string) string {
 	return line
 }
 
-/**
- * Opens a specified file and attempts to extract meta data.
- * There are two possibilities for metadata. Without either,
- * dates fallback to the modification date of the file and the
- * the first line as the fallback.
- *
- * 1. The date is in a metadata segment at the top of the file as
- * defined for MetaMarkdown. This format consists of key: value with
- * a following blank line.
- *
- * 2. The date is contained in a comment as a sequence of numbers.
- * To keep this from being too inefficient, it must be found in the top
- * 5 lines.
- */
+
+
+// RootThroughFileForMetadata ppens a specified file and attempts to
+// extract meta data. There are two possibilities for metadata. Without
+// either, dates fallback to the modification date of the file and the
+// the first line as the fallback.
+//
+// 1. The date is in a metadata segment at the top of the file as
+// defined for MetaMarkdown. This format consists of key: value with
+// a following blank line.
+//
+// 2. The date is contained in a comment as a sequence of numbers.
+// To keep this from being too inefficient, it must be found in the top
+// 5 lines.
+//
+// 3. An iAWriter metadata block: metadata is key: value within ---.
+//
 // TODO(rjk): Consider having some kind of error response? There
 // could be I/O errors.
 func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
