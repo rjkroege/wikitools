@@ -6,7 +6,7 @@ const (
 title: {{.Title}}
 date: {{.DetailedDate}}
 tags: {{.Tagstring}}
---
+---
 
 {{.Dynamicstring}}
 `
