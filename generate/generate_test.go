@@ -139,7 +139,7 @@ func Test_WriteHtmlFile(t *testing.T) {
 		time.Time{},
 		make([]string, 0, 4)}
 
-	md := article.NewArticleTest("one.md", realisticdate1999, realisticdate2012, "What I want", true)
+	md := NewArticleTest("one.md", realisticdate1999, realisticdate2012, "What I want", true)
 	WriteHtmlFile(ms, md)
 
 	testhelpers.AssertInt(t, 1, len(ms.writefiles))
@@ -161,7 +161,7 @@ func Test_WriteHtmlFile(t *testing.T) {
 		realisticdate2012,
 		make([]string, 0, 4)}
 
-	md = article.NewArticleTest("one.md", realisticdate1999, realisticdate2012, "What I want", true)
+	md = NewArticleTest("one.md", realisticdate1999, realisticdate2012, "What I want", true)
 	WriteHtmlFile(ms, md)
 
 	testhelpers.AssertInt(t, 0, len(ms.writefiles))
@@ -172,4 +172,15 @@ func Test_WriteHtmlFile(t *testing.T) {
 	testhelpers.AssertString(t, "one.html", ms.timedfiles[0])
 
 	// TODO(rjkroege): Add additional tests to support validating error handling, etc.
+}
+
+// NewArticleTest makes an article for testing.
+func NewArticleTest(name string, stat time.Time, meta time.Time, title string, has bool) *article.MetaData {
+	return &article.MetaData{
+		Name:             name,
+		DateFromStat:     stat,
+		DateFromMetadata: meta,
+		Title:            title,
+		HadMetaData:      has,
+	}
 }

@@ -60,22 +60,6 @@ func NewArticle(name string, title string, tags []string) *MetaData {
 	}
 }
 
-// Use only from tests. (How could I enforce this?) (By moving it to the
-// test code but having it in the same package and giving it a lower-case
-// name?
-func NewArticleTest(name string, stat time.Time, meta time.Time, title string, has bool) *MetaData {
-	return &MetaData{
-		Name:             name,
-		DateFromStat:     stat,
-		DateFromMetadata: meta,
-		Title:            title,
-		Dynamicstring:    "",
-		HadMetaData:      has,
-		tags:             []string{},
-		extraKeys:        map[string]string{},
-	}
-}
-
 // Generate the string from the list of tags.
 func (md *MetaData) Tagstring() string {
 	return strings.Join(md.tags, " ")
