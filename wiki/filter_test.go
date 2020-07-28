@@ -10,10 +10,11 @@ import (
 func Test_ValidBaseName(t *testing.T) {
 	testhelpers.AssertString(t, "foo", ValidBaseName([]string{"foo"}))
 	testhelpers.AssertString(t, "foo-bar", ValidBaseName([]string{"foo", "bar"}))
-	testhelpers.AssertString(t, "fo,o-b-ar-,", ValidBaseName([]string{"fo/o", "b ar", "#"}))
+	testhelpers.AssertString(t, "fo_o-b-ar-,", ValidBaseName([]string{"fo/o", "b ar", "#"}))
 	testhelpers.AssertString(t, "fo-o-bar", ValidBaseName([]string{"fo	o", "bar"}))
 	testhelpers.AssertString(t, "one-two-three", ValidBaseName([]string{"one", "two", "three"}))
-	testhelpers.AssertString(t, "2012,12,12", ValidBaseName([]string{"2012/12/12"}))
+	testhelpers.AssertString(t, "2012_12_12", ValidBaseName([]string{"2012/12/12"}))
+	testhelpers.AssertString(t, "foo-bar", ValidBaseName([]string{"foo,bar"}))
 }
 
 type MockSystem struct {

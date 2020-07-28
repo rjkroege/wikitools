@@ -13,7 +13,8 @@ const (
 func filter(r rune) rune {
 	lut := map[rune]rune{
 		' ':  '-',
-		'/':  ',',
+		',': '-',
+		'/':  '_',
 		'#':  ',',
 		'\t': '-'}
 	nr, ok := lut[r]
