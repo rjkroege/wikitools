@@ -284,6 +284,7 @@ func Test_JsonDate(t *testing.T) {
 func TestRelativeDateDirectory(t *testing.T) {
 	statdate, _ := ParseDateUnix("1999/03/21 17:00:00")
 	tagdate, _ := ParseDateUnix("2012/03/19 06:51:15")
+	otherdate, _ := ParseDateUnix("2012/03/03 06:51:15")
 
 	for i, tv := range []struct {
 		in   *MetaData
@@ -291,11 +292,15 @@ func TestRelativeDateDirectory(t *testing.T) {
 	}{
 		{
 			in:   &MetaData{"", statdate, never, "What I want 0", "", false, []string{}, map[string]string{}, ""},
-			want: "1999/3/21",
+			want: "1999/03-Mar/21",
 		},
 		{
 			in:   &MetaData{"", statdate, tagdate, "What I want 0", "", true, []string{}, map[string]string{}, ""},
-			want: "2012/3/19",
+			want: "2012/03-Mar/19",
+		},
+		{
+			in:   &MetaData{"", statdate, otherdate, "What I want 0", "", true, []string{}, map[string]string{}, ""},
+			want: "2012/03-Mar/3",
 		},
 	} {
 		if got, want := tv.in.RelativeDateDirectory(), tv.want; got != want {

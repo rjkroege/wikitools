@@ -65,13 +65,27 @@ func (md *MetaData) Tagstring() string {
 	return strings.Join(md.tags, " ")
 }
 
+var shortmonths = [...]string{
+  	"Jan",
+  	"Feb",
+  	"Mar",
+  	"Apr",
+  	"May",
+  	"Jun",
+  	"Jul",
+  	"Aug",
+  	"Sep",
+  	"Oct",
+  	"Nov",
+  	"Dec",
+  }
+
 // RelativeDateDirectory generates the name of the file in the structured
 // date-based sorting.
-// TODO(rjk): use better padding
 func (md *MetaData) RelativeDateDirectory() string {
 	t := md.PreferredDate()
 
-	return filepath.Join(fmt.Sprintf("%d", t.Year()), fmt.Sprintf("%d", t.Month()), fmt.Sprintf("%d", t.Day()))
+	return filepath.Join(fmt.Sprintf("%d", t.Year()), fmt.Sprintf("%02d-%s", t.Month(), shortmonths[t.Month()-1]), fmt.Sprintf("%d", t.Day()))
 
 }
 
