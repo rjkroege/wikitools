@@ -95,7 +95,7 @@ func trim(line string) string {
 
 
 // RootThroughFileForMetadata ppens a specified file and attempts to
-// extract meta data. There are two possibilities for metadata. Without
+// extract metadata. There are two possibilities for metadata. Without
 // either, dates fallback to the modification date of the file and the
 // the first line as the fallback.
 //
