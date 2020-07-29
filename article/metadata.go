@@ -67,6 +67,7 @@ func (md *MetaData) Tagstring() string {
 
 // RelativeDateDirectory generates the name of the file in the structured
 // date-based sorting.
+// TODO(rjk): use better padding
 func (md *MetaData) RelativeDateDirectory() string {
 	t := md.PreferredDate()
 

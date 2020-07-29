@@ -280,3 +280,26 @@ func Test_JsonDate(t *testing.T) {
 		testhelpers.AssertString(t, m.result, string(b))
 	}
 }
+
+func TestRelativeDateDirectory(t *testing.T) {
+	statdate, _ := ParseDateUnix("1999/03/21 17:00:00")
+	tagdate, _ := ParseDateUnix("2012/03/19 06:51:15")
+
+	for i, tv := range []struct {
+		in   *MetaData
+		want string
+	}{
+		{
+			in:   &MetaData{"", statdate, never, "What I want 0", "", false, []string{}, map[string]string{}, ""},
+			want: "1999/3/21",
+		},
+		{
+			in:   &MetaData{"", statdate, tagdate, "What I want 0", "", true, []string{}, map[string]string{}, ""},
+			want: "2012/3/19",
+		},
+	} {
+		if got, want := tv.in.RelativeDateDirectory(), tv.want; got != want {
+			t.Errorf("]%d] got %#v want %#v", i, got, want)
+		}
+	}
+}
