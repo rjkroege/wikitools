@@ -11,10 +11,21 @@ import (
 )
 
 var dryrun = flag.Bool("n", false, "Don't actually move the files, just show what would happen")
+var deepclean = flag.Bool("deepclean", false, "Rewrite the metadata, move files into improved directories")
 
 func main() {
-	// TODO(rjk): make sure that I do this in a branch from master.
-	// TODO(rjk): pull to make sure that I have the latest set of changes.
+	flag.Parse()
+
+	if *deepclean {
+		// TODO(rjk): Finish this.
+		log.Println("do deepclean")
+		log.Println("warning: feature incomplete")
+
+		if err := filepath.Walk(config.Basepath, article.UpdateMetadata); err != nil {
+			log.Fatal("deepclean walk: ", err)
+		}
+		return 
+	}
 
 	// Enumerate all of the articles in config.Newarticlespath
 	articlepattern := filepath.Join(config.Basepath, config.Newarticlespath, "*")
