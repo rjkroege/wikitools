@@ -13,7 +13,7 @@ type MetaDataForOutput struct {
 	DateFromMetadata time.Time
 	Title            string
 	Dynamicstring    string
-	HadMetaData      bool
+	Mdtype      string
 	Tags             []string
 	ExtraKeys        map[string]string
 	Datepath         string
@@ -25,11 +25,19 @@ const MDFOtemplate = `MetaData:
 	DateFromMetadata: {{.DateFromMetadata}}
 	Title:          {{.Title}}
 	Dynamicstring:    {{.Dynamicstring}}
-	HadMetaData:      {{.HadMetaData}}
+	mdtype:      {{.Mdtype}}
 	Tags:             {{.Tags}}
 	ExtraKeys:        {{.ExtraKeys}}
 	Datepath: {{.Datepath}}
 `
+
+var MdtypeNames = [...]string{
+"MdInvalid ",
+"MdLegacy",
+"MdIaWriter",
+"MdModern",
+  }
+
 
 func (md *MetaData) Dump() string {
 	tmpl, err := template.New("dumper").Parse(MDFOtemplate)
@@ -37,13 +45,14 @@ func (md *MetaData) Dump() string {
 		panic("oops!, bad template")
 	}
 
+	// TODO(rjk): Update for metadata type categorization
 	yada := &MetaDataForOutput{
 		Name:             md.filename,
 		DateFromStat:     md.DateFromStat,
 		DateFromMetadata: md.DateFromMetadata,
 		Title:            md.Title,
 		Dynamicstring:    md.Dynamicstring,
-		HadMetaData:      md.HadMetaData,
+		Mdtype:      MdtypeNames[md.mdtype], 
 		Tags:             md.tags,
 		ExtraKeys:        md.extraKeys,
 		Datepath:         md.datepath,

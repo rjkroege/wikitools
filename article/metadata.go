@@ -17,6 +17,16 @@ func SetPathForContent(p string) {
 	pathForContent = p
 }
 
+
+const (
+	MdInvalid = iota
+	MdLegacy
+	MdIaWriter
+	MdModern
+)
+
+type  MetadataType int
+
 // Prefer lower-case fields.
 type MetaData struct {
 	filename             string
@@ -24,7 +34,7 @@ type MetaData struct {
 	DateFromMetadata time.Time
 	Title            string
 	Dynamicstring    string
-	HadMetaData      bool
+	mdtype      MetadataType
 	tags             []string
 	extraKeys        map[string]string
 
@@ -38,23 +48,18 @@ func MakeMetaData(name string, statTime time.Time) *MetaData {
 		filename:             name,
 		DateFromStat:     statTime,
 		DateFromMetadata: time.Time{},
-		Title:            "",
-		Dynamicstring:    "",
-		HadMetaData:      false,
-		tags:             []string{},
-		extraKeys:        map[string]string{},
 	}
 }
 
 // TODO(rjk): filenamechange NewArticleWithTime -> NewArticle, NewArticle -> NewArticleDefaultTimes
 // NewArticleTest makes an article for testing.
-func NewArticleWithTime(name string, stat time.Time, meta time.Time, title string, has bool) *MetaData {
+func NewArticleWithTime(name string, stat time.Time, meta time.Time, title string, mdtype MetadataType) *MetaData {
 	return &MetaData{
 		filename:             name,
 		DateFromStat:     stat,
 		DateFromMetadata: meta,
 		Title:            title,
-		HadMetaData:      has,
+		mdtype:      mdtype,
 	}
 }
 
@@ -64,8 +69,6 @@ func NewArticle(name string, title string, tags []string) *MetaData {
 		DateFromStat:     time.Time{},
 		DateFromMetadata: time.Now(),
 		Title:            title,
-		Dynamicstring:    "",
-		HadMetaData:      false,
 		tags:             tags,
 		extraKeys:        map[string]string{},
 	}
@@ -90,6 +93,12 @@ func (md *MetaData) Tagstring() string {
 
 func (md *MetaData) FullPathName(basepath string) string {
 	return filepath.Join(basepath, md.RelativeDateDirectory(), md.FileName())
+}
+
+// HdMetaData returns true if the file has metadata of some kind.
+// TODO(rjk): This exists to support legacy code. Remove when possible.
+func (md *MetaData) HadMetaData() bool {
+	return md.mdtype != MdInvalid
 }
 
 var shortmonths = [...]string{
@@ -131,7 +140,7 @@ func (md *MetaData) ExtraKeys() map[string]string {
 }
 
 func (a *MetaData) equals(b *MetaData) bool {
-	return a.filename == b.filename && a.DateFromStat == b.DateFromStat && a.DateFromMetadata == b.DateFromMetadata && a.Title == b.Title && a.HadMetaData == b.HadMetaData && a.Tagstring() == b.Tagstring() && a.ExtraKeysString() == b.ExtraKeysString()
+	return a.filename == b.filename && a.DateFromStat == b.DateFromStat && a.DateFromMetadata == b.DateFromMetadata && a.Title == b.Title && a.mdtype == b.mdtype && a.Tagstring() == b.Tagstring() && a.ExtraKeysString() == b.ExtraKeysString()
 }
 
 // Converts an article name into its name as a formatted object.

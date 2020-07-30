@@ -22,7 +22,13 @@ func ShowFileInfo(path string, info os.FileInfo, err error) error {
 
 
 type BatchCleaner struct {
-	filesmissingmetadata []string
+	missingmd [][]string
+}
+
+func MakeBatchCleaner() *BatchCleaner {
+	return &BatchCleaner{
+		missingmd: make([][]string, MdModern + 1),
+	}
 }
 
 // skipper returns true for files that we don't want to process
@@ -80,12 +86,8 @@ func (abc *BatchCleaner) DoMetadataUpdate(path string) error {
 	md := MakeMetaData(filepath.Base(path), d.ModTime())
 	md.RootThroughFileForMetadata(fd)
 
-	if md.HadMetaData {
-		log.Println(path, "had metadata")
-	} else {
-		log.Println(path, "no metadata")
-		abc.filesmissingmetadata := append(abc.filesmissingmetadata, path)
-	}
+	// Collect and categorize the articles by their metadata deficiencies
+	abc.missingmd[md.mdtype] = append(abc.missingmd[md.mdtype], path)
 
 	return nil
 }

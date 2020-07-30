@@ -107,7 +107,7 @@ func trim(line string) string {
 // To keep this from being too inefficient, it must be found in the top
 // 5 lines.
 //
-// 3. An iAWriter metadata block: metadata is key: value within ---.
+// 3. An iAWriter metadata block: metadata is some number of key: value within ---.
 //
 // TODO(rjk): Consider having some kind of error response? There
 // could be I/O errors.
@@ -115,20 +115,27 @@ func trim(line string) string {
 func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
 	rd := bufio.NewReader(reader)
 	lc := 0
-	md.HadMetaData = false
+	md.mdtype = MdInvalid
 
 	var date time.Time
 	var de error
 
-	for lc < 5 || md.HadMetaData {
+	for lc < 5 || md.mdtype != MdInvalid {
 		line, e := rd.ReadString('\n')
-		if e != nil || md.HadMetaData && line == "\n" {
-			// Return e.
+		if e != nil || md.mdtype != MdInvalid && line == "\n" {
+			// TODO(rjk): Return e.
 			break
 		}
 		line = trim(line)
 
-		if lc == 0 {
+		if lc == 0 && line == "---" {
+			// We're one of the modern metadata formats MdIaWriter, MdModern
+			// MdModern is reserved for the situation where the title and tags have been
+			// modernized.
+			md.mdtype = MdIaWriter
+		} else if lc == 0 {
+			// We don't know yet what kind of metadata is present. But assume that
+			// the first line is the title if we don't have metadata.
 			md.Title = line
 		}
 
@@ -150,7 +157,11 @@ func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
 			} else {
 				md.extraKeys[s] = strings.TrimSpace(m1[2])
 			}
-			md.HadMetaData = true
+			// If we have some combination of structured data but not MdIaWriter
+			// metadata, then, we're MdLegacy
+			if md.mdtype == MdInvalid {
+				md.mdtype = MdLegacy
+			}
 		} else if len(m2) > 0 {
 			// fmt.Print("matched for  <" + m2[1] + ">\n");
 			date, de = ParseDateUnix(m2[1])

@@ -82,7 +82,7 @@ func WriteHtmlFile(sys System, md *article.MetaData) {
 		rd := bufio.NewReader(io.Reader(fd))
 
 		// Trim the metadata here.
-		if md.HadMetaData {
+		if md.HadMetaData() {
 			for {
 				line, rerr := rd.ReadString('\n')
 				if rerr != nil {
