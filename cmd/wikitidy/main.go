@@ -20,8 +20,10 @@ func main() {
 		// TODO(rjk): Finish this.
 		log.Println("do deepclean")
 		log.Println("warning: feature incomplete")
-
-		if err := filepath.Walk(config.Basepath, article.UpdateMetadata); err != nil {
+		abc := &article.BatchCleaner{}
+		if err := filepath.Walk(config.Basepath, func(path string, info os.FileInfo, err error) error {
+			return abc.ModernizeMetadata(path, info, err)
+		}); err != nil {
 			log.Fatal("deepclean walk: ", err)
 		}
 		return 

@@ -33,7 +33,6 @@ type MetaData struct {
 	datepath string
 }
 
-// TODO(rjk): specify if name should be absolute or not.
 func MakeMetaData(name string, statTime time.Time) *MetaData {
 	return &MetaData{
 		filename:             name,

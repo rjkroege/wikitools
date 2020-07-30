@@ -94,7 +94,7 @@ func trim(line string) string {
 
 
 
-// RootThroughFileForMetadata ppens a specified file and attempts to
+// RootThroughFileForMetadata opens a specified file and attempts to
 // extract metadata. There are two possibilities for metadata. Without
 // either, dates fallback to the modification date of the file and the
 // the first line as the fallback.
@@ -111,6 +111,7 @@ func trim(line string) string {
 //
 // TODO(rjk): Consider having some kind of error response? There
 // could be I/O errors.
+// TODO(rjk): Have it say what kind of metadata the file has
 func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
 	rd := bufio.NewReader(reader)
 	lc := 0
