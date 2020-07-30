@@ -38,7 +38,7 @@ func (md *MetaData) Dump() string {
 	}
 
 	yada := &MetaDataForOutput{
-		Name:             md.Name,
+		Name:             md.filename,
 		DateFromStat:     md.DateFromStat,
 		DateFromMetadata: md.DateFromMetadata,
 		Title:            md.Title,

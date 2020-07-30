@@ -17,7 +17,9 @@ import (
 // TODO(rjk): Correct the pathing assumptions.
 
 var outputdir = flag.String("odir", "./converted", "Output directory for importable files")
-var wikidir = flag.String("wdir", "/Users/rjkroege/gda/wiki2", "Where the wiki files are for naming")
+
+// TODO(rjk): This should come from the config?
+var wikidir = flag.String("wdir", "/Users/rjkroege/Documents/wiki", "Where the wiki files are for naming")
 
 // stripextension removes an extension from a filename if it's present and returns it.
 func stripextension(fn string) string {
@@ -32,7 +34,7 @@ func makesafename(fn string) string {
 	pathinwiki := wiki.UniqueValidName(*wikidir,
 		wiki.ValidBaseName([]string{noextensionname}), ".md", wiki.SystemImpl(0))
 
-	return filepath.Join(*outputdir, filepath.Base(pathinwiki))
+	return filepath.Join(*outputdir,pathinwiki)
 }
 
 func getalltags(contents []byte) []string {

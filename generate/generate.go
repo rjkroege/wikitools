@@ -52,11 +52,11 @@ func WriteHtmlFile(sys System, md *article.MetaData) {
 	// Handle  failures in the library.
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println(md.Name, "WriteHtmlFile, failed", r)
+			fmt.Println(md.Name(), "WriteHtmlFile, failed", r)
 		}
 	}()
 
-	fd, err := sys.OpenFileForReading(md.Name)
+	fd, err := sys.OpenFileForReading(md.Name())
 	defer fd.Close()
 	if err != nil {
 		fmt.Print(err)

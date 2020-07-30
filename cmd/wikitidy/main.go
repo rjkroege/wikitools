@@ -61,7 +61,7 @@ func main() {
 
 		relativearticledirectory := article.RelativeDateDirectory()
 		absarticledirectory := filepath.Join(config.Basepath, relativearticledirectory)
-		destarticle := filepath.Join(absarticledirectory, article.Name)
+		destarticle := filepath.Join(absarticledirectory, article.FileName())
 		srcarticle := f
 
 		if *dryrun {

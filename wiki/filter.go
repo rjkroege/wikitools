@@ -36,11 +36,11 @@ type System interface {
 }
 
 // UniqueValidName creates new names by inserting the current time
-// between the filename and the extension.
+// between the filename and the extension. Returns only the filename.
 func UniqueValidName(basepath string, filename string, extension string, system System) string {
-	p := filepath.Join(basepath, filename+extension)
-	if system.Exists(p) {
-		return filepath.Join(basepath, filename+"-"+system.Now().Format(timeformat)+extension)
+	fn := filename+extension
+	if system.Exists( filepath.Join(basepath, fn)) {
+		return filename+"-"+system.Now().Format(timeformat)+extension
 	}
-	return p
+	return fn
 }

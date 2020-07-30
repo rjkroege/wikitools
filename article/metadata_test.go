@@ -11,26 +11,15 @@ import (
 
 var never = time.Time{}
 
-// NewArticleTest makes an article for testing.
-func NewArticleTest(name string, stat time.Time, meta time.Time, title string, has bool) *MetaData {
-	return &MetaData{
-		Name:             name,
-		DateFromStat:     stat,
-		DateFromMetadata: meta,
-		Title:            title,
-		HadMetaData:      has,
-	}
-}
-
 func Test_Makearticle(t *testing.T) {
-	md := NewArticleTest("foo.md", never, never, "", false)
+	md := NewArticleWithTime("foo.md", never, never, "", false)
 	if md.FormattedName() != "foo.html" {
-		t.Errorf("expected  %s != to actual %s", "foo.html", md.Name)
+		t.Errorf("expected  %s != to actual %s", "foo.html", md.filename)
 	}
 }
 
 func Test_UrlForName(t *testing.T) {
-	md := NewArticleTest("foo.md", never, never, "", false)
+	md := NewArticleWithTime("foo.md", never, never, "", false)
 	SetPathForContent("flimmer/blo")
 	s := md.UrlForPath()
 	if s != "file://flimmer/blo/foo.html" {

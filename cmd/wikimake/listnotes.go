@@ -57,9 +57,10 @@ func main() {
 	// Can finess the "template" here.
 
 	for _, d := range dirs {
+		// TODO(rjk): filenamechange I'm using Name() as an absolute path so this is broken.
 		if strings.HasSuffix(d.Name(), ".md") {
 			e[i] = article.MakeMetaData(d.Name(), d.ModTime())
-			fd, _ := os.OpenFile(e[i].Name, os.O_RDONLY, 0)
+			fd, _ := os.OpenFile(e[i].Name(), os.O_RDONLY, 0)
 			e[i].RootThroughFileForMetadata(io.Reader(fd))
 			fd.Close()
 			i++

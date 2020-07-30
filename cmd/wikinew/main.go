@@ -17,8 +17,10 @@ import (
 
 func Makearticle(args []string, tags []string) *article.MetaData {
 	s := strings.Join(args, " ")
-	unsortedpath := filepath.Join(config.Basepath, config.Newarticlespath)
-	filename := wiki.UniqueValidName(unsortedpath, wiki.ValidBaseName(args), config.Extension, wiki.SystemImpl(0))
+	
+	tmpmd := article.NewArticle("", "", []string{})
+	destpath := filepath.Join(config.Basepath, tmpmd.RelativeDateDirectory())
+	filename := wiki.UniqueValidName(destpath, wiki.ValidBaseName(args), config.Extension, wiki.SystemImpl(0))
 	return article.NewArticle(filename, s, tags)
 }
 
@@ -28,12 +30,16 @@ type ExpandedArticle struct {
 }
 
 func (md *ExpandedArticle) Plumb() {
+	if err := os.MkdirAll(filepath.Join(config.Basepath, md.RelativeDateDirectory()), 0777); err != nil {
+		log.Fatal(err)
+	}
+
 	win, err := acme.New()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = win.Name(md.Name)
+	err = win.Name(md.FullPathName(config.Basepath))
 	if err != nil {
 		log.Fatal(err)
 	}
