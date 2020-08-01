@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"fmt"
 )
 
 var metadataMatcher = regexp.MustCompile("^([-A-Za-z]*):[ \t]*(.*)$")
@@ -92,28 +93,7 @@ func trim(line string) string {
 	return line
 }
 
-
-
-// RootThroughFileForMetadata opens a specified file and attempts to
-// extract metadata. There are two possibilities for metadata. Without
-// either, dates fallback to the modification date of the file and the
-// the first line as the fallback.
-//
-// 1. The date is in a metadata segment at the top of the file as
-// defined for MetaMarkdown. This format consists of key: value with
-// a following blank line.
-//
-// 2. The date is contained in a comment as a sequence of numbers.
-// To keep this from being too inefficient, it must be found in the top
-// 5 lines.
-//
-// 3. An iAWriter metadata block: metadata is some number of key: value within ---.
-//
-// TODO(rjk): Consider having some kind of error response? There
-// could be I/O errors.
-// TODO(rjk): Have it say what kind of metadata the file has
-func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
-	rd := bufio.NewReader(reader)
+func (md *MetaData) rootThroughFileForMetadataImpl(rd *bufio.Reader) error {
 	lc := 0
 	md.mdtype = MdInvalid
 
@@ -121,10 +101,13 @@ func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
 	var de error
 
 	for lc < 5 || md.mdtype != MdInvalid {
-		line, e := rd.ReadString('\n')
-		if e != nil || md.mdtype != MdInvalid && line == "\n" {
-			// TODO(rjk): Return e.
-			break
+		line, err := rd.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return fmt.Errorf("rootThroughFileForMetadataImpl can't ReadString: %v", err)
+		}
+		if err != nil || md.mdtype != MdInvalid && line == "\n" {
+			md.DateFromMetadata = date
+			return nil
 		}
 		line = trim(line)
 
@@ -176,4 +159,28 @@ func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
 		lc++
 	}
 	md.DateFromMetadata = date
+	return nil
+}
+
+// RootThroughFileForMetadata opens a specified file and attempts to
+// extract metadata. There are two possibilities for metadata. Without
+// either, dates fallback to the modification date of the file and the
+// the first line as the fallback.
+//
+// 1. The date is in a metadata segment at the top of the file as
+// defined for MetaMarkdown. This format consists of key: value with
+// a following blank line.
+//
+// 2. The date is contained in a comment as a sequence of numbers.
+// To keep this from being too inefficient, it must be found in the top
+// 5 lines.
+//
+// 3. An iAWriter metadata block: metadata is some number of key: value within ---.
+//
+// TODO(rjk): Consider having some kind of error response? There
+// could be I/O errors.
+// TODO(rjk): Have it say what kind of metadata the file has
+func (md *MetaData) RootThroughFileForMetadata(reader io.Reader) {
+	rd := bufio.NewReader(reader)
+	md.rootThroughFileForMetadataImpl(rd)
 }

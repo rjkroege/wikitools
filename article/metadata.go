@@ -48,6 +48,7 @@ func MakeMetaData(name string, statTime time.Time) *MetaData {
 		filename:             name,
 		DateFromStat:     statTime,
 		DateFromMetadata: time.Time{},
+		extraKeys:        map[string]string{},
 	}
 }
 
@@ -60,6 +61,7 @@ func NewArticleWithTime(name string, stat time.Time, meta time.Time, title strin
 		DateFromMetadata: meta,
 		Title:            title,
 		mdtype:      mdtype,
+		extraKeys:        map[string]string{},
 	}
 }
 
@@ -86,7 +88,7 @@ func (md *MetaData) FileName() string {
 	return md.filename
 }
 
-// Generate the string from the list of tags.
+// Tagstring generates the string from the list of tags.
 func (md *MetaData) Tagstring() string {
 	return strings.Join(md.tags, " ")
 }
