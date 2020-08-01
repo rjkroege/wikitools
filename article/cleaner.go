@@ -85,7 +85,25 @@ func (abc *BatchCleaner) ModernizeMetadata(path string, info os.FileInfo, err er
 }
 
 func replaceFile(newpath, oldpath string) error {
-	// TODO(rjk): Need to write me.
+	backup := oldpath + ".back"
+	if err := os.Link(oldpath, backup); err != nil {
+		return fmt.Errorf("replaceFile backup: %v", error)
+	}
+
+	if err := os.Remove(oldpath); err != nil {
+		return fmt.Errorf("replaceFile remove: %v", error)
+	}
+
+	if err := os.Link(newpath, oldpath); err != nil {
+		return fmt.Errorf("replaceFile emplace: %v", error)
+	}
+
+	if err := os.Remove(newpath); err != nil {
+		return fmt.Errorf("replaceFile remove: %v", error)
+	}
+	if err := os.Remove(backup); err != nil {
+		return fmt.Errorf("replaceFile remove: %v", error)
+	}
 	return nil
 }
 
