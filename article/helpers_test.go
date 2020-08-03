@@ -13,7 +13,7 @@ type MetaDataForOutput struct {
 	DateFromMetadata time.Time
 	Title            string
 	Dynamicstring    string
-	Mdtype      string
+	Mdtype           string
 	Tags             []string
 	ExtraKeys        map[string]string
 	Datepath         string
@@ -32,12 +32,11 @@ const MDFOtemplate = `MetaData:
 `
 
 var MdtypeNames = [...]string{
-"MdInvalid ",
-"MdLegacy",
-"MdIaWriter",
-"MdModern",
-  }
-
+	"MdInvalid ",
+	"MdLegacy",
+	"MdIaWriter",
+	"MdModern",
+}
 
 func (md *MetaData) Dump() string {
 	tmpl, err := template.New("dumper").Parse(MDFOtemplate)
@@ -52,7 +51,7 @@ func (md *MetaData) Dump() string {
 		DateFromMetadata: md.DateFromMetadata,
 		Title:            md.Title,
 		Dynamicstring:    md.Dynamicstring,
-		Mdtype:      MdtypeNames[md.mdtype], 
+		Mdtype:           MdtypeNames[md.mdtype],
 		Tags:             md.tags,
 		ExtraKeys:        md.extraKeys,
 		Datepath:         md.datepath,

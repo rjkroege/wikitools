@@ -17,32 +17,30 @@ func SetPathForContent(p string) {
 	pathForContent = p
 }
 
-
 const (
 	MdInvalid = iota
 	MdLegacy
 	MdIaWriter
 	MdModern
-
 )
 
 var metadatanametable = [...]string{
-"MdInvalid ",
-"MdLegacy",
-"MdIaWriter",
-"MdModern",
-}	
+	"MdInvalid ",
+	"MdLegacy",
+	"MdIaWriter",
+	"MdModern",
+}
 
-type  MetadataType int
+type MetadataType int
 
 // Prefer lower-case fields.
 type MetaData struct {
-	filename             string
+	filename         string
 	DateFromStat     time.Time
 	DateFromMetadata time.Time
 	Title            string
 	Dynamicstring    string
-	mdtype      MetadataType
+	mdtype           MetadataType
 	tags             []string
 	extraKeys        map[string]string
 
@@ -53,7 +51,7 @@ type MetaData struct {
 
 func MakeMetaData(name string, statTime time.Time) *MetaData {
 	return &MetaData{
-		filename:             name,
+		filename:         name,
 		DateFromStat:     statTime,
 		DateFromMetadata: time.Time{},
 		extraKeys:        map[string]string{},
@@ -64,18 +62,18 @@ func MakeMetaData(name string, statTime time.Time) *MetaData {
 // NewArticleTest makes an article for testing.
 func NewArticleWithTime(name string, stat time.Time, meta time.Time, title string, mdtype MetadataType) *MetaData {
 	return &MetaData{
-		filename:             name,
+		filename:         name,
 		DateFromStat:     stat,
 		DateFromMetadata: meta,
 		Title:            title,
-		mdtype:      mdtype,
+		mdtype:           mdtype,
 		extraKeys:        map[string]string{},
 	}
 }
 
 func NewArticle(name string, title string, tags []string) *MetaData {
 	return &MetaData{
-		filename:             name,
+		filename:         name,
 		DateFromStat:     time.Time{},
 		DateFromMetadata: time.Now(),
 		Title:            title,
@@ -112,19 +110,19 @@ func (md *MetaData) HadMetaData() bool {
 }
 
 var shortmonths = [...]string{
-  	"Jan",
-  	"Feb",
-  	"Mar",
-  	"Apr",
-  	"May",
-  	"Jun",
-  	"Jul",
-  	"Aug",
-  	"Sep",
-  	"Oct",
-  	"Nov",
-  	"Dec",
-  }
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec",
+}
 
 // RelativeDateDirectory generates the name of the file in the structured
 // date-based sorting.

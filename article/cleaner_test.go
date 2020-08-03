@@ -1,35 +1,33 @@
 package article
 
 import (
-	"testing"
-	"path/filepath"
-	"os"
-	"time"
 	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
 
 	"github.com/rjkroege/wikitools/config"
-	
 )
 
 type mockFileInfo struct {
 	name string
 }
 
-func (m *mockFileInfo) Name() string     {	return m.name }
-func (m *mockFileInfo) Size() int64     { 	return int64(0) }
-func (m *mockFileInfo) Mode() os.FileMode     {	return os.FileMode(0) }
-func (m *mockFileInfo) ModTime() time.Time     { 	return time.Time{} }
-func (m *mockFileInfo) IsDir() bool {	return false }
-func (m *mockFileInfo) Sys() interface{} {	return nil }
-
+func (m *mockFileInfo) Name() string       { return m.name }
+func (m *mockFileInfo) Size() int64        { return int64(0) }
+func (m *mockFileInfo) Mode() os.FileMode  { return os.FileMode(0) }
+func (m *mockFileInfo) ModTime() time.Time { return time.Time{} }
+func (m *mockFileInfo) IsDir() bool        { return false }
+func (m *mockFileInfo) Sys() interface{}   { return nil }
 
 func TestSkipper(t *testing.T) {
-	for i, tc  := range []struct{
-		base string
-		abs string
+	for i, tc := range []struct {
+		base     string
+		abs      string
 		expected bool
-	} {
+	}{
 		{
 			"Summer-2020.md",
 			filepath.Join(config.Basepath, "2020/7/19/Summer-2020.md"),
@@ -52,14 +50,11 @@ func TestSkipper(t *testing.T) {
 		},
 	} {
 		if got, want := skipper(tc.abs, &mockFileInfo{tc.base}), tc.expected; got != want {
-		t.Errorf("[%d] skipper %s got %v want %v", i, tc.abs, got, want)
-	}
+			t.Errorf("[%d] skipper %s got %v want %v", i, tc.abs, got, want)
+		}
 
 	}
 }
-
-
-
 
 func TestUpdateMetadata(t *testing.T) {
 	tmpd, err := ioutil.TempDir("", "testupdatemetadata")
@@ -75,43 +70,43 @@ func TestUpdateMetadata(t *testing.T) {
 		t.Fatal("no makeMetadataUpdaterImpl:", err)
 	}
 
-	for i, tc := range []struct{
-		inputfile string
-		fname string
+	for i, tc := range []struct {
+		inputfile    string
+		fname        string
 		errordetails string
-		expected string
-		skipped bool
-	} { 
+		expected     string
+		skipped      bool
+	}{
 		{
-			inputfile: test_header_1,
-			fname: "test_header_1.md",
+			inputfile:    test_header_1,
+			fname:        "test_header_1.md",
 			errordetails: "",
-			expected: "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\n---\n\nI need to figure out what I want. \n",
+			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\n---\n\nI need to figure out what I want. \n",
 		},
 		{
-			inputfile: test_header_3,
-			fname: "test_header_3.md",
+			inputfile:    test_header_3,
+			fname:        "test_header_3.md",
 			errordetails: "",
-			expected: "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: @journal\n---\n\nI need to figure out what I want. \n",
+			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: @journal\n---\n\nI need to figure out what I want. \n",
 		},
 		{
-			inputfile: test_header_6,
-			fname: "test_header_6.md",
+			inputfile:    test_header_6,
+			fname:        "test_header_6.md",
 			errordetails: "",
-			expected: "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: @journal\nplastic: yes\ntag: empty\n---\n\nI need to figure out what to code\n",
+			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: @journal\nplastic: yes\ntag: empty\n---\n\nI need to figure out what to code\n",
 		},
 		{
-			inputfile: test_header_9,
-			fname: "test_header_9.md",
+			inputfile:    test_header_9,
+			fname:        "test_header_9.md",
 			errordetails: "",
-			expected: "---\ntitle: Business Korea\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: @book\nbib-author: Peggy Kenna and Sondra Lacy\nbib-bibkey: kenna97\nbib-publisher: Passport Books\nbib-title: Business Korea\nbib-year: 1997\n---\n\nBusiness book.\n",
+			expected:     "---\ntitle: Business Korea\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: @book\nbib-author: Peggy Kenna and Sondra Lacy\nbib-bibkey: kenna97\nbib-publisher: Passport Books\nbib-title: Business Korea\nbib-year: 1997\n---\n\nBusiness book.\n",
 		},
 		{
-			inputfile: test_header_6_dash,
-			fname: "test_header_6_dash.md",
+			inputfile:    test_header_6_dash,
+			fname:        "test_header_6_dash.md",
 			errordetails: "",
-			expected: "",
-			skipped: true,
+			expected:     "",
+			skipped:      true,
 		},
 	} {
 		// setup test
@@ -142,12 +137,12 @@ func TestUpdateMetadata(t *testing.T) {
 		// err == nil && tc.errordetails == "" means that we validate results.
 
 		if tc.skipped {
-		if npath == "" {
-			// No output should be generated.
-			continue
-		} else if npath != "" {
-			t.Errorf("[%d] expected to do nothing but got %v", i, npath)
-		}
+			if npath == "" {
+				// No output should be generated.
+				continue
+			} else if npath != "" {
+				t.Errorf("[%d] expected to do nothing but got %v", i, npath)
+			}
 		}
 
 		// validate that the generated is correct
@@ -156,11 +151,11 @@ func TestUpdateMetadata(t *testing.T) {
 			t.Errorf("[%d] can't open ouput %s: %v", i, npath, err)
 		}
 		nval, err := ioutil.ReadAll(fd)
-		if err != nil  {
+		if err != nil {
 			t.Errorf("[%d] can't read %s: %v", i, npath, err)
 		}
 		if got, want := string(nval), tc.expected; got != want {
 			t.Errorf("[%d] update failed got %#v, want %#v", i, got, want)
 		}
-	}	
+	}
 }

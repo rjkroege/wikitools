@@ -204,7 +204,7 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 				[]string{"@journal", "@fiddle"},
 				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
 		{"test_header_8", test_header_8, nil,
-			MetaData{"", realisticdate, date, "What I want", "",MdLegacy ,
+			MetaData{"", realisticdate, date, "What I want", "", MdLegacy,
 				[]string{"@journal", "@hello", "@bye"}, map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
 		{"test_header_9", test_header_9, nil,
 			MetaData{"", realisticdate, date, "Business Korea", "", MdLegacy,

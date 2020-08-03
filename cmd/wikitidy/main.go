@@ -34,7 +34,7 @@ func main() {
 		if err := report.Summary(); err != nil {
 			log.Fatal("report Summary: ", err)
 		}
-		os.Exit(0) 
+		os.Exit(0)
 	}
 
 	if *deepclean {
@@ -53,7 +53,7 @@ func main() {
 		if err := update.Summary(); err != nil {
 			log.Fatal("report Summary: ", err)
 		}
-		os.Exit(0) 
+		os.Exit(0)
 	}
 
 	// Enumerate all of the articles in config.Newarticlespath

@@ -2,12 +2,12 @@ package article
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"log"
 	"regexp"
 	"strings"
 	"time"
-	"fmt"
 )
 
 var metadataMatcher = regexp.MustCompile("^([-A-Za-z]*):[ \t]*(.*)$")
