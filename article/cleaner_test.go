@@ -70,9 +70,9 @@ func TestUpdateMetadata(t *testing.T) {
 	// I'll want to go read them for sure.
 	log.Println(tmpd)
 
-	abc, err := MakeBatchCleaner()
+	abc, err := makeMetadataUpdaterImpl()
 	if err != nil {
-		t.Fatal("no BatchCleaner:", err)
+		t.Fatal("no makeMetadataUpdaterImpl:", err)
 	}
 
 	for i, tc := range []struct{

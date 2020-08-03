@@ -23,7 +23,15 @@ const (
 	MdLegacy
 	MdIaWriter
 	MdModern
+
 )
+
+var metadatanametable = [...]string{
+"MdInvalid ",
+"MdLegacy",
+"MdIaWriter",
+"MdModern",
+}	
 
 type  MetadataType int
 
@@ -176,8 +184,12 @@ func (md *MetaData) PrettyDate() string {
 }
 
 func (md *MetaData) DetailedDate() string {
+	return detailedDateImpl(md.PreferredDate())
+}
+
+func detailedDateImpl(d time.Time) string {
 	const df = "Mon _2 Jan 2006, 15:04:05 MST"
-	return md.PreferredDate().Format(df)
+	return d.Format(df)
 }
 
 type jsonmetadata struct {

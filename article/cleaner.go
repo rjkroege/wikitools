@@ -11,10 +11,22 @@ import (
 	"bufio"
 
 	"github.com/rjkroege/wikitools/config"
-
 )
 
-func ShowFileInfo(path string, info os.FileInfo, err error) error {
+
+// Tidying is the interface implemented by each of the kinds of Tidying
+// passes.
+type Tidying interface {
+	// EachFile is called by the filepath.Walk over each file in the wiki tree.
+	// It could do something like (e.g.) 
+	 EachFile(path string, info os.FileInfo, err error) error
+	 Summary() error
+}
+
+// ListWikiFiles is a boring implementation of Tidying that only lists wiki files.
+type ListWikiFiles struct {}
+
+func (_ *ListWikiFiles) EachFile(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)
 		return fmt.Errorf("couldn't read %s: %v", path, err)
@@ -23,25 +35,30 @@ func ShowFileInfo(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
-type BatchCleaner struct {
-	missingmd [][]string
-	tmpl *template.Template
+func (_ *ListWikiFiles) Summary() error {
+	return nil
 }
 
-func MakeBatchCleaner() (*BatchCleaner, error) {
+
+type metadataUpdater struct {
+	metadataReport
+}
+
+func MakeMetadataUpdater() (Tidying, error) {
+	return makeMetadataUpdaterImpl()
+}
+
+func makeMetadataUpdaterImpl() (*metadataUpdater, error) {
 	tmpl, err :=  template.New("newstylemetadata").Parse(iawritermetadataformat)
 	if err != nil {
-		return nil, fmt.Errorf("can't MakeBatchCleaner %v", err)
+		return nil, fmt.Errorf("can't MakeMetadataUpdater %v", err)
 	}
-	return &BatchCleaner{
-		missingmd: make([][]string, MdModern + 1),
+	return &metadataUpdater{
+		metadataReport{
+		missingmd: make([][]*articleReportEntry, MdModern + 1),
 		tmpl: tmpl,
+		},
 	}, nil
-}
-
-func (abc *BatchCleaner) GenerateReport() {
-	// TODO(rjk): generate reports of articles with invalid metadata
-	// with links and such
 }
 
 // skipper returns true for files that we don't want to process
@@ -52,6 +69,10 @@ func skipper(path string, info os.FileInfo) bool {
 	}
 
 	switch {
+	case info.IsDir():
+		return true
+	case filepath.Ext(info.Name()) != ".md":
+		return true
 	case strings.HasPrefix(relp, "templates"):
 		return true
 	case info.Name() == "README.md":
@@ -60,7 +81,7 @@ func skipper(path string, info os.FileInfo) bool {
 	return false
 }
 
-func (abc *BatchCleaner) ModernizeMetadata(path string, info os.FileInfo, err error) error {
+func (abc *metadataUpdater) EachFile(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)
 		return fmt.Errorf("couldn't read %s: %v", path, err)
@@ -70,44 +91,44 @@ func (abc *BatchCleaner) ModernizeMetadata(path string, info os.FileInfo, err er
 		return nil
 	}
 
-	if !info.IsDir() && filepath.Ext(info.Name()) == ".md" {
-		updatedpth, err := abc.updateMetadata(path)
+	updatedpth, err := abc.updateMetadata(path)
 		if err != nil {
 			return err
 		}
+
 		if updatedpth != "" {
 			if err := replaceFile(updatedpth, path); err != nil {
 				return fmt.Errorf("swapFile can't: %v", err)
 			}
 		}
-	}
 	return nil
 }
+
 
 func replaceFile(newpath, oldpath string) error {
 	backup := oldpath + ".back"
 	if err := os.Link(oldpath, backup); err != nil {
-		return fmt.Errorf("replaceFile backup: %v", error)
+		return fmt.Errorf("replaceFile backup: %v", err)
 	}
 
 	if err := os.Remove(oldpath); err != nil {
-		return fmt.Errorf("replaceFile remove: %v", error)
+		return fmt.Errorf("replaceFile remove: %v", err)
 	}
 
 	if err := os.Link(newpath, oldpath); err != nil {
-		return fmt.Errorf("replaceFile emplace: %v", error)
+		return fmt.Errorf("replaceFile emplace: %v", err)
 	}
 
 	if err := os.Remove(newpath); err != nil {
-		return fmt.Errorf("replaceFile remove: %v", error)
+		return fmt.Errorf("replaceFile remove: %v", err)
 	}
 	if err := os.Remove(backup); err != nil {
-		return fmt.Errorf("replaceFile remove: %v", error)
+		return fmt.Errorf("replaceFile remove: %v", err)
 	}
 	return nil
 }
 
-func (abc *BatchCleaner) updateMetadata(path string) (string, error) {
+func (abc *metadataUpdater) updateMetadata(path string) (string, error) {
 	d, err := os.Stat(path)
 	if err != nil {
 		log.Println("updateMetadata Stat error", err)
@@ -125,9 +146,8 @@ func (abc *BatchCleaner) updateMetadata(path string) (string, error) {
 	// TODO(rjk): RootThroughFileForMetadata needs to return an error when it fails
 	md := MakeMetaData(filepath.Base(path), d.ModTime())
 	md.RootThroughFileForMetadata(fd)
-
-	// Collect and categorize the articles by their metadata state
-	abc.missingmd[md.mdtype] = append(abc.missingmd[md.mdtype], path)
+	
+	abc.recordMetadataState(md, path)
 
 	if md.mdtype != MdLegacy {
 		// Nothing to do.
@@ -153,7 +173,7 @@ func (abc *BatchCleaner) updateMetadata(path string) (string, error) {
 // There are other transformations that I'll want to implement. Refactor when
 // I need to. Assumes that ofd's read point is at the end of the metadata in original file.
 // 
-func (abc *BatchCleaner) writeUpdatedMetadata(path string, ofd io.Reader, nfd io.Writer, md *MetaData) error {
+func (abc *metadataUpdater) writeUpdatedMetadata(path string, ofd io.Reader, nfd io.Writer, md *MetaData) error {
 	// write new metadata to nfd
 	nmd := &IaWriterMetadataOutput{
 		Title: md.Title,
@@ -189,3 +209,5 @@ tags: {{.Tags}}{{end}}{{range $key, $value := .Extrakeys}}
 ---
 
 `
+
+

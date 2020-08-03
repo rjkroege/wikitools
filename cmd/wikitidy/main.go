@@ -12,25 +12,48 @@ import (
 
 var dryrun = flag.Bool("n", false, "Don't actually move the files, just show what would happen")
 var deepclean = flag.Bool("deepclean", false, "Rewrite the metadata, move files into improved directories")
+var reportflag = flag.Bool("report", false, "Generate the metadata status report.")
 
 func main() {
 	flag.Parse()
 
-	if *deepclean {
-		// TODO(rjk): Finish this.
-		log.Println("do deepclean")
-		log.Println("warning: feature incomplete")
-		abc, err := article.MakeBatchCleaner()
+	// TODO(rjk): This mainline can be refactored nicely..
+	if *reportflag {
+		log.Println("do report")
+		report, err := article.MakeMetadataReporter()
 		if err != nil {
 			log.Fatal("No BatchCleaner:", err)
 		}
 
 		if err := filepath.Walk(config.Basepath, func(path string, info os.FileInfo, err error) error {
-			return abc.ModernizeMetadata(path, info, err)
+			return report.EachFile(path, info, err)
+		}); err != nil {
+			log.Fatal("report walk: ", err)
+		}
+
+		if err := report.Summary(); err != nil {
+			log.Fatal("report Summary: ", err)
+		}
+		os.Exit(0) 
+	}
+
+	if *deepclean {
+		// TODO(rjk): Finish this.
+		log.Println("do deepclean")
+		update, err := article.MakeMetadataUpdater()
+		if err != nil {
+			log.Fatal("No MetadataUpdater:", err)
+		}
+
+		if err := filepath.Walk(config.Basepath, func(path string, info os.FileInfo, err error) error {
+			return update.EachFile(path, info, err)
 		}); err != nil {
 			log.Fatal("deepclean walk: ", err)
 		}
-		return 
+		if err := update.Summary(); err != nil {
+			log.Fatal("report Summary: ", err)
+		}
+		os.Exit(0) 
 	}
 
 	// Enumerate all of the articles in config.Newarticlespath
