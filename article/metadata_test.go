@@ -57,6 +57,7 @@ func Test_ParseDateUnix(t *testing.T) {
 		{"Sat Dec  1 17:34:00 EST 2012", nil, "1 Dec 17:34:00 2012"},
 		{"Tue Sep  5 11:14:03 PDT 2006", nil, "Tue Sep  5 11:14:03 PDT 2006"},
 		{"Tue Feb  5 08:52:22 -0700 2019", nil, "2019-02-05 08:52:22.000000000 -0700"},
+		{"Fri Sep 13 07:19:07 -0600 2019", nil, "Fri 13 Sep 2019, 07:19:07 -0600"},
 	}
 
 	for _, tu := range testdates {
