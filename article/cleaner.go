@@ -73,6 +73,8 @@ func skipper(path string, info os.FileInfo) bool {
 		return true
 	case strings.HasPrefix(relp, "templates"):
 		return true
+	case strings.HasPrefix(relp, "generated"):
+		return true
 	case info.Name() == "README.md":
 		return true
 	}
