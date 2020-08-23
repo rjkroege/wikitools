@@ -1,28 +1,24 @@
 package article
 
-
 import (
-	"os"
+	"bufio"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
-	"bufio"
-
 
 	"github.com/rjkroege/wikitools/config"
-	
 )
-
 
 type fileMover struct {
 	removeddirectories map[string]struct{}
-	dryrun bool
+	dryrun             bool
 }
 
 func MakeFilemover(dryrun bool) (Tidying, error) {
 	return &fileMover{
 		removeddirectories: make(map[string]struct{}),
-		dryrun: dryrun,
+		dryrun:             dryrun,
 	}, nil
 }
 
@@ -33,7 +29,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 	}
 
 	// TODO(rjk): I could do less work if I returned "skip this directory" for
-	// templates and generated. 
+	// templates and generated.
 	if skipper(path, info) {
 		return nil
 	}
@@ -43,7 +39,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 	d, err := os.Stat(path)
 	if err != nil {
 		log.Println("updateMetadata Stat error", err)
-		return  fmt.Errorf("can't FileMover Stat %s: %v", path, err)
+		return fmt.Errorf("can't FileMover Stat %s: %v", path, err)
 	}
 
 	// get the metadata
@@ -59,13 +55,11 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 	md := MakeMetaData(filepath.Base(path), d.ModTime())
 	md.RootThroughFileForMetadata(fd)
 
-
-	
 	// Determine the correct directory for the article.
-		relativearticledirectory := md.RelativeDateDirectory()
-		absarticledirectory := filepath.Join(config.Basepath, relativearticledirectory)
-		destarticle := filepath.Join(absarticledirectory, md.FileName())
-		srcarticle := path
+	relativearticledirectory := md.RelativeDateDirectory()
+	absarticledirectory := filepath.Join(config.Basepath, relativearticledirectory)
+	destarticle := filepath.Join(absarticledirectory, md.FileName())
+	srcarticle := path
 
 	if srcarticle == destarticle {
 		// nothing to do
@@ -78,27 +72,26 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
-		if err := os.MkdirAll(absarticledirectory, 0700); err != nil {
-			return fmt.Errorf("can't mkdir %s because: %v", absarticledirectory, err)
-		}
+	if err := os.MkdirAll(absarticledirectory, 0700); err != nil {
+		return fmt.Errorf("can't mkdir %s because: %v", absarticledirectory, err)
+	}
 
-		if err := os.Link(srcarticle, destarticle); err != nil {
-			return fmt.Errorf("can't link %s to %s because %v", srcarticle, destarticle, err)
-		}
+	if err := os.Link(srcarticle, destarticle); err != nil {
+		return fmt.Errorf("can't link %s to %s because %v", srcarticle, destarticle, err)
+	}
 
-		if err := os.Remove(srcarticle); err != nil {
-			return fmt.Errorf("can't remove %s because %v", srcarticle, err)
-		}
+	if err := os.Remove(srcarticle); err != nil {
+		return fmt.Errorf("can't remove %s because %v", srcarticle, err)
+	}
 
-// Walk does a pre-order traversal. So we might have removed all of the
-// files in a given directory but we don't know if this directory is
-// empty. But we can record the fact that we've removed something from
-// the directory and clean the directories in the Summary
+	// Walk does a pre-order traversal. So we might have removed all of the
+	// files in a given directory but we don't know if this directory is
+	// empty. But we can record the fact that we've removed something from
+	// the directory and clean the directories in the Summary
 	fm.removeddirectories[filepath.Dir(srcarticle)] = struct{}{}
 
 	return nil
 }
-
 
 func (fm *fileMover) Summary() error {
 	dirs := fm.removeddirectories
@@ -108,16 +101,16 @@ func (fm *fileMover) Summary() error {
 		return nil
 	}
 
-	for  workremains := true; workremains; {
-		parentdirs := make(map[string]struct{}) 
-		for d, _ := range dirs  {
+	for workremains := true; workremains; {
+		parentdirs := make(map[string]struct{})
+		for d := range dirs {
 			workremains = false
 			if err := os.Remove(d); err == nil {
-				if pd := filepath.Dir(d) ; pd != config.Basepath  {
+				if pd := filepath.Dir(d); pd != config.Basepath {
 					parentdirs[pd] = struct{}{}
 					workremains = true
 				}
-			}			
+			}
 		}
 		dirs = parentdirs
 	}
