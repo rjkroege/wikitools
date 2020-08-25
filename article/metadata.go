@@ -96,7 +96,11 @@ func (md *MetaData) FileName() string {
 
 // Tagstring generates the string from the list of tags.
 func (md *MetaData) Tagstring() string {
-	return strings.Join(md.tags, " ")
+	ta := make([]string, 0, len(md.tags))
+	for _, v := range md.tags {
+		ta = append(ta, "#" + v)
+	}
+	return strings.Join(ta, " ")
 }
 
 func (md *MetaData) FullPathName(basepath string) string {

@@ -135,8 +135,8 @@ func (md *MetaData) rootThroughFileForMetadataImpl(rd *bufio.Reader) error {
 				date, de = ParseDateUnix(strings.TrimSpace(m1[2]))
 			} else if s == "tags" {
 				for _, u := range strings.Split(strings.TrimSpace(m1[2]), " ") {
-					if u != "" {
-						md.tags = append(md.tags, u)
+					if u != "" && len(u) > 1 && (u[0] == '#' || u[0] == '@') {
+						md.tags = append(md.tags, u[1:])
 					}
 				}
 			} else {

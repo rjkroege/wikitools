@@ -87,19 +87,19 @@ func TestUpdateMetadata(t *testing.T) {
 			inputfile:    test_header_3,
 			fname:        "test_header_3.md",
 			errordetails: "",
-			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: @journal\n---\n\nI need to figure out what I want. \n",
+			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #journal\n---\n\nI need to figure out what I want. \n",
 		},
 		{
 			inputfile:    test_header_6,
 			fname:        "test_header_6.md",
 			errordetails: "",
-			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: @journal\nplastic: yes\ntag: empty\n---\n\nI need to figure out what to code\n",
+			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #journal\nplastic: yes\ntag: empty\n---\n\nI need to figure out what to code\n",
 		},
 		{
 			inputfile:    test_header_9,
 			fname:        "test_header_9.md",
 			errordetails: "",
-			expected:     "---\ntitle: Business Korea\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: @book\nbib-author: Peggy Kenna and Sondra Lacy\nbib-bibkey: kenna97\nbib-publisher: Passport Books\nbib-title: Business Korea\nbib-year: 1997\n---\n\nBusiness book.\n",
+			expected:     "---\ntitle: Business Korea\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #book\nbib-author: Peggy Kenna and Sondra Lacy\nbib-bibkey: kenna97\nbib-publisher: Passport Books\nbib-title: Business Korea\nbib-year: 1997\n---\n\nBusiness book.\n",
 		},
 		{
 			inputfile:    test_header_6_dash,
@@ -107,6 +107,12 @@ func TestUpdateMetadata(t *testing.T) {
 			errordetails: "",
 			expected:     "",
 			skipped:      true,
+		},
+		{
+			inputfile:    test_header_10,
+			fname:        "test_header_10.md",
+			errordetails: "",
+			expected:     "---\ntitle: Business Korea\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #book #business #korea\nbib-author: Peggy Kenna and Sondra Lacy\nbib-bibkey: kenna97\nbib-publisher: Passport Books\nbib-title: Business Korea\nbib-year: 1997\n---\n\nBusiness book.\n",
 		},
 	} {
 		// setup test
