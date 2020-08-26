@@ -73,14 +73,14 @@ func (templatemap TemplatePalette) Picktemplate(args []string, tags []string) (T
 		if ok {
 			return tm, args, tags
 		} else {
+			// TODO(rjk): Return errors
 			log.Fatal("Selected a BibTex entry type without a matching template")
 		}
 	}
 
-	for _, v := range tags {
-		templatespecifyingtag := v[1:]
-		templatespecifyingtag = journalfortime(templatespecifyingtag)
-		tm, ok := templatemap[templatespecifyingtag]
+	for _, t := range tags {
+		tg := journalfortime(t)
+		tm, ok := templatemap[tg]
 		if ok {
 			return tm, args, tags
 		}
@@ -96,7 +96,7 @@ func (templatemap TemplatePalette) Picktemplate(args []string, tags []string) (T
 	templatespecifyingarg = journalfortime(templatespecifyingarg)
 	tm, ok := templatemap[templatespecifyingarg]
 	if ok {
-		s := "@" + args[0]
+		s := args[0]
 		return tm, args[1:], append(tags, s)
 	}
 	log.Fatal("No tag or first argument selecting a journal type")
@@ -107,8 +107,11 @@ func (templatemap TemplatePalette) Picktemplate(args []string, tags []string) (T
 // on the journal entry and those that are conventional arguments.
 func Split(all []string) (args []string, tags []string) {
 	for _, v := range all {
-		if v[0] == '@' {
-			tags = append(tags, v)
+		if v[0] == '@' || v[0] == '#' {
+			if len(v) > 1 {
+				// Bare # or @ characters are discarded.
+				tags = append(tags, v[1:])
+			}
 		} else {
 			args = append(args, v)
 		}

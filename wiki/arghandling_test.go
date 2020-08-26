@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 )
 
@@ -16,26 +17,46 @@ func TestSplit_Empty(t *testing.T) {
 	}
 }
 
-func expect(t *testing.T, expected []string, actual []string) {
-	for i, _ := range actual {
-		if expected[i] != actual[i] {
-			t.Errorf("expected  %s != to actual %s", expected[i], actual[i])
+func TestSplit_Basic(t *testing.T) {
+	for _, k := range []struct {
+		args    []string
+		nontags []string
+		tags    []string
+	}{
+		{
+			args:    []string{"@one", "@two", "three", "four"},
+			nontags: []string{"three", "four"},
+			tags:    []string{"one", "two"},
+		},
+		{
+			args:    []string{"#one", "@two", "three", "four"},
+			nontags: []string{"three", "four"},
+			tags:    []string{"one", "two"},
+		},
+		{
+			args:    []string{"#", "@two", "three", "four"},
+			nontags: []string{"three", "four"},
+			tags:    []string{"two"},
+		},
+		{
+			args:    []string{"#", "@two", "three", "#four"},
+			nontags: []string{"three"},
+			tags:    []string{"two", "four"},
+		},
+		{
+			args:    []string{"@one", "three", "four", "@two"},
+			nontags: []string{"three", "four"},
+			tags:    []string{"one", "two"},
+		},
+	} {
+		ntg, tg := Split(k.args)
+		if got, want := ntg, k.nontags; !reflect.DeepEqual(got, want) {
+			t.Errorf("nontags got %v want %v\n", got, want)
+		}
+		if got, want := tg, k.tags; !reflect.DeepEqual(got, want) {
+			t.Errorf("tags got %v want %v\n", got, want)
 		}
 	}
-}
-
-func TestSplit_Basic(t *testing.T) {
-	ar, tg := Split([]string{"@one", "@two", "three", "four"})
-
-	expect(t, []string{"@one", "@two"}, tg)
-	expect(t, []string{"three", "four"}, ar)
-}
-
-func TestSplit_Unordered(t *testing.T) {
-	ar, tg := Split([]string{"@one", "three", "four", "@two"})
-
-	expect(t, []string{"@one", "@two"}, tg)
-	expect(t, []string{"three", "four"}, ar)
 }
 
 func TestPicktemplate_firstarg(t *testing.T) {
@@ -49,7 +70,9 @@ func TestPicktemplate_firstarg(t *testing.T) {
 	if tm != tmpls["journalam"] {
 		t.Errorf("didn't pick correct template, instead chose: %v", tm)
 	}
-	expect(t, []string{"@flong", "@fling", "@journal"}, tg)
+	if got, want := tg, []string{"flong", "fling", "journal"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("nontags got %v want %v\n", got, want)
+	}
 	if len(ar) != 0 {
 		t.Error("should not have any args")
 	}
@@ -59,7 +82,9 @@ func TestPicktemplate_firstarg(t *testing.T) {
 	if tm != tmpls["code"] {
 		t.Errorf("didn't pick correct template, instead chose: %v", tm)
 	}
-	expect(t, []string{"@flong", "@code"}, tg)
+	if got, want := tg, []string{"flong", "code"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("nontags got %v want %v\n", got, want)
+	}
 	if len(ar) != 0 {
 		t.Error("should not have any args")
 	}
@@ -70,7 +95,9 @@ func TestPicktemplate_firstarg(t *testing.T) {
 	if tm != tmpls["journalpm"] {
 		t.Errorf("didn't pick correct template, instead chose: %v", tm)
 	}
-	expect(t, []string{"@flong", "@journal"}, tg)
+	if got, want := tg, []string{"flong", "journal"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("nontags got %v want %v\n", got, want)
+	}
 	if len(ar) != 0 {
 		t.Error("should not have any args")
 	}
@@ -84,8 +111,12 @@ func TestPicktemplate_tagpriority(t *testing.T) {
 	if tm != tmpls["book"] {
 		t.Error("didn't pick correct template")
 	}
-	expect(t, []string{"@flong", "@book"}, tg)
-	expect(t, []string{"journal"}, ar)
+	if got, want := tg, []string{"flong", "book"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("nontags got %v want %v\n", got, want)
+	}
+	if got, want := ar, []string{"journal"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("nontags got %v want %v\n", got, want)
+	}
 }
 
 const (

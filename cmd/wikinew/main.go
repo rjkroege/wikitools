@@ -11,13 +11,13 @@ import (
 
 	"9fans.net/go/acme"
 	"github.com/rjkroege/wikitools/article"
-	"github.com/rjkroege/wikitools/wiki"
 	"github.com/rjkroege/wikitools/config"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 func Makearticle(args []string, tags []string) *article.MetaData {
 	s := strings.Join(args, " ")
-	
+
 	tmpmd := article.NewArticle("", "", []string{})
 	destpath := filepath.Join(config.Basepath, tmpmd.RelativeDateDirectory())
 	filename := wiki.UniqueValidName(destpath, wiki.ValidBaseName(args), config.Extension, wiki.SystemImpl(0))
@@ -55,13 +55,9 @@ func (md *ExpandedArticle) Plumb() {
 	}
 }
 
-/*
-func (md* Article) Tagstring() string {
-    return strings.Join(md.Tags,  " ")
-}
-*/
-
 func Expand(a *article.MetaData, tpl wiki.Template) *ExpandedArticle {
+	// TODO(rjk): Better error handling here. The templates can come from
+	// user data. I need some kind of validation.
 	f := template.Must(template.New("newwiki").Parse(tpl.Template))
 	a.Dynamicstring = tpl.Custombody
 
@@ -71,6 +67,7 @@ func Expand(a *article.MetaData, tpl wiki.Template) *ExpandedArticle {
 }
 
 // TODO(rjkroege): add usage output on failure.
+// TODO(rjkroege): support editors other than Acme/Edwood.
 func main() {
 	config := wiki.ReadConfiguration()
 	tmpls := wiki.NewTemplatePalette()
@@ -78,5 +75,6 @@ func main() {
 
 	args, tags := wiki.Split(os.Args[1:])
 	tm, args, tags := tmpls.Picktemplate(args, tags)
+	// TODO(rjk): This is too cute. Don't do things like this.
 	Expand(Makearticle(args, tags), tm).Plumb()
 }
