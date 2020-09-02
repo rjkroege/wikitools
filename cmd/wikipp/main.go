@@ -58,19 +58,19 @@ func main() {
 			meta.Meta,
 			Linkminer,
 		),
-//		goldmark.WithParserOptions(
-//			parser.WithAutoHeadingID(),
-//		),
-//		goldmark.WithRendererOptions(
-//			html.WithHardWraps(),
-//			html.WithXHTML(),
-//		),
+		//		goldmark.WithParserOptions(
+		//			parser.WithAutoHeadingID(),
+		//		),
+		//		goldmark.WithRendererOptions(
+		//			html.WithHardWraps(),
+		//			html.WithXHTML(),
+		//		),
 	)
 	context := parser.NewContext()
 
 	// 2. Convert, update shared state, etc.
 	if err := md.Convert(mdf, destfd); err != nil {
-  		  log.Fatalf("markdown Convert failed: %v", err)
+		log.Fatalf("markdown Convert failed: %v", err)
 	}
 
 	// experiment
@@ -81,5 +81,4 @@ func main() {
 	title := metaData["title"]
 	log.Println(title)
 
-	
 }
