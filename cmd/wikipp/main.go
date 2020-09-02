@@ -15,19 +15,25 @@ import (
 )
 
 var (
-	// true for now for testing. But put it back.
-	testlog = flag.Bool("testlog", false,
-		"Log in the conventional way for running in a terminal. Also changes where to find the configuration file.")
+	// Writes the output to a file, logs to stdout for debugging convenience.
+	debug = flag.Bool("debug", false,
+		"Writes the output to a file, logs to stdout for debugging convenience.")
 )
 
 func main() {
 	flag.Parse()
-	if !*testlog {
+	if !*debug {
 		defer wiki.LogToTemp()()
 	}
 
-	// for testing
-	log.SetOutput(os.Stderr)
+	destfd := os.Stdout
+	if *debug {
+		fd, err := os.Create("out.html")
+		if err != nil {
+			log.Fatalf("can't write to out.html: %v", err)
+		}
+		destfd = fd
+	}
 
 	log.Println("foo bar")
 
@@ -40,6 +46,8 @@ func main() {
 			log.Fatalf("giving up, can't write to Stdout: %v", err)
 		}
 	}
+
+	// TODO(rjk): skip running this on files with bad metadata?
 
 	// 1. Make a converter
 	// TODO(rjk): what extensions do I need?
@@ -61,7 +69,7 @@ func main() {
 	context := parser.NewContext()
 
 	// 2. Convert, update shared state, etc.
-	if err := md.Convert(mdf, os.Stdout); err != nil {
+	if err := md.Convert(mdf, destfd); err != nil {
   		  log.Fatalf("markdown Convert failed: %v", err)
 	}
 
