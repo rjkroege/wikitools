@@ -27,7 +27,7 @@ func AssertStringArray(t *testing.T, expected []string, actual []string) {
 		t.Errorf("expected and actual not the same length")
 		return
 	}
-	for i, _ := range expected {
+	for i := range expected {
 		if expected[i] != actual[i] {
 			t.Errorf("expected[%d] %s != actual[%d] %s", i, expected[i], i, actual[i])
 			return
@@ -40,7 +40,7 @@ func AssertStringMap(t *testing.T, expected map[string]string, actual map[string
 		t.Errorf("expected and actual not the same length")
 		return
 	}
-	for i, _ := range expected {
+	for i := range expected {
 		_, ok := actual[i]
 		if !ok {
 			t.Errorf("expected[%s] not in actual", i)

@@ -41,7 +41,7 @@ opens one for reading. *Future: it should search the git repository
 and use that view (which can be decorated in some fashion) or
 fall back to displaying the article with Marked*
 
-* the `wikimake` tool doesn't really need to exist here. Instead,
+The `wikimake` tool doesn't really need to exist here. Instead,
 I need to configure the `git.liqui.org` to display the articles correctly
 even when they have metadata. Also, I can add some kind of
 additional tooling as a docker that can add supplemental information
@@ -72,3 +72,26 @@ applications
 * iAWriter to actually edit 
 
 * there needs to be an equivalent to `wikinew` for  iOS
+
+# Code Structure
+`wikitools` was my first attempt at writing Go code when the Go language
+was new. It's highly non-idiomatic. The code is not structured well. Aspirational
+structure that I'm considering.
+
+`article`
+: article parsing functionality including metadata extraction and Markdown processing
+
+`corpus`
+: interacting with the central database of articles, tidying ops across all articles but not
+the actual code to mutate the article. That would go in `article`. In particular, the KV store
+implementation lives here.
+
+`wiki`
+: command line parsers, configuration file parsing, etc. This is the new name for
+the `wiki` directory. Note that template expansion is an article concept. 
+
+`generate`
+: code to make reports, calendars, linkmaps, etc. In particular, the code to make
+link maps or the like lives here.
+
+

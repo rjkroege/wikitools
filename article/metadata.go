@@ -98,7 +98,7 @@ func (md *MetaData) FileName() string {
 func (md *MetaData) Tagstring() string {
 	ta := make([]string, 0, len(md.tags))
 	for _, v := range md.tags {
-		ta = append(ta, "#" + v)
+		ta = append(ta, "#"+v)
 	}
 	return strings.Join(ta, " ")
 }

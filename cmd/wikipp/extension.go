@@ -5,7 +5,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/rjkroege/wikitools/config"
+	"github.com/rjkroege/wikitools/wiki"
 	"github.com/yuin/goldmark"
 	gast "github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/parser"
@@ -102,7 +102,7 @@ func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.
 // contain invalid links.
 func isWikiLink(dest []byte) bool {
 	pth := path.Clean(string(dest))
-	if !path.IsAbs(pth) || strings.HasPrefix(pth, config.Basepath) {
+	if !path.IsAbs(pth) || strings.HasPrefix(pth, wiki.Basepath) {
 		return true
 	}
 	return false
@@ -110,7 +110,7 @@ func isWikiLink(dest []byte) bool {
 
 func isWikiMarkdownLink(dest []byte) bool {
 	pth := path.Clean(string(dest))
-	if path.Ext(pth) == config.Extension && (!path.IsAbs(pth) || strings.HasPrefix(pth, config.Basepath)) {
+	if path.Ext(pth) == wiki.Extension && (!path.IsAbs(pth) || strings.HasPrefix(pth, wiki.Basepath)) {
 		return true
 	}
 	return false

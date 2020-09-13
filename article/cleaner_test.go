@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rjkroege/wikitools/config"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 type mockFileInfo struct {
@@ -30,22 +30,22 @@ func TestSkipper(t *testing.T) {
 	}{
 		{
 			"Summer-2020.md",
-			filepath.Join(config.Basepath, "2020/7/19/Summer-2020.md"),
+			filepath.Join(wiki.Basepath, "2020/7/19/Summer-2020.md"),
 			false,
 		},
 		{
 			"README.md",
-			filepath.Join(config.Basepath, "README.md"),
+			filepath.Join(wiki.Basepath, "README.md"),
 			true,
 		},
 		{
 			"foo.md",
-			filepath.Join(config.Basepath, "templates/foo.md"),
+			filepath.Join(wiki.Basepath, "templates/foo.md"),
 			true,
 		},
 		{
 			"foo.md",
-			filepath.Join(config.Basepath, "templates/subdir/foo.md"),
+			filepath.Join(wiki.Basepath, "templates/subdir/foo.md"),
 			true,
 		},
 	} {

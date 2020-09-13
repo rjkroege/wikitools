@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rjkroege/wikitools/config"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 type fileMover struct {
@@ -57,7 +57,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 
 	// Determine the correct directory for the article.
 	relativearticledirectory := md.RelativeDateDirectory()
-	absarticledirectory := filepath.Join(config.Basepath, relativearticledirectory)
+	absarticledirectory := filepath.Join(wiki.Basepath, relativearticledirectory)
 	destarticle := filepath.Join(absarticledirectory, md.FileName())
 	srcarticle := path
 
@@ -106,7 +106,7 @@ func (fm *fileMover) Summary() error {
 		for d := range dirs {
 			workremains = false
 			if err := os.Remove(d); err == nil {
-				if pd := filepath.Dir(d); pd != config.Basepath {
+				if pd := filepath.Dir(d); pd != wiki.Basepath {
 					parentdirs[pd] = struct{}{}
 					workremains = true
 				}

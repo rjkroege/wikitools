@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/rjkroege/wikitools/article"
-	"github.com/rjkroege/wikitools/config"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 var dryrun = flag.Bool("n", false, "Don't actually move the files, just show what would happen")
@@ -25,7 +25,7 @@ func main() {
 			log.Fatal("No BatchCleaner:", err)
 		}
 
-		if err := filepath.Walk(config.Basepath, func(path string, info os.FileInfo, err error) error {
+		if err := filepath.Walk(wiki.Basepath, func(path string, info os.FileInfo, err error) error {
 			return report.EachFile(path, info, err)
 		}); err != nil {
 			log.Fatal("report walk: ", err)
@@ -45,7 +45,7 @@ func main() {
 			log.Fatal("No MetadataUpdater:", err)
 		}
 
-		if err := filepath.Walk(config.Basepath, func(path string, info os.FileInfo, err error) error {
+		if err := filepath.Walk(wiki.Basepath, func(path string, info os.FileInfo, err error) error {
 			return update.EachFile(path, info, err)
 		}); err != nil {
 			log.Fatal("deepclean walk: ", err)
@@ -64,7 +64,7 @@ func main() {
 	if err != nil {
 		log.Fatal("No MakeFilemover:", err)
 	}
-	if err := filepath.Walk(config.Basepath, func(path string, info os.FileInfo, err error) error {
+	if err := filepath.Walk(wiki.Basepath, func(path string, info os.FileInfo, err error) error {
 		return mover.EachFile(path, info, err)
 	}); err != nil {
 		log.Fatal("mover walk: ", err)

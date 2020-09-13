@@ -34,7 +34,7 @@ func makesafename(fn string) string {
 	pathinwiki := wiki.UniqueValidName(*wikidir,
 		wiki.ValidBaseName([]string{noextensionname}), ".md", wiki.SystemImpl(0))
 
-	return filepath.Join(*outputdir,pathinwiki)
+	return filepath.Join(*outputdir, pathinwiki)
 }
 
 func getalltags(contents []byte) []string {

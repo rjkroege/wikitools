@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/rjkroege/wikitools/testhelpers"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 var never = time.Time{}
@@ -36,39 +37,6 @@ func Test_ExtraKeysString(t *testing.T) {
 
 	m = MetaData{"", never, never, "", "", MdInvalid, []string{}, map[string]string{"c": "d", "a": "b"}, ""}
 	testhelpers.AssertString(t, "a:b, c:d", m.ExtraKeysString())
-}
-
-type pdSR struct {
-	ex  string
-	err error
-	in  string
-}
-
-func Test_ParseDateUnix(t *testing.T) {
-	testdates := []pdSR{
-		{"Mon Mar 11 00:00:00 EDT 2013", nil, "Monday, Mar 11, 2013"},
-		{"Tue Sep 11 17:34:00 EDT 2012", nil, "11 Sep 17:34:00 2012"},
-		{"Sat Oct 27 11:39:41 PDT 2012", nil, "Sat Oct 27 11:39:41 PDT 2012"},
-		{"Wed Jun 15 08:24:39 EDT 2011", nil, "2011/06/15 08:24:39"},
-		{"Tue Dec 27 17:46:16 EST 2011", nil, "2011/12/27 17:46:16"},
-		{"Sun Mar 14 08:00:00 EST 2004", nil, "200403140800"},
-		{"Tue Dec 11 17:34:00 EST 2012", nil, "11 Dec 17:34:00 2012"},
-		{"Fri Jun 14 07:25:48 EDT 2013", nil, "Fri 14 Jun 2013, 07:25:48 EDT"},
-		{"Sat Dec  1 17:34:00 EST 2012", nil, "1 Dec 17:34:00 2012"},
-		{"Tue Sep  5 11:14:03 PDT 2006", nil, "Tue Sep  5 11:14:03 PDT 2006"},
-		{"Tue Feb  5 08:52:22 -0700 2019", nil, "2019-02-05 08:52:22.000000000 -0700"},
-		{"Fri Sep 13 07:19:07 -0600 2019", nil, "Fri 13 Sep 2019, 07:19:07 -0600"},
-	}
-
-	for _, tu := range testdates {
-		r, err := ParseDateUnix(tu.in)
-		if tu.err != err {
-			t.Errorf("invalid error value in test date %s", tu.in)
-		}
-		if tu.err == nil && tu.ex != r.Format(time.UnixDate) {
-			t.Errorf("bad date: expected %s, received %s", tu.ex, r.Format(time.UnixDate))
-		}
-	}
 }
 
 const test_header_1 = `title: What I want
@@ -195,7 +163,6 @@ bib-year:  1997
 Business book.
 `
 
-
 type rtfSR struct {
 	testname string
 	in       string
@@ -206,8 +173,8 @@ type rtfSR struct {
 // TODO(rjkroege): Enforce the handling of dates.
 // Need to validate that the right thing happens here.
 func Test_RootThroughFileForMetadata(t *testing.T) {
-	realisticdate, _ := ParseDateUnix("1999/03/21 17:00:00")
-	date, _ := ParseDateUnix("2012/03/19 06:51:15")
+	realisticdate, _ := wiki.ParseDateUnix("1999/03/21 17:00:00")
+	date, _ := wiki.ParseDateUnix("2012/03/19 06:51:15")
 	testfiles := []rtfSR{
 		{"test_header_1", test_header_1, nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{}, map[string]string{}, ""}},
@@ -261,9 +228,10 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 	}
 }
 
+// TODO(rjk): might belong in wiki.
 func Test_PrettyDate(t *testing.T) {
-	statdate, _ := ParseDateUnix("1999/03/21 17:00:00")
-	tagdate, _ := ParseDateUnix("2012/03/19 06:51:15")
+	statdate, _ := wiki.ParseDateUnix("1999/03/21 17:00:00")
+	tagdate, _ := wiki.ParseDateUnix("2012/03/19 06:51:15")
 
 	md := MetaData{"", statdate, never, "What I want 0", "", MdInvalid, []string{}, map[string]string{}, ""}
 	testhelpers.AssertString(t, "Sunday, Mar 21, 1999", md.PrettyDate())
@@ -282,8 +250,8 @@ const json1 = `{"link":"file:///url-here/1.html","start":"1999-03-21T17:00:00-05
 const json2 = `{"link":"file:///url-here/2.html","start":"2012-03-19T06:51:15-04:00","title":"What I want 0"}`
 
 func Test_JsonDate(t *testing.T) {
-	statdate, _ := ParseDateUnix("1999/03/21 17:00:00")
-	tagdate, _ := ParseDateUnix("2012/03/19 06:51:15")
+	statdate, _ := wiki.ParseDateUnix("1999/03/21 17:00:00")
+	tagdate, _ := wiki.ParseDateUnix("2012/03/19 06:51:15")
 	SetPathForContent("/url-here")
 
 	datas := []tEdMd{
@@ -300,9 +268,9 @@ func Test_JsonDate(t *testing.T) {
 }
 
 func TestRelativeDateDirectory(t *testing.T) {
-	statdate, _ := ParseDateUnix("1999/03/21 17:00:00")
-	tagdate, _ := ParseDateUnix("2012/03/19 06:51:15")
-	otherdate, _ := ParseDateUnix("2012/03/03 06:51:15")
+	statdate, _ := wiki.ParseDateUnix("1999/03/21 17:00:00")
+	tagdate, _ := wiki.ParseDateUnix("2012/03/19 06:51:15")
+	otherdate, _ := wiki.ParseDateUnix("2012/03/03 06:51:15")
 
 	for i, tv := range []struct {
 		in   *MetaData

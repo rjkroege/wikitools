@@ -2,12 +2,14 @@ package generate
 
 import (
 	"bytes"
-	"github.com/rjkroege/wikitools/article"
-	"github.com/rjkroege/wikitools/testhelpers"
 	"io"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/rjkroege/wikitools/article"
+	"github.com/rjkroege/wikitools/testhelpers"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 type closedCount int
@@ -128,8 +130,8 @@ I need to figure out what I want.
 `
 
 func Test_WriteHtmlFile(t *testing.T) {
-	realisticdate1999, _ := article.ParseDateUnix("1999/03/21 17:00:00")
-	realisticdate2012, _ := article.ParseDateUnix("2012/03/19 06:51:15")
+	realisticdate1999, _ := wiki.ParseDateUnix("1999/03/21 17:00:00")
+	realisticdate2012, _ := wiki.ParseDateUnix("2012/03/19 06:51:15")
 	article.SetPathForContent("/am-a-path")
 
 	// Produce output case.
@@ -161,7 +163,7 @@ func Test_WriteHtmlFile(t *testing.T) {
 		realisticdate2012,
 		make([]string, 0, 4)}
 
-	md = article.NewArticleWithTime("one.md", realisticdate1999, realisticdate2012, "What I want",  article.MdLegacy)
+	md = article.NewArticleWithTime("one.md", realisticdate1999, realisticdate2012, "What I want", article.MdLegacy)
 	WriteHtmlFile(ms, md)
 
 	testhelpers.AssertInt(t, 0, len(ms.writefiles))

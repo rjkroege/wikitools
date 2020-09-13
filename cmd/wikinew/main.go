@@ -11,7 +11,6 @@ import (
 
 	"9fans.net/go/acme"
 	"github.com/rjkroege/wikitools/article"
-	"github.com/rjkroege/wikitools/config"
 	"github.com/rjkroege/wikitools/wiki"
 )
 
@@ -19,8 +18,8 @@ func Makearticle(args []string, tags []string) *article.MetaData {
 	s := strings.Join(args, " ")
 
 	tmpmd := article.NewArticle("", "", []string{})
-	destpath := filepath.Join(config.Basepath, tmpmd.RelativeDateDirectory())
-	filename := wiki.UniqueValidName(destpath, wiki.ValidBaseName(args), config.Extension, wiki.SystemImpl(0))
+	destpath := filepath.Join(wiki.Basepath, tmpmd.RelativeDateDirectory())
+	filename := wiki.UniqueValidName(destpath, wiki.ValidBaseName(args), wiki.Extension, wiki.SystemImpl(0))
 	return article.NewArticle(filename, s, tags)
 }
 
@@ -30,7 +29,7 @@ type ExpandedArticle struct {
 }
 
 func (md *ExpandedArticle) Plumb() {
-	if err := os.MkdirAll(filepath.Join(config.Basepath, md.RelativeDateDirectory()), 0777); err != nil {
+	if err := os.MkdirAll(filepath.Join(wiki.Basepath, md.RelativeDateDirectory()), 0777); err != nil {
 		log.Fatal(err)
 	}
 
@@ -39,7 +38,7 @@ func (md *ExpandedArticle) Plumb() {
 		log.Fatal(err)
 	}
 
-	err = win.Name(md.FullPathName(config.Basepath))
+	err = win.Name(md.FullPathName(wiki.Basepath))
 	if err != nil {
 		log.Fatal(err)
 	}

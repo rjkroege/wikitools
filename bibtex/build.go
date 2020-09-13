@@ -29,7 +29,7 @@ func (e *BibTeXError) Error() string {
 func FilterExtrakeys(extrakeys map[string]string) (filtered map[string]string, keys []string) {
 	filtered = make(map[string]string)
 	keys = make([]string, 0, len(extrakeys))
-	for s, _ := range extrakeys {
+	for s := range extrakeys {
 		if strings.HasPrefix(s, "bib-") {
 			nk := s[len("bib-"):]
 			keys = append(keys, nk)
@@ -96,7 +96,7 @@ func init() {
 	required_fields["techreport"] = []string{"author", "title", "institution", "year"}
 	required_fields["unpublished"] = []string{"author", "title", "note"}
 
-	for s, _ := range required_fields {
+	for s := range required_fields {
 		required_fields[s] = append(required_fields[s], "bibkey")
 		sort.Strings(required_fields[s])
 	}

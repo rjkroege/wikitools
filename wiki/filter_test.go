@@ -1,10 +1,10 @@
 package wiki
 
 import (
-	"github.com/rjkroege/wikitools/article"
-	"github.com/rjkroege/wikitools/testhelpers"
 	"testing"
 	"time"
+
+	"github.com/rjkroege/wikitools/testhelpers"
 )
 
 func Test_ValidBaseName(t *testing.T) {
@@ -31,7 +31,7 @@ func (m MockSystem) Now() time.Time {
 }
 
 func Test_UniqueValidName(t *testing.T) {
-	realisticdate, _ := article.ParseDateUnix("1999/03/21 17:00:00")
+	realisticdate, _ := ParseDateUnix("1999/03/21 17:00:00")
 
 	nd := &MockSystem{false, time.Time{}}
 	testhelpers.AssertString(t, "there.md", UniqueValidName("hello/", "there", ".md", nd))

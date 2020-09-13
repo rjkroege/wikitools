@@ -10,7 +10,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/rjkroege/wikitools/config"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 type articleReportEntry struct {
@@ -98,7 +98,7 @@ type MetadataSection struct {
 }
 
 func (abc *metadataReport) Summary() error {
-	path := filepath.Join(config.Basepath, config.Reportpath)
+	path := filepath.Join(wiki.Basepath, wiki.Reportpath)
 	if err := os.MkdirAll(path, 0700); err != nil {
 		return fmt.Errorf("writeMetadataUpdateReport can't mkdir %s: %v", path, err)
 	}
@@ -109,7 +109,7 @@ func (abc *metadataReport) Summary() error {
 
 	// Sort the arrays by Date.
 
-	tpath := filepath.Join(path, "metadatareport"+config.Extension)
+	tpath := filepath.Join(path, "metadatareport"+wiki.Extension)
 	nfd, err := os.Create(tpath)
 	if err != nil {
 		return fmt.Errorf("can't writeMetadataUpdateReport Create %s: %v", tpath, err)

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/rjkroege/wikitools/config"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 // Tidying is the interface implemented by each of the kinds of Tidying
@@ -61,7 +61,7 @@ func makeMetadataUpdaterImpl() (*metadataUpdater, error) {
 
 // skipper returns true for files that we don't want to process
 func skipper(path string, info os.FileInfo) bool {
-	relp, err := filepath.Rel(config.Basepath, path)
+	relp, err := filepath.Rel(wiki.Basepath, path)
 	if err != nil {
 		return true // Always skip bad paths
 	}

@@ -2,9 +2,11 @@ package generate
 
 import (
 	"bytes"
+	"testing"
+
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/testhelpers"
-	"testing"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 const expected = `
@@ -21,8 +23,8 @@ var timeline_data = {  // save as a global variable
 
 func Test_WriteTimeline(t *testing.T) {
 	/* General idea: create a constant string. Read from it., validate the resulting output. */
-	statdate, _ := article.ParseDateUnix("1999/03/21 17:00:00")
-	tagdate, _ := article.ParseDateUnix("2012/03/19 06:51:15")
+	statdate, _ := wiki.ParseDateUnix("1999/03/21 17:00:00")
+	tagdate, _ := wiki.ParseDateUnix("2012/03/19 06:51:15")
 	article.SetPathForContent("/foo")
 
 	metadatas := []*article.MetaData{
