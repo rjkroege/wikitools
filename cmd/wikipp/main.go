@@ -7,15 +7,9 @@ import (
 	"log"
 	"os"
 
-	mathjax "github.com/litao91/goldmark-mathjax"
+	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/wiki"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark-meta"
-	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
-	//   "github.com/alecthomas/chroma/formatters/html"
-	//    "github.com/yuin/goldmark-highlighting"
-	"github.com/yuin/goldmark/renderer/html"
 )
 
 var (
@@ -58,31 +52,12 @@ func main() {
 	}
 
 	// TODO(rjk): skip running this on files with bad metadata?
-
-	// 1. Make a converter
-	// TODO(rjk): what extensions do I need?
-	md := goldmark.New(
-		goldmark.WithExtensions(
-			extension.GFM,
-			extension.DefinitionList,
-			meta.Meta,
-			Linkminer,
-			mathjax.MathJax,
-		),
-		goldmark.WithRendererOptions(
-			html.WithUnsafe(),
-		),
-		//			highlighting.NewHighlighting(
-		//               highlighting.WithStyle("monokai"),
-		//               highlighting.WithFormatOptions(
-		//                   html.WithLineNumbers(true),
-		//              ),
-		//           ),
-	)
+	md := article.NewDefaultMarkdownConverter()
 
 	// 2. Make a context.
 	context := parser.NewContext()
 	// TODO(rjk): I'll have to put other state in context for accessing the graph data.
+	// In particular, I expect that I'll want a NewDefaultMarkdownConversionContext
 
 	// 3. Convert, update shared state, etc.
 	if err := md.Convert(mdf, destfd, parser.WithContext(context)); err != nil {
@@ -93,8 +68,4 @@ func main() {
 	// Conversely, I could just use my own metadata extracter because it
 	// handles all of my articles with bad metdata (where I should fallback
 	// to just copying the content to Stdout and let Marked sort it out.
-	metaData := meta.Get(context)
-	title := metaData["title"]
-	log.Println("title from meta", title)
-
 }

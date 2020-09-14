@@ -1,4 +1,4 @@
-package main
+package wikiextension
 
 import (
 	"log"
@@ -12,8 +12,6 @@ import (
 	"github.com/yuin/goldmark/text"
 	"github.com/yuin/goldmark/util"
 )
-
-// TODO(rjk): Move this functionality out of the command.
 
 // I followed along with the goldmark code with this pattern but I'm not
 // sure why it should be arranged that way.
