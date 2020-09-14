@@ -25,9 +25,6 @@ template and opens it via the Plan9 `plumber` in the configured editor.
 `wikinew` sets the paths of new notes to be in  the `unsorted` directory but
 no file is created until one saves the note from the editor.
 
-`wikinew` adds the `wikimake` command to Acme/Edwood for the given
-note. But maybe shouldn't.
-
 `wikitidy` arranges the notes in the `unsorted` directory into a directory
 hierarchy of *year*/*month*/*day* based on the date found in the
 article metadata.
@@ -41,11 +38,9 @@ opens one for reading. *Future: it should search the git repository
 and use that view (which can be decorated in some fashion) or
 fall back to displaying the article with Marked*
 
-The `wikimake` tool doesn't really need to exist here. Instead,
-I need to configure the `git.liqui.org` to display the articles correctly
-even when they have metadata. Also, I can add some kind of
-additional tooling as a docker that can add supplemental information
-(cross references, etc.)
+The `wikipp` is a Markdown processor that can convert wiki Markdown
+articles into HTML. It's currently setup to support converting wiki
+articles for the Marked2 Markdown previewer.
 
 # Issues
 Stuff to worry about:

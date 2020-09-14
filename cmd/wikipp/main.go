@@ -41,6 +41,9 @@ func main() {
 
 	log.Println("foo bar")
 
+	// -1. Read metadata first and only proceed for valid article types.
+
+
 	// 0. read
 	mdf, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
