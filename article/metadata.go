@@ -24,7 +24,7 @@ const (
 	MdModern
 )
 
-var metadatanametable = [...]string{
+var Metadatanametable = [...]string{
 	"MdInvalid ",
 	"MdLegacy",
 	"MdIaWriter",
@@ -92,6 +92,11 @@ func (md *MetaData) Name() string {
 // A complete journal article path will be filepath.Join(config.Basepath, RelativeDataDirectory, FileName)
 func (md *MetaData) FileName() string {
 	return md.filename
+}
+
+// Type is an accessor for the type (e.g. version/vintage) of this MetaData
+func (md *MetaData) Type() MetadataType {
+	return md.mdtype
 }
 
 // Tagstring generates the string from the list of tags.
@@ -186,10 +191,11 @@ func (md *MetaData) PrettyDate() string {
 }
 
 func (md *MetaData) DetailedDate() string {
-	return detailedDateImpl(md.PreferredDate())
+	return DetailedDateImpl(md.PreferredDate())
 }
 
-func detailedDateImpl(d time.Time) string {
+// Conceivably, this utility function belongs in wiki.
+func DetailedDateImpl(d time.Time) string {
 	const df = "Mon _2 Jan 2006, 15:04:05 MST"
 	return d.Format(df)
 }

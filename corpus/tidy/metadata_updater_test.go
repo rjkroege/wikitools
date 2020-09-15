@@ -1,4 +1,4 @@
-package article
+package tidy
 
 import (
 	"io/ioutil"
@@ -6,55 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
-	"github.com/rjkroege/wikitools/wiki"
+	"github.com/rjkroege/wikitools/testhelpers"
 )
-
-type mockFileInfo struct {
-	name string
-}
-
-func (m *mockFileInfo) Name() string       { return m.name }
-func (m *mockFileInfo) Size() int64        { return int64(0) }
-func (m *mockFileInfo) Mode() os.FileMode  { return os.FileMode(0) }
-func (m *mockFileInfo) ModTime() time.Time { return time.Time{} }
-func (m *mockFileInfo) IsDir() bool        { return false }
-func (m *mockFileInfo) Sys() interface{}   { return nil }
-
-func TestSkipper(t *testing.T) {
-	for i, tc := range []struct {
-		base     string
-		abs      string
-		expected bool
-	}{
-		{
-			"Summer-2020.md",
-			filepath.Join(wiki.Basepath, "2020/7/19/Summer-2020.md"),
-			false,
-		},
-		{
-			"README.md",
-			filepath.Join(wiki.Basepath, "README.md"),
-			true,
-		},
-		{
-			"foo.md",
-			filepath.Join(wiki.Basepath, "templates/foo.md"),
-			true,
-		},
-		{
-			"foo.md",
-			filepath.Join(wiki.Basepath, "templates/subdir/foo.md"),
-			true,
-		},
-	} {
-		if got, want := skipper(tc.abs, &mockFileInfo{tc.base}), tc.expected; got != want {
-			t.Errorf("[%d] skipper %s got %v want %v", i, tc.abs, got, want)
-		}
-
-	}
-}
 
 func TestUpdateMetadata(t *testing.T) {
 	tmpd, err := ioutil.TempDir("", "testupdatemetadata")
@@ -78,38 +32,38 @@ func TestUpdateMetadata(t *testing.T) {
 		skipped      bool
 	}{
 		{
-			inputfile:    test_header_1,
+			inputfile:    testhelpers.Test_header_1,
 			fname:        "test_header_1.md",
 			errordetails: "",
 			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\n---\n\nI need to figure out what I want. \n",
 		},
 		{
-			inputfile:    test_header_3,
+			inputfile:    testhelpers.Test_header_3,
 			fname:        "test_header_3.md",
 			errordetails: "",
 			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #journal\n---\n\nI need to figure out what I want. \n",
 		},
 		{
-			inputfile:    test_header_6,
+			inputfile:    testhelpers.Test_header_6,
 			fname:        "test_header_6.md",
 			errordetails: "",
 			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #journal\nplastic: yes\ntag: empty\n---\n\nI need to figure out what to code\n",
 		},
 		{
-			inputfile:    test_header_9,
+			inputfile:    testhelpers.Test_header_9,
 			fname:        "test_header_9.md",
 			errordetails: "",
 			expected:     "---\ntitle: Business Korea\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #book\nbib-author: Peggy Kenna and Sondra Lacy\nbib-bibkey: kenna97\nbib-publisher: Passport Books\nbib-title: Business Korea\nbib-year: 1997\n---\n\nBusiness book.\n",
 		},
 		{
-			inputfile:    test_header_6_dash,
+			inputfile:    testhelpers.Test_header_6_dash,
 			fname:        "test_header_6_dash.md",
 			errordetails: "",
 			expected:     "",
 			skipped:      true,
 		},
 		{
-			inputfile:    test_header_10,
+			inputfile:    testhelpers.Test_header_10,
 			fname:        "test_header_10.md",
 			errordetails: "",
 			expected:     "---\ntitle: Business Korea\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #book #business #korea\nbib-author: Peggy Kenna and Sondra Lacy\nbib-bibkey: kenna97\nbib-publisher: Passport Books\nbib-title: Business Korea\nbib-year: 1997\n---\n\nBusiness book.\n",

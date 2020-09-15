@@ -39,129 +39,7 @@ func Test_ExtraKeysString(t *testing.T) {
 	testhelpers.AssertString(t, "a:b, c:d", m.ExtraKeysString())
 }
 
-const test_header_1 = `title: What I want
-date: 2012/03/19 06:51:15
 
-I need to figure out what I want. 
-`
-
-const test_header_1_dash = `---
-title: What I want
-date: 2012/03/19 06:51:15
----
-
-I need to figure out what I want. 
-`
-
-const test_header_2 = `title: What I want
-date: 2012/03/19 06:51:15
-tags: @journal
-
-I need to figure out what I want. 
-`
-const test_header_3 = `date: 2012/03/19 06:51:15
-title: What I want
-tags: @journal
-
-I need to figure out what I want. 
-`
-const test_header_4 = `I need
-to figure out what I want. And code it.
-`
-
-const test_header_5 = `Date: 2012/03/19 06:51:15
-Title: What I want
-tags: @journal
-`
-
-const test_header_6 = `plastic: yes
-Date: 2012/03/19 06:51:15
-Tag: empty
-Title: What I want
-tags: @journal
-
-I need to figure out what to code
-`
-
-const test_header_6_dash = `---
-plastic: yes
-Date: 2012/03/19 06:51:15
-Tag: empty
-Title: What I want
-tags: @journal
----
-
-I need to figure out what to code
-`
-
-const test_header_7 = `plastic: yes
-Date: 2012/03/19 06:51:15
-Tag: empty
-Title: What I want
-tags: @journal   @fiddle
-
-I need to figure out what to code
-`
-const test_header_8 = `plastic: yes
-Date: 2012/03/19 06:51:15
-Tag: empty
-Title: What I want
-tags: @journal  @hello     @bye
-
-I need to figure out what to code
-`
-
-const test_header_9 = `title: Business Korea
-date: 2012/03/19 06:51:15
-tags: @book
-bib-bibkey: kenna97
-bib-author: Peggy Kenna and Sondra Lacy
-bib-title: Business Korea
-bib-publisher: Passport Books
-bib-year:  1997
-
-Business book.
-`
-
-const test_header_9_dash = `---
-title: Business Korea
-date: 2012/03/19 06:51:15
-tags: @book
-bib-bibkey: kenna97
-bib-author: Peggy Kenna and Sondra Lacy
-bib-title: Business Korea
-bib-publisher: Passport Books
-bib-year:  1997
----
-
-Business book.
-`
-
-const test_header_10_dash = `---
-title: Business Korea
-date: 2012/03/19 06:51:15
-tags: @book #business #korea
-bib-bibkey: kenna97
-bib-author: Peggy Kenna and Sondra Lacy
-bib-title: Business Korea
-bib-publisher: Passport Books
-bib-year:  1997
----
-
-Business book.
-`
-const test_header_10 = `
-title: Business Korea
-date: 2012/03/19 06:51:15
-tags: @book #business #korea
-bib-bibkey: kenna97
-bib-author: Peggy Kenna and Sondra Lacy
-bib-title: Business Korea
-bib-publisher: Passport Books
-bib-year:  1997
-
-Business book.
-`
 
 type rtfSR struct {
 	testname string
@@ -176,38 +54,38 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 	realisticdate, _ := wiki.ParseDateUnix("1999/03/21 17:00:00")
 	date, _ := wiki.ParseDateUnix("2012/03/19 06:51:15")
 	testfiles := []rtfSR{
-		{"test_header_1", test_header_1, nil,
+		{"Test_header_1", testhelpers.Test_header_1, nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{}, map[string]string{}, ""}},
-		{"test_header_1_dash", test_header_1_dash, nil,
+		{"Test_header_1_dash", testhelpers.Test_header_1_dash, nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdIaWriter, []string{}, map[string]string{}, ""}},
-		{"test_header_2", test_header_2, nil,
+		{"Test_header_2", testhelpers.Test_header_2, nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"}, map[string]string{}, ""}},
-		{"test_header_3", test_header_3, nil,
+		{"Test_header_3", testhelpers.Test_header_3, nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"}, map[string]string{}, ""}},
-		{"test_header_4", test_header_4, nil,
+		{"Test_header_4", testhelpers.Test_header_4, nil,
 			MetaData{"", realisticdate, never, "I need", "", MdInvalid, []string{}, map[string]string{}, ""}},
-		{"test_header_5", test_header_5, nil,
+		{"Test_header_5", testhelpers.Test_header_5, nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"}, map[string]string{}, ""}},
-		{"test_header_6", test_header_6, nil,
+		{"Test_header_6", testhelpers.Test_header_6, nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"},
 				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
-		{"test_header_6_dash", test_header_6_dash, nil,
+		{"Test_header_6_dash", testhelpers.Test_header_6_dash, nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdIaWriter, []string{"journal"},
 				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
-		{"test_header_7", test_header_7, nil,
+		{"Test_header_7", testhelpers.Test_header_7, nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy,
 				[]string{"journal", "fiddle"},
 				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
-		{"test_header_8", test_header_8, nil,
+		{"Test_header_8", testhelpers.Test_header_8, nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy,
 				[]string{"journal", "hello", "bye"}, map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
-		{"test_header_9", test_header_9, nil,
+		{"Test_header_9", testhelpers.Test_header_9, nil,
 			MetaData{"", realisticdate, date, "Business Korea", "", MdLegacy,
 				[]string{"book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
-		{"test_header_9_dash", test_header_9_dash, nil,
+		{"Test_header_9_dash", testhelpers.Test_header_9_dash, nil,
 			MetaData{"", realisticdate, date, "Business Korea", "", MdIaWriter,
 				[]string{"book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
-		{"test_header_10_dash", test_header_10_dash, nil,
+		{"Test_header_10_dash", testhelpers.Test_header_10_dash, nil,
 			MetaData{"", realisticdate, date, "Business Korea", "", MdIaWriter,
 				[]string{"book", "business", "korea"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
 	}

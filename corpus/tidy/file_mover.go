@@ -1,4 +1,4 @@
-package article
+package tidy
 
 import (
 	"bufio"
@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/rjkroege/wikitools/corpus"
+	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/wiki"
 )
 
@@ -15,7 +17,9 @@ type fileMover struct {
 	dryrun             bool
 }
 
-func MakeFilemover(dryrun bool) (Tidying, error) {
+// NewFilemover creates a Tidying implementation that positions files in
+// the right wiki directories
+func NewFilemover(dryrun bool) (corpus.Tidying, error) {
 	return &fileMover{
 		removeddirectories: make(map[string]struct{}),
 		dryrun:             dryrun,
@@ -30,7 +34,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 
 	// TODO(rjk): I could do less work if I returned "skip this directory" for
 	// templates and generated.
-	if skipper(path, info) {
+	if wiki.IsWikiArticle(path, info) {
 		return nil
 	}
 
@@ -52,7 +56,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 	fd := bufio.NewReader(ifd)
 
 	// verify that this is the right path.
-	md := MakeMetaData(filepath.Base(path), d.ModTime())
+	md := article.MakeMetaData(filepath.Base(path), d.ModTime())
 	md.RootThroughFileForMetadata(fd)
 
 	// Determine the correct directory for the article.

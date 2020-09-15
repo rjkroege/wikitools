@@ -1,48 +1,26 @@
-package article
+package tidy
 
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
+	"io"
 	"text/template"
 
 	"github.com/rjkroege/wikitools/wiki"
+	"github.com/rjkroege/wikitools/article"
+	"github.com/rjkroege/wikitools/corpus"
 )
-
-// Tidying is the interface implemented by each of the kinds of Tidying
-// passes.
-type Tidying interface {
-	// EachFile is called by the filepath.Walk over each file in the wiki tree.
-	// It could do something like (e.g.)
-	EachFile(path string, info os.FileInfo, err error) error
-	Summary() error
-}
-
-// ListWikiFiles is a boring implementation of Tidying that only lists wiki files.
-type ListWikiFiles struct{}
-
-func (_ *ListWikiFiles) EachFile(path string, info os.FileInfo, err error) error {
-	if err != nil {
-		log.Println("couldn't read ", path, ": ", err)
-		return fmt.Errorf("couldn't read %s: %v", path, err)
-	}
-	log.Printf("%s: %v\n", path, info)
-	return nil
-}
-
-func (_ *ListWikiFiles) Summary() error {
-	return nil
-}
 
 type metadataUpdater struct {
 	metadataReport
 }
 
-func MakeMetadataUpdater() (Tidying, error) {
+// NewMetadataUpdater creates a new Tidying implementation to update
+// metadata.
+func NewMetadataUpdater() (corpus.Tidying, error) {
 	return makeMetadataUpdaterImpl()
 }
 
@@ -53,32 +31,10 @@ func makeMetadataUpdaterImpl() (*metadataUpdater, error) {
 	}
 	return &metadataUpdater{
 		metadataReport{
-			missingmd: make([][]*articleReportEntry, MdModern+1),
+			missingmd: make([][]*articleReportEntry, article.MdModern+1),
 			tmpl:      tmpl,
 		},
 	}, nil
-}
-
-// skipper returns true for files that we don't want to process
-func skipper(path string, info os.FileInfo) bool {
-	relp, err := filepath.Rel(wiki.Basepath, path)
-	if err != nil {
-		return true // Always skip bad paths
-	}
-
-	switch {
-	case info.IsDir():
-		return true
-	case filepath.Ext(info.Name()) != ".md":
-		return true
-	case strings.HasPrefix(relp, "templates"):
-		return true
-	case strings.HasPrefix(relp, "generated"):
-		return true
-	case info.Name() == "README.md":
-		return true
-	}
-	return false
 }
 
 func (abc *metadataUpdater) EachFile(path string, info os.FileInfo, err error) error {
@@ -87,7 +43,7 @@ func (abc *metadataUpdater) EachFile(path string, info os.FileInfo, err error) e
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
-	if skipper(path, info) {
+	if wiki.IsWikiArticle(path, info) {
 		return nil
 	}
 
@@ -97,32 +53,9 @@ func (abc *metadataUpdater) EachFile(path string, info os.FileInfo, err error) e
 	}
 
 	if updatedpth != "" {
-		if err := replaceFile(updatedpth, path); err != nil {
+		if err := wiki.SafeReplaceFile(updatedpth, path); err != nil {
 			return fmt.Errorf("swapFile can't: %v", err)
 		}
-	}
-	return nil
-}
-
-func replaceFile(newpath, oldpath string) error {
-	backup := oldpath + ".back"
-	if err := os.Link(oldpath, backup); err != nil {
-		return fmt.Errorf("replaceFile backup: %v", err)
-	}
-
-	if err := os.Remove(oldpath); err != nil {
-		return fmt.Errorf("replaceFile remove: %v", err)
-	}
-
-	if err := os.Link(newpath, oldpath); err != nil {
-		return fmt.Errorf("replaceFile emplace: %v", err)
-	}
-
-	if err := os.Remove(newpath); err != nil {
-		return fmt.Errorf("replaceFile remove: %v", err)
-	}
-	if err := os.Remove(backup); err != nil {
-		return fmt.Errorf("replaceFile remove: %v", err)
 	}
 	return nil
 }
@@ -143,12 +76,12 @@ func (abc *metadataUpdater) updateMetadata(path string) (string, error) {
 	fd := bufio.NewReader(ifd)
 
 	// TODO(rjk): RootThroughFileForMetadata needs to return an error when it fails
-	md := MakeMetaData(filepath.Base(path), d.ModTime())
+	md := article.MakeMetaData(filepath.Base(path), d.ModTime())
 	md.RootThroughFileForMetadata(fd)
 
 	abc.recordMetadataState(md, path)
 
-	if md.mdtype != MdLegacy {
+	if md.Type() != article.MdLegacy {
 		// Nothing to do.
 		return "", nil
 	}
@@ -172,13 +105,13 @@ func (abc *metadataUpdater) updateMetadata(path string) (string, error) {
 // There are other transformations that I'll want to implement. Refactor when
 // I need to. Assumes that ofd's read point is at the end of the metadata in original file.
 //
-func (abc *metadataUpdater) writeUpdatedMetadata(path string, ofd io.Reader, nfd io.Writer, md *MetaData) error {
+func (abc *metadataUpdater) writeUpdatedMetadata(path string, ofd io.Reader, nfd io.Writer, md *article.MetaData) error {
 	// write new metadata to nfd
 	nmd := &IaWriterMetadataOutput{
 		Title:     md.Title,
 		Date:      md.DetailedDate(),
 		Tags:      md.Tagstring(),
-		Extrakeys: md.extraKeys,
+		Extrakeys: md.ExtraKeys(),
 	}
 
 	//	log.Printf("nmd: %#v\n", nmd)
@@ -192,6 +125,7 @@ func (abc *metadataUpdater) writeUpdatedMetadata(path string, ofd io.Reader, nfd
 	_, err := io.Copy(nfd, ofd)
 	return err
 }
+
 
 type IaWriterMetadataOutput struct {
 	Title     string

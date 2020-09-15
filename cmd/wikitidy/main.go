@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/wiki"
+	"github.com/rjkroege/wikitools/corpus/tidy"
 )
 
 var dryrun = flag.Bool("n", false, "Don't actually move the files, just show what would happen")
@@ -18,15 +18,15 @@ func main() {
 	flag.Parse()
 	
 	// The default Tidying implementation can always be created without error.
-	tidying, err := article.MakeFilemover(*dryrun)
+	tidying, err := tidy.NewFilemover(*dryrun)
 	switch {
 	case *reportflag:
-		tidying, err = article.MakeMetadataReporter()
+		tidying, err = tidy.NewMetadataReporter()
 		if err != nil {
 			log.Fatal("No MetadataReporter:", err)
 		}
 	case *deepclean:
-		tidying, err = article.MakeMetadataUpdater()
+		tidying, err = tidy.NewMetadataUpdater()
 		if err != nil {
 			log.Fatal("No MetadataUpdater:", err)
 		}

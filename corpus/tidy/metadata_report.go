@@ -1,4 +1,4 @@
-package article
+package tidy
 
 import (
 	"bufio"
@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/rjkroege/wikitools/wiki"
+	"github.com/rjkroege/wikitools/corpus"
+	"github.com/rjkroege/wikitools/article"
 )
 
 type articleReportEntry struct {
@@ -25,8 +27,8 @@ type metadataReport struct {
 	tmpl      *template.Template
 }
 
-func (abc *metadataReport) recordMetadataState(md *MetaData, path string) {
-	abc.missingmd[md.mdtype] = append(abc.missingmd[md.mdtype], &articleReportEntry{
+func (abc *metadataReport) recordMetadataState(md *article.MetaData, path string) {
+	abc.missingmd[md.Type()] = append(abc.missingmd[md.Type()], &articleReportEntry{
 		Path:     path,
 		Title:    md.Title,
 		Date:     md.DetailedDate(),
@@ -34,13 +36,13 @@ func (abc *metadataReport) recordMetadataState(md *MetaData, path string) {
 	})
 }
 
-func MakeMetadataReporter() (Tidying, error) {
+func NewMetadataReporter() (corpus.Tidying, error) {
 	tmpl, err := template.New("newstylemetadata").Parse(iawritermetadataformat)
 	if err != nil {
 		return nil, fmt.Errorf("can't MakeMetadataUpdater %v", err)
 	}
 	return &metadataReport{
-		missingmd: make([][]*articleReportEntry, MdModern+1),
+		missingmd: make([][]*articleReportEntry, article.MdModern+1),
 		tmpl:      tmpl,
 	}, nil
 }
@@ -51,7 +53,7 @@ func (abc *metadataReport) EachFile(path string, info os.FileInfo, err error) er
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
-	if skipper(path, info) {
+	if wiki.IsWikiArticle(path, info) {
 		return nil
 	}
 
@@ -70,7 +72,7 @@ func (abc *metadataReport) EachFile(path string, info os.FileInfo, err error) er
 	fd := bufio.NewReader(ifd)
 
 	// TODO(rjk): RootThroughFileForMetadata needs to return an error when it fails
-	md := MakeMetaData(filepath.Base(path), d.ModTime())
+	md := article.MakeMetaData(filepath.Base(path), d.ModTime())
 	md.RootThroughFileForMetadata(fd)
 
 	abc.recordMetadataState(md, path)
@@ -121,14 +123,14 @@ func (abc *metadataReport) Summary() error {
 		v := ByDate(abc.missingmd[i])
 		sort.Sort(v)
 		m := &sections[i]
-		m.Name = metadatanametable[i]
+		m.Name = article.Metadatanametable[i]
 		m.Articles = abc.missingmd[i]
 	}
 
 	// Build up giant structure here...
 	nmd := &IaWriterMetadataOutput{
 		Title: "Metadata Report",
-		Date:  detailedDateImpl(time.Now()),
+		Date:  article.DetailedDateImpl(time.Now()),
 		Tags:  "@report",
 	}
 
