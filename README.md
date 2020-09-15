@@ -89,4 +89,6 @@ the `wiki` directory. Note that template expansion is an article concept.
 : code to make reports, calendars, linkmaps, etc. In particular, the code to make
 link maps or the like lives here.
 
+`testhelpers`
+: package code imported only into tests.
 
