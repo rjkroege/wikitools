@@ -17,6 +17,12 @@ var CLI struct {
 		Tagsandtitle []string `arg:"" name:"tagsandtitle" help:"List of article tags and its title"`
 	} `cmd help:"Create new wiki article"`
 
+	Tidy struct {
+		Dryrun    bool `help:"Don't actually move the files, just show what would happen"`
+		Deepclean bool `help:"Rewrite the metadata, move files into improved directories"`
+		Report    bool `help:"Generate the metadata status report."`
+	} `cmd help:"Clean up wiki aritcles: right structure, corrected metadata, etc."`
+
 	Bearimport struct {
 		Outputdir string `help:"Output directory for importable files" type:"path" default:"./converted"`
 
@@ -42,8 +48,11 @@ func main() {
 		log.Println("should run Wikinew here", CLI.New.Tagsandtitle)
 		cmd.Wikinew(settings, CLI.New.Tagsandtitle)
 	case "bearimport <filestoprocess>":
-		log.Println("should run Bearimport here", CLI.New.Tagsandtitle)
+		log.Println("should run Bearimport here", CLI.Bearimport.Filestoprocess)
 		cmd.Bearimport(settings, CLI.Bearimport.Outputdir, CLI.Bearimport.Filestoprocess)
+	case "tidy":
+		log.Println("should run Tidy here")
+		cmd.Tidy(settings, CLI.Tidy.Dryrun, CLI.Tidy.Deepclean, CLI.Tidy.Report)
 	case "test":
 		log.Println("Got a test command")
 	default:
