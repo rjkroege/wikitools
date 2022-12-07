@@ -17,6 +17,13 @@ var CLI struct {
 		Tagsandtitle []string `arg:"" name:"tagsandtitle" help:"List of article tags and its title"`
 	} `cmd help:"Create new wiki article"`
 
+	Bearimport struct {
+		Outputdir string `help:"Output directory for importable files" type:"path" default:"./converted"`
+
+		Filestoprocess []string `arg:"" name:"filestoprocess" help:"List of article tags and its title" type:"path"`
+	} `cmd help:"Reprocess articles out of Bear for wiki"`
+	
+
 	Test struct {
 	} `cmd help:"Stub action, does nothing."`
 }
@@ -33,8 +40,11 @@ func main() {
 
 	switch ctx.Command() {
 	case "new <tagsandtitle>":
-		log.Println("should run wikinew here", CLI.New.Tagsandtitle)
+		log.Println("should run Wikinew here", CLI.New.Tagsandtitle)
 		cmd.Wikinew(settings, CLI.New.Tagsandtitle)
+	case "bearimport <filestoprocess>":
+		log.Println("should run Bearimport here", CLI.New.Tagsandtitle)
+		cmd.Bearimport(settings, CLI.Bearimport.Outputdir, CLI.Bearimport.Filestoprocess)
 	case "test":
 		log.Println("Got a test command")
 	default:

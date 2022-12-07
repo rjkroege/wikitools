@@ -1,7 +1,6 @@
-package main
+package cmd
 
 import (
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -13,14 +12,6 @@ import (
 	"github.com/rjkroege/wikitools/wiki"
 )
 
-// TODO(rjk): Do I need this program?
-// TODO(rjk): Correct the pathing assumptions.
-
-var outputdir = flag.String("odir", "./converted", "Output directory for importable files")
-
-// TODO(rjk): This should come from the config?
-var wikidir = flag.String("wdir", "/Users/rjkroege/Documents/wiki", "Where the wiki files are for naming")
-
 // stripextension removes an extension from a filename if it's present and returns it.
 func stripextension(fn string) string {
 	extension := filepath.Ext(fn)
@@ -29,12 +20,12 @@ func stripextension(fn string) string {
 
 // makesafename makes a name from the provided filename argument that would be
 // unique inside of the wiki directory but is actually a valid filename for the outputdir.
-func makesafename(fn string) string {
+func makesafename(outputdir, wikidir, fn string) string {
 	noextensionname := stripextension(fn)
-	pathinwiki := wiki.UniqueValidName(*wikidir,
+	pathinwiki := wiki.UniqueValidName(wikidir,
 		wiki.ValidBaseName([]string{noextensionname}), ".md", wiki.SystemImpl(0))
 
-	return filepath.Join(*outputdir, pathinwiki)
+	return filepath.Join(outputdir, pathinwiki)
 }
 
 func getalltags(contents []byte) []string {
@@ -48,22 +39,11 @@ func getalltags(contents []byte) []string {
 	return smatches
 }
 
-func mkdir(dir string) error {
-	return os.MkdirAll(dir, 0755)
-}
-
 const almostunixlike = "Monday _2 Jan 2006 15:04:05 MST"
 
-func main() {
-	flag.Parse()
-
-	log.Println("hello")
-
-	filestoprocess := flag.Args()
-
-	if err := mkdir(*outputdir); err != nil {
-		log.Printf("Can't make output dir %s because: %v\n", *outputdir, err)
-		os.Exit(-1)
+func Bearimport(settings *wiki.Settings, outputdir string, filestoprocess []string) {
+	if err := os.MkdirAll(outputdir, 0755); err != nil {
+		log.Panicf("Can't make output dir %s because: %v\n", outputdir, err)
 	}
 
 	for _, fn := range filestoprocess {
@@ -89,7 +69,7 @@ func main() {
 
 		tags := getalltags(filecontents)
 		origdate := fsi.ModTime()
-		outputpath := makesafename(fsi.Name())
+		outputpath := makesafename(outputdir, settings.Wikidir, fsi.Name())
 
 		// What we've done so far.
 		log.Println("title: ", fsi.Name(), "date:", origdate, "filename", outputpath, "tags:", tags)
