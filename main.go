@@ -22,7 +22,6 @@ var CLI struct {
 
 		Filestoprocess []string `arg:"" name:"filestoprocess" help:"List of article tags and its title" type:"path"`
 	} `cmd help:"Reprocess articles out of Bear for wiki"`
-	
 
 	Test struct {
 	} `cmd help:"Stub action, does nothing."`
