@@ -4,31 +4,40 @@ import (
 	"log"
 
 	"github.com/alecthomas/kong"
+	"github.com/rjkroege/wikitools/cmd"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 var CLI struct {
-	ConfigFile string `type:"path" help:"Set alternate configuration file" default:"~/.config/wiki/wiki.json"`
+	// TODO(rjk): Move the default location.
+	ConfigFile string `type:"path" help:"Set alternate configuration file" default:"~/.wikinewrc"`
 
 	// Might have a special mode for invoking from Alfred right?
 	New struct {
-		Config string `arg name:"config" help:"Defined configuration for instance"`
-		Name   string `arg name:"name" help:"Name of instance"`
+		Tagsandtitle []string `arg:"" name:"tagsandtitle" help:"List of article tags and its title"`
 	} `cmd help:"Create new wiki article"`
 
 	Test struct {
 	} `cmd help:"Stub action, does nothing."`
-
 }
 
 func main() {
 	ctx := kong.Parse(&CLI)
 
-	// TODO(rjk): Read the configuration.
+	// TODO(rjk): wiki => config
+	settings, err := wiki.Read(CLI.ConfigFile)
+	if err != nil {
+		// TODO(rjk): This is not nice. Set things up sensibly.
+		log.Panic("No configuration file. Fatai:", err)
+	}
 
 	switch ctx.Command() {
+	case "new <tagsandtitle>":
+		log.Println("should run wikinew here", CLI.New.Tagsandtitle)
+		cmd.Wikinew(settings, CLI.New.Tagsandtitle)
 	case "test":
 		log.Println("Got a test command")
 	default:
-		panic(ctx.Command())
+		log.Panic("Missing command: ", ctx.Command())
 	}
 }

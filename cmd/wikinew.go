@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"bytes"
@@ -67,12 +67,11 @@ func Expand(a *article.MetaData, tpl wiki.Template) *ExpandedArticle {
 
 // TODO(rjkroege): add usage output on failure.
 // TODO(rjkroege): support editors other than Acme/Edwood.
-func main() {
-	config := wiki.ReadConfiguration()
+func Wikinew(settings *wiki.Settings, args []string) {
 	tmpls := wiki.NewTemplatePalette()
-	tmpls.AddDynamcTemplates(config)
+	tmpls.AddDynamcTemplates(settings.TemplateForTag)
 
-	args, tags := wiki.Split(os.Args[1:])
+	args, tags := wiki.Split(args)
 	tm, args, tags := tmpls.Picktemplate(args, tags)
 	// TODO(rjk): This is too cute. Don't do things like this.
 	Expand(Makearticle(args, tags), tm).Plumb()
