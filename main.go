@@ -11,11 +11,16 @@ import (
 var CLI struct {
 	// TODO(rjk): Move the default location.
 	ConfigFile string `type:"path" help:"Set alternate configuration file" default:"~/.wikinewrc"`
+	Debug      bool   `help:"Enable debugging conveniences as needed."`
 
-	// Might have a special mode for invoking from Alfred right?
+	// Might have a different command for Alfred vs Non-alfted case?
 	New struct {
 		Tagsandtitle []string `arg:"" name:"tagsandtitle" help:"List of article tags and its title"`
 	} `cmd help:"Create new wiki article"`
+
+	Preview struct {
+		Article string `arg:"" name:"article" type:"path" help:"Article to preview"`
+	} `cmd help:"Preview a wiki article"`
 
 	Tidy struct {
 		Dryrun    bool `help:"Don't actually move the files, just show what would happen"`
@@ -47,6 +52,9 @@ func main() {
 	case "new <tagsandtitle>":
 		log.Println("should run Wikinew here", CLI.New.Tagsandtitle)
 		cmd.Wikinew(settings, CLI.New.Tagsandtitle)
+	case "preview <article>":
+		// TODO(rjk): Figure out what this is for.
+		cmd.Preview(CLI.Debug)
 	case "bearimport <filestoprocess>":
 		log.Println("should run Bearimport here", CLI.Bearimport.Filestoprocess)
 		cmd.Bearimport(settings, CLI.Bearimport.Outputdir, CLI.Bearimport.Filestoprocess)

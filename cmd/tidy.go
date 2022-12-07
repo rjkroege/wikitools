@@ -5,12 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rjkroege/wikitools/wiki"
 	"github.com/rjkroege/wikitools/corpus/tidy"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 func Tidy(settings *wiki.Settings, dryrun, deepclean, reportflag bool) {
-	
+
 	// The default Tidying implementation can always be created without error.
 	tidying, err := tidy.NewFilemover(dryrun)
 	switch {

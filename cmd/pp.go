@@ -1,7 +1,6 @@
-package main
+package cmd
 
 import (
-	"flag"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,24 +11,20 @@ import (
 	"github.com/yuin/goldmark/parser"
 )
 
-var (
-	// Writes the output to a file, logs to stdout for debugging convenience.
-	debug = flag.Bool("debug", false,
-		"Writes the output to a file, logs to stdout for debugging convenience.")
-)
-
-func main() {
-	flag.Parse()
-
+// TODO(rjk): I don't recall what this is for. I don't know what it's
+// suppose to do. I have adjusted my plans for the wiki. Revisit this
+// functionality. I think that this does what I want. I also don't think
+// that it does it in a way that I desire.
+func Preview(debug bool) {
 	destfd := os.Stdout
-	if !*debug {
+	if !debug {
 		// Marked expects Stdout to be where it will find the generated html. But
 		// Goldmark's debugging helpers print to Stdout. So replace Stdout so
 		// that I can separate debugging output from the actual output and send
 		// that to a log file.
 		defer wiki.ReplaceStdout()()
 	}
-	if *debug {
+	if debug {
 		// In debug mode, wikipp dumps debugging to Stdout and writes the
 		// generated output to out.html
 		fd, err := os.Create("out.html")
@@ -42,7 +37,6 @@ func main() {
 	log.Println("foo bar")
 
 	// -1. Read metadata first and only proceed for valid article types.
-
 
 	// 0. read
 	mdf, err := ioutil.ReadAll(os.Stdin)
