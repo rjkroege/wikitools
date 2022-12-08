@@ -40,7 +40,7 @@ func Read(path string) (*Settings, error) {
 // goes in wiki
 // TODO(rjk): This is misnamed. Maybe call it "NotArticle"
 // TODO(rjk): Flip its sense too?
-func (s *Settings) IsWikiArticle(settings *Settings, path string, info os.FileInfo) bool {
+func (s *Settings) IsWikiArticle(path string, info os.FileInfo) bool {
 	relp, err := filepath.Rel(s.Wikidir, path)
 	if err != nil {
 		return true // Always skip bad paths
