@@ -14,11 +14,11 @@ import (
 	"github.com/rjkroege/wikitools/wiki"
 )
 
-func Makearticle(args []string, tags []string) *article.MetaData {
+func Makearticle(settings *wiki.Settings, args []string, tags []string) *article.MetaData {
 	s := strings.Join(args, " ")
 
 	tmpmd := article.NewArticle("", "", []string{})
-	destpath := filepath.Join(wiki.Basepath, tmpmd.RelativeDateDirectory())
+	destpath := filepath.Join(settings.Wikidir, tmpmd.RelativeDateDirectory())
 	filename := wiki.UniqueValidName(destpath, wiki.ValidBaseName(args), wiki.Extension, wiki.SystemImpl(0))
 	return article.NewArticle(filename, s, tags)
 }
@@ -28,8 +28,8 @@ type ExpandedArticle struct {
 	buffy *bytes.Buffer
 }
 
-func (md *ExpandedArticle) Plumb() {
-	if err := os.MkdirAll(filepath.Join(wiki.Basepath, md.RelativeDateDirectory()), 0777); err != nil {
+func (md *ExpandedArticle) Plumb(settings *wiki.Settings) {
+	if err := os.MkdirAll(filepath.Join(settings.Wikidir, md.RelativeDateDirectory()), 0777); err != nil {
 		log.Fatal(err)
 	}
 
@@ -38,7 +38,7 @@ func (md *ExpandedArticle) Plumb() {
 		log.Fatal(err)
 	}
 
-	err = win.Name(md.FullPathName(wiki.Basepath))
+	err = win.Name(md.FullPathName(settings.Wikidir))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,5 +74,5 @@ func Wikinew(settings *wiki.Settings, args []string) {
 	args, tags := wiki.Split(args)
 	tm, args, tags := tmpls.Picktemplate(args, tags)
 	// TODO(rjk): This is too cute. Don't do things like this.
-	Expand(Makearticle(args, tags), tm).Plumb()
+	Expand(Makearticle(settings, args, tags), tm).Plumb(settings)
 }

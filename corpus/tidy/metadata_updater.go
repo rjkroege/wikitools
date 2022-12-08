@@ -3,15 +3,15 @@ package tidy
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
-	"io"
 	"text/template"
 
-	"github.com/rjkroege/wikitools/wiki"
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 type metadataUpdater struct {
@@ -43,7 +43,7 @@ func (abc *metadataUpdater) EachFile(path string, info os.FileInfo, err error) e
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
-	if wiki.IsWikiArticle(path, info) {
+	if abc.settings.IsWikiArticle(abc.settings, path, info) {
 		return nil
 	}
 
@@ -104,7 +104,6 @@ func (abc *metadataUpdater) updateMetadata(path string) (string, error) {
 
 // There are other transformations that I'll want to implement. Refactor when
 // I need to. Assumes that ofd's read point is at the end of the metadata in original file.
-//
 func (abc *metadataUpdater) writeUpdatedMetadata(path string, ofd io.Reader, nfd io.Writer, md *article.MetaData) error {
 	// write new metadata to nfd
 	nmd := &IaWriterMetadataOutput{
@@ -125,7 +124,6 @@ func (abc *metadataUpdater) writeUpdatedMetadata(path string, ofd io.Reader, nfd
 	_, err := io.Copy(nfd, ofd)
 	return err
 }
-
 
 type IaWriterMetadataOutput struct {
 	Title     string

@@ -10,9 +10,9 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/rjkroege/wikitools/wiki"
-	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/article"
+	"github.com/rjkroege/wikitools/corpus"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 type articleReportEntry struct {
@@ -25,6 +25,7 @@ type articleReportEntry struct {
 type metadataReport struct {
 	missingmd [][]*articleReportEntry
 	tmpl      *template.Template
+	settings  *wiki.Settings
 }
 
 func (abc *metadataReport) recordMetadataState(md *article.MetaData, path string) {
@@ -36,7 +37,7 @@ func (abc *metadataReport) recordMetadataState(md *article.MetaData, path string
 	})
 }
 
-func NewMetadataReporter() (corpus.Tidying, error) {
+func NewMetadataReporter(settings *wiki.Settings) (corpus.Tidying, error) {
 	tmpl, err := template.New("newstylemetadata").Parse(iawritermetadataformat)
 	if err != nil {
 		return nil, fmt.Errorf("can't MakeMetadataUpdater %v", err)
@@ -44,6 +45,7 @@ func NewMetadataReporter() (corpus.Tidying, error) {
 	return &metadataReport{
 		missingmd: make([][]*articleReportEntry, article.MdModern+1),
 		tmpl:      tmpl,
+		settings:  settings,
 	}, nil
 }
 
@@ -53,7 +55,7 @@ func (abc *metadataReport) EachFile(path string, info os.FileInfo, err error) er
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
-	if wiki.IsWikiArticle(path, info) {
+	if abc.settings.IsWikiArticle(abc.settings, path, info) {
 		return nil
 	}
 
@@ -100,7 +102,7 @@ type MetadataSection struct {
 }
 
 func (abc *metadataReport) Summary() error {
-	path := filepath.Join(wiki.Basepath, wiki.Reportpath)
+	path := filepath.Join(abc.settings.Wikidir, wiki.Reportpath)
 	if err := os.MkdirAll(path, 0700); err != nil {
 		return fmt.Errorf("writeMetadataUpdateReport can't mkdir %s: %v", path, err)
 	}

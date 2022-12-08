@@ -2,8 +2,6 @@ package wikiextension
 
 import (
 	"log"
-	"path"
-	"strings"
 
 	"github.com/rjkroege/wikitools/wiki"
 	"github.com/yuin/goldmark"
@@ -15,27 +13,38 @@ import (
 
 // I followed along with the goldmark code with this pattern but I'm not
 // sure why it should be arranged that way.
-type linkminer struct {
+type Linkminer struct {
+	settings *wiki.Settings
 }
 
-var Linkminer = &linkminer{}
+func NewLinkminer(settings *wiki.Settings) *Linkminer {
+	return &Linkminer{
+		settings: settings,
+	}
+}
 
-func (e *linkminer) Extend(m goldmark.Markdown) {
+//var Linkminer = &linkminer{
+//}
+
+func (e *Linkminer) Extend(m goldmark.Markdown) {
 	m.Parser().AddOptions(
 		parser.WithASTTransformers(
 			// I don't understand how to correctly set priorties in goldmark's extensions.
-			util.Prioritized(NewLinkMinerASTTransformation(), 999),
+			util.Prioritized(NewLinkMinerASTTransformation(e.settings), 999),
 		),
 	)
 }
 
 type linkMinerASTTransformation struct {
+	settings *wiki.Settings
 }
 
 // NewLinkMinerASTTransformation returns a new parser.ASTTransformer that
 // can extract all of the Links found in a document.
-func NewLinkMinerASTTransformation() parser.ASTTransformer {
-	return &linkMinerASTTransformation{}
+func NewLinkMinerASTTransformation(settings *wiki.Settings) parser.ASTTransformer {
+	return &linkMinerASTTransformation{
+		settings: settings,
+	}
 }
 
 // Transform is an example of one way to extend goldmark.
@@ -69,7 +78,7 @@ func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.
 			// Maybe not.
 
 			// Filter the link here
-			if isWikiMarkdownLink(link.Destination) {
+			if a.settings.IsWikiMarkdownLink(link.Destination) {
 				outboundwikilinks = append(outboundwikilinks, link.Destination)
 			}
 		}
@@ -89,29 +98,6 @@ func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.
 	log.Println("attempting to insert link map")
 	a.insertLinkMap(node, reader, pc)
 
-}
-
-// isWikiLink returns true if the provided dest is a link inside of the
-// wiki. Links are "inside" the wiki if they are relative or absolute
-// with the root of the wiki as prefix.
-// TODO(rjk): Should I make sure that there's a file at the end of the
-// link? wikipp shoudln't but wikiclean should probably check link
-// validity for all of the wiki articles and generate a report if they
-// contain invalid links.
-func isWikiLink(dest []byte) bool {
-	pth := path.Clean(string(dest))
-	if !path.IsAbs(pth) || strings.HasPrefix(pth, wiki.Basepath) {
-		return true
-	}
-	return false
-}
-
-func isWikiMarkdownLink(dest []byte) bool {
-	pth := path.Clean(string(dest))
-	if path.Ext(pth) == wiki.Extension && (!path.IsAbs(pth) || strings.HasPrefix(pth, wiki.Basepath)) {
-		return true
-	}
-	return false
 }
 
 // testInsertNode is an experiment to add stuff to the AST. Appends HelloWorld. This block of

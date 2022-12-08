@@ -7,22 +7,24 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/article"
+	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/wiki"
 )
 
 type fileMover struct {
 	removeddirectories map[string]struct{}
 	dryrun             bool
+	settings           *wiki.Settings
 }
 
 // NewFilemover creates a Tidying implementation that positions files in
 // the right wiki directories
-func NewFilemover(dryrun bool) (corpus.Tidying, error) {
+func NewFilemover(settings *wiki.Settings, dryrun bool) (corpus.Tidying, error) {
 	return &fileMover{
 		removeddirectories: make(map[string]struct{}),
 		dryrun:             dryrun,
+		settings:           settings,
 	}, nil
 }
 
@@ -34,7 +36,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 
 	// TODO(rjk): I could do less work if I returned "skip this directory" for
 	// templates and generated.
-	if wiki.IsWikiArticle(path, info) {
+	if fm.settings.IsWikiArticle(fm.settings, path, info) {
 		return nil
 	}
 
@@ -61,7 +63,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 
 	// Determine the correct directory for the article.
 	relativearticledirectory := md.RelativeDateDirectory()
-	absarticledirectory := filepath.Join(wiki.Basepath, relativearticledirectory)
+	absarticledirectory := filepath.Join(fm.settings.Wikidir, relativearticledirectory)
 	destarticle := filepath.Join(absarticledirectory, md.FileName())
 	srcarticle := path
 
@@ -110,7 +112,7 @@ func (fm *fileMover) Summary() error {
 		for d := range dirs {
 			workremains = false
 			if err := os.Remove(d); err == nil {
-				if pd := filepath.Dir(d); pd != wiki.Basepath {
+				if pd := filepath.Dir(d); pd != fm.settings.Wikidir {
 					parentdirs[pd] = struct{}{}
 					workremains = true
 				}

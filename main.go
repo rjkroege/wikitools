@@ -54,7 +54,7 @@ func main() {
 		cmd.Wikinew(settings, CLI.New.Tagsandtitle)
 	case "preview <article>":
 		// TODO(rjk): Figure out what this is for.
-		cmd.Preview(CLI.Debug)
+		cmd.Preview(settings, CLI.Debug)
 	case "bearimport <filestoprocess>":
 		log.Println("should run Bearimport here", CLI.Bearimport.Filestoprocess)
 		cmd.Bearimport(settings, CLI.Bearimport.Outputdir, CLI.Bearimport.Filestoprocess)

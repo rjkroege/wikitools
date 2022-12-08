@@ -15,7 +15,7 @@ import (
 // suppose to do. I have adjusted my plans for the wiki. Revisit this
 // functionality. I think that this does what I want. I also don't think
 // that it does it in a way that I desire.
-func Preview(debug bool) {
+func Preview(settings *wiki.Settings, debug bool) {
 	destfd := os.Stdout
 	if !debug {
 		// Marked expects Stdout to be where it will find the generated html. But
@@ -49,7 +49,7 @@ func Preview(debug bool) {
 	}
 
 	// TODO(rjk): skip running this on files with bad metadata?
-	md := article.NewDefaultMarkdownConverter()
+	md := article.NewDefaultMarkdownConverter(settings)
 
 	// 2. Make a context.
 	context := parser.NewContext()

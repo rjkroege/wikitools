@@ -12,10 +12,10 @@ import (
 func Tidy(settings *wiki.Settings, dryrun, deepclean, reportflag bool) {
 
 	// The default Tidying implementation can always be created without error.
-	tidying, err := tidy.NewFilemover(dryrun)
+	tidying, err := tidy.NewFilemover(settings, dryrun)
 	switch {
 	case reportflag:
-		tidying, err = tidy.NewMetadataReporter()
+		tidying, err = tidy.NewMetadataReporter(settings)
 		if err != nil {
 			log.Fatal("No MetadataReporter:", err)
 		}
