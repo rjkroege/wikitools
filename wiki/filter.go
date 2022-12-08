@@ -4,30 +4,35 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode"
 )
 
 const (
 	timeformat = "20060102-150405"
 )
 
-func filter(r rune) rune {
-	lut := map[rune]rune{
-		' ':  '-',
-		',':  '-',
-		'/':  '_',
-		'#':  ',',
-		'\t': '-'}
-	nr, ok := lut[r]
-	if !ok {
-		return r
-	}
-	return nr
-}
-
 // Given an array of strings, convert this into a single valid file name.
 func ValidBaseName(words []string) string {
-	s := strings.Join(words, " ")
-	return strings.Map(filter, s)
+	var b strings.Builder
+
+	for i, s := range words {
+		if i > 0 {
+			b.WriteRune('-')
+		}
+		for _, r := range s {
+			switch {
+			case unicode.IsDigit(r),
+				unicode.IsLetter(r):
+				b.WriteRune(r)
+			case unicode.IsSpace(r):
+				b.WriteRune('-')
+			case unicode.IsPunct(r):
+				b.WriteRune('_')
+			}
+		}
+	}
+
+	return b.String()
 }
 
 type System interface {
