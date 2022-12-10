@@ -34,12 +34,6 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
-	// TODO(rjk): I could do less work if I returned "skip this directory" for
-	// templates and generated.
-	if fm.settings.NotArticle(path, info) {
-		return nil
-	}
-
 	// TODO(rjk): Make this block into a utility function.
 	// need the date
 	d, err := os.Stat(path)

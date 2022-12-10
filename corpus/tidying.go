@@ -12,7 +12,7 @@ import (
 // Tidying is the interface implemented by each of the kinds of Tidying
 // passes.
 type Tidying interface {
-	// EachFile is called by the filepath.Walk over each file in the wiki tree.
+	// EachFile is called by the filepath.Walk over each valid wiki file in the wiki tree.
 	EachFile(path string, info os.FileInfo, err error) error
 
 	// Summary provides the final output.
@@ -46,7 +46,9 @@ func Everyfile(settings *wiki.Settings, tidying Tidying) error {
 	// TODO(rjk): I have a Map/Reduce op here. I could make it parallel.
 
 	if err := filepath.Walk(settings.Wikidir, func(path string, info os.FileInfo, err error) error {
-		// TODO(rjk): here is where I should filter out invalid files.
+		if settings.NotArticle(path, info) {
+			return nil
+		}
 		return tidying.EachFile(path, info, err)
 	}); err != nil {
 		return fmt.Errorf("Everyfile walking: %v", err)

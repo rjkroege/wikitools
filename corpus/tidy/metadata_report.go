@@ -55,10 +55,6 @@ func (abc *metadataReport) EachFile(path string, info os.FileInfo, err error) er
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
-	if abc.settings.NotArticle(path, info) {
-		return nil
-	}
-
 	d, err := os.Stat(path)
 	if err != nil {
 		log.Println("updateMetadata Stat error", err)

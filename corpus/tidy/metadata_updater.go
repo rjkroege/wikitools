@@ -43,10 +43,6 @@ func (abc *metadataUpdater) EachFile(path string, info os.FileInfo, err error) e
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
-	if abc.settings.NotArticle(path, info) {
-		return nil
-	}
-
 	updatedpth, err := abc.updateMetadata(path)
 	if err != nil {
 		return err
