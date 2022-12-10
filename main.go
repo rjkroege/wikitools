@@ -6,6 +6,7 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/rjkroege/wikitools/cmd"
 	"github.com/rjkroege/wikitools/wiki"
+	"github.com/rjkroege/wikitools/corpus"
 )
 
 var CLI struct {
@@ -28,6 +29,9 @@ var CLI struct {
 		Report    bool `help:"Generate the metadata status report."`
 	} `cmd help:"Clean up wiki aritcles: right structure, corrected metadata, etc."`
 
+	List struct {
+	} `cmd help:"List all articles using the corpus facilities"`
+
 	Bearimport struct {
 		Outputdir string `help:"Output directory for importable files" type:"path" default:"./converted"`
 
@@ -45,7 +49,7 @@ func main() {
 	settings, err := wiki.Read(CLI.ConfigFile)
 	if err != nil {
 		// TODO(rjk): This is not nice. Set things up sensibly.
-		log.Panic("No configuration file. Fatai:", err)
+		log.Fatal("No configuration file. Fatai:", err)
 	}
 
 	switch ctx.Command() {
@@ -63,7 +67,13 @@ func main() {
 		cmd.Tidy(settings, CLI.Tidy.Dryrun, CLI.Tidy.Deepclean, CLI.Tidy.Report)
 	case "test":
 		log.Println("Got a test command")
+	case "list":
+		log.Println("Got a test command")
+		tid := corpus.NewListAllWikiFilesTidying()
+		if err := corpus.Everyfile(settings, tid); err != nil {
+			log.Fatal(err)
+		}
 	default:
-		log.Panic("Missing command: ", ctx.Command())
+		log.Fatal("Missing command: ", ctx.Command())
 	}
 }
