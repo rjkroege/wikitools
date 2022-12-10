@@ -18,7 +18,6 @@ func (m *mockFileInfo) ModTime() time.Time { return time.Time{} }
 func (m *mockFileInfo) IsDir() bool        { return false }
 func (m *mockFileInfo) Sys() interface{}   { return nil }
 
-
 const Basepath = "~/me"
 
 func TestIsWikiArticle(t *testing.T) {
@@ -52,11 +51,9 @@ func TestIsWikiArticle(t *testing.T) {
 			true,
 		},
 	} {
-		if got, want := settings.IsWikiArticle(tc.abs, &mockFileInfo{tc.base}), tc.expected; got != want {
+		if got, want := settings.NotArticle(tc.abs, &mockFileInfo{tc.base}), tc.expected; got != want {
 			t.Errorf("[%d] skipper %s got %v want %v", i, tc.abs, got, want)
 		}
 
 	}
 }
-
-

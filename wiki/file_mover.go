@@ -27,5 +27,3 @@ func SafeReplaceFile(newpath, oldpath string) error {
 	}
 	return nil
 }
-
-

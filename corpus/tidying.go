@@ -1,6 +1,5 @@
 package corpus
 
-
 import (
 	"fmt"
 	"log"
@@ -8,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/rjkroege/wikitools/wiki"
-
 )
 
 // Tidying is the interface implemented by each of the kinds of Tidying
@@ -23,7 +21,6 @@ type Tidying interface {
 	// the articles is definitely something that can transpire concurrently.
 	Summary() error
 }
-
 
 // ListAllWikiFiles is a boring implementation of Tidying that lists all files.
 type listAllWikiFiles struct{}
@@ -45,8 +42,7 @@ func (_ *listAllWikiFiles) Summary() error {
 	return nil
 }
 
-
-func Everyfile( settings *wiki.Settings ,  tidying Tidying) error {
+func Everyfile(settings *wiki.Settings, tidying Tidying) error {
 	// TODO(rjk): I have a Map/Reduce op here. I could make it parallel.
 
 	if err := filepath.Walk(settings.Wikidir, func(path string, info os.FileInfo, err error) error {

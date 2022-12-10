@@ -43,7 +43,7 @@ func (abc *metadataUpdater) EachFile(path string, info os.FileInfo, err error) e
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
-	if abc.settings.IsWikiArticle(path, info) {
+	if abc.settings.NotArticle(path, info) {
 		return nil
 	}
 

@@ -36,11 +36,10 @@ func Read(path string) (*Settings, error) {
 
 // Inquiry functions based on configurable values.
 
-// IsWikiArticle returns true for files that we don't want to process
+// NotArticle returns true for files that we don't want to process
 // goes in wiki
-// TODO(rjk): This is misnamed. Maybe call it "NotArticle"
 // TODO(rjk): Flip its sense too?
-func (s *Settings) IsWikiArticle(path string, info os.FileInfo) bool {
+func (s *Settings) NotArticle(path string, info os.FileInfo) bool {
 	relp, err := filepath.Rel(s.Wikidir, path)
 	if err != nil {
 		return true // Always skip bad paths

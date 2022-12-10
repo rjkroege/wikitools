@@ -1,5 +1,5 @@
 /*
-	Process extraKeys
+Process extraKeys
 */
 package bibtex
 
@@ -12,7 +12,7 @@ import (
 )
 
 /*
-	Reports error conditions.
+Reports error conditions.
 */
 type BibTeXError struct {
 	what string
@@ -23,8 +23,8 @@ func (e *BibTeXError) Error() string {
 }
 
 /*
-	Creates a new map with the keys filtered and with the leading 'bib-' removed
-	and returns a list of the actual keys corresponding to what's in the map.
+Creates a new map with the keys filtered and with the leading 'bib-' removed
+and returns a list of the actual keys corresponding to what's in the map.
 */
 func FilterExtrakeys(extrakeys map[string]string) (filtered map[string]string, keys []string) {
 	filtered = make(map[string]string)
@@ -40,12 +40,12 @@ func FilterExtrakeys(extrakeys map[string]string) (filtered map[string]string, k
 }
 
 /*
-	Finds the entry type from an array of article tags. The bibtex entry type is specified
-	either implicitly (we have a @book tag) or we have a @book tag and a supplementary
-	@bibtex-(.*) tag where the matched substring is the entry types. Entries are as per
-	the documentation such as
-	http://newton.ex.ac.uk/tex/pack/bibtex/btxdoc/node6.html#SECTION00031000000000000000
-	Entry types do not include the leading '@'
+Finds the entry type from an array of article tags. The bibtex entry type is specified
+either implicitly (we have a @book tag) or we have a @book tag and a supplementary
+@bibtex-(.*) tag where the matched substring is the entry types. Entries are as per
+the documentation such as
+http://newton.ex.ac.uk/tex/pack/bibtex/btxdoc/node6.html#SECTION00031000000000000000
+Entry types do not include the leading '@'
 */
 func ExtractBibTeXEntryType(tags []string) (entry string, biberror error) {
 	entry_set := 0
@@ -74,7 +74,7 @@ func ExtractBibTeXEntryType(tags []string) (entry string, biberror error) {
 }
 
 /*
-	Holds all the list of necessary fields for each kind of BibTeX entry.
+Holds all the list of necessary fields for each kind of BibTeX entry.
 */
 var required_fields map[string][]string
 
@@ -103,9 +103,9 @@ func init() {
 }
 
 /*
-	Intersects fields and expected returning members from expected
-	that are not present in fields. fields and rf must both be
-	sorted.
+Intersects fields and expected returning members from expected
+that are not present in fields. fields and rf must both be
+sorted.
 */
 func intersectsorted(rf []string, fields []string) []string {
 	missing := []string{}
@@ -121,7 +121,7 @@ func intersectsorted(rf []string, fields []string) []string {
 }
 
 /*
-	Generates a BibTexError instance for entrytype for all the missing fields.
+Generates a BibTexError instance for entrytype for all the missing fields.
 */
 func createerror(entrytype string, missing []string) error {
 	return &BibTeXError{"Missing required fields: " + strings.Join(missing, " ") +
@@ -129,9 +129,9 @@ func createerror(entrytype string, missing []string) error {
 }
 
 /*
-	Determines if the list of BibTeX fields from the article has all the required
-	fields for the associated entry type. Returns nil on success, error with
-	explanation if fields are missing.
+Determines if the list of BibTeX fields from the article has all the required
+fields for the associated entry type. Returns nil on success, error with
+explanation if fields are missing.
 */
 func VerifyRequiredFields(entrytype string, fields []string) error {
 	_, err := required_fields[entrytype]

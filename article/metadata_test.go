@@ -39,8 +39,6 @@ func Test_ExtraKeysString(t *testing.T) {
 	testhelpers.AssertString(t, "a:b, c:d", m.ExtraKeysString())
 }
 
-
-
 type rtfSR struct {
 	testname string
 	in       string

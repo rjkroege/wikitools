@@ -5,8 +5,8 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/rjkroege/wikitools/cmd"
-	"github.com/rjkroege/wikitools/wiki"
 	"github.com/rjkroege/wikitools/corpus"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 var CLI struct {

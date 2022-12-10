@@ -4,14 +4,14 @@ import (
 	"log"
 	"os"
 
+	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/corpus/tidy"
 	"github.com/rjkroege/wikitools/wiki"
-	"github.com/rjkroege/wikitools/corpus"
 )
 
 func Tidy(settings *wiki.Settings, dryrun, deepclean, reportflag bool) {
 	// The default Tidying implementation can always be created without error.
-	// TODO(rjk): Improve the selection of the operations: construct them in 
+	// TODO(rjk): Improve the selection of the operations: construct them in
 	tidying, err := tidy.NewFilemover(settings, dryrun)
 	switch {
 	case reportflag:
@@ -34,7 +34,6 @@ func Tidy(settings *wiki.Settings, dryrun, deepclean, reportflag bool) {
 	if err := corpus.Everyfile(settings, tidying); err != nil {
 		log.Fatalf("walking all the files: %v", err)
 	}
-
 
 	if err := tidying.Summary(); err != nil {
 		log.Fatal("report Summary: ", err)

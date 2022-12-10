@@ -36,7 +36,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 
 	// TODO(rjk): I could do less work if I returned "skip this directory" for
 	// templates and generated.
-	if fm.settings.IsWikiArticle(path, info) {
+	if fm.settings.NotArticle(path, info) {
 		return nil
 	}
 
