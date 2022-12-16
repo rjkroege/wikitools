@@ -9,6 +9,11 @@ import (
 	"github.com/rjkroege/wikitools/wiki"
 )
 
+// Cover the following additional cases
+//
+// file with only unix date set in the filesystem
+// summary reports are generated correctly
+
 func writeFile(t *testing.T, settings *wiki.Settings, path, contents string) {
 	t.Helper()
 
