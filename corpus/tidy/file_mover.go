@@ -28,6 +28,9 @@ func NewFilemover(settings *wiki.Settings, dryrun bool) (corpus.Tidying, error) 
 	}, nil
 }
 
+// TODO(rjk): Need to move dependent files (i.e. images)
+// fixing is not as good as I'd like
+// TODO(rjk): rename source links too
 func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)
@@ -56,6 +59,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 	md.RootThroughFileForMetadata(fd)
 
 	// Determine the correct directory for the article.
+	// TODO(rjk): use the correct filename
 	relativearticledirectory := md.RelativeDateDirectory()
 	absarticledirectory := filepath.Join(fm.settings.Wikidir, relativearticledirectory)
 	destarticle := filepath.Join(absarticledirectory, md.FileName())

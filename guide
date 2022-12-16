@@ -2,3 +2,4 @@ Edit X:wikitools/\+Errors: 1,$d
 X:wikitools/.*\.go: w
 
 go test ./...
+go build

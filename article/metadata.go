@@ -58,6 +58,8 @@ func MakeMetaData(name string, statTime time.Time) *MetaData {
 	}
 }
 
+// TODO(rjk): A
+
 // TODO(rjk): filenamechange NewArticleWithTime -> NewArticle, NewArticle -> NewArticleDefaultTimes
 // NewArticleTest makes an article for testing.
 func NewArticleWithTime(name string, stat time.Time, meta time.Time, title string, mdtype MetadataType) *MetaData {
