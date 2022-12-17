@@ -3,8 +3,8 @@ package wiki
 import (
 	"testing"
 	"time"
-
-	"github.com/rjkroege/wikitools/testhelpers"
+	"os"
+	"path/filepath"
 )
 
 func TestValidBaseName(t *testing.T) {
@@ -64,16 +64,33 @@ func (m MockSystem) Exists(path string) bool {
 	return m.exists
 }
 
-func (m MockSystem) Now() time.Time {
-	return m.now
+var mocktime time.Time
+func mocknow() time.Time {
+	return mocktime
 }
 
-func Test_UniqueValidName(t *testing.T) {
+func TestUniqueValidName(t *testing.T) {
+	s := &Settings{
+		Wikidir: t.TempDir(),
+	}
+
 	realisticdate, _ := ParseDateUnix("1999/03/21 17:00:00")
 
-	nd := &MockSystem{false, time.Time{}}
-	testhelpers.AssertString(t, "there.md", UniqueAbsolutePath("hello/", "there", ".md", nd))
+	mocktime = time.Time{}
+	nowfunc = mocknow
 
-	nd = &MockSystem{true, realisticdate}
-	testhelpers.AssertString(t, "there-19990321-170000.md", UniqueAbsolutePath("hello/", "there", ".md", nd))
+	// TODO(rjk): fix this up
+	
+	if got, want := s.UniqueValidName("", "there", ".md"), "there.md"; got != want {
+		t.Errorf("got %s, want %s", got, want)
+	}
+
+	mocktime = realisticdate
+	if err := os.WriteFile(filepath.Join(s.Wikidir, "there.md"), []byte("testfile"), 0644); err != nil {
+		t.Errorf("can't write temp file: %v", err)
+	}
+	
+	if got, want := s.UniqueValidName("", "there", ".md"), "there-19990321-170000.md"; got != want {
+		t.Errorf("got %s, want %s", got, want)
+	}
 }

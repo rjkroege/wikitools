@@ -9,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // Toplevel settings.
@@ -88,7 +89,20 @@ func (s *Settings) IsWikiMarkdownLink(dest []byte) bool {
 	return false
 }
 
-// ValidAbsPath retruns a complete path for a given article guaranteed to be unique.
-func (s *Settings) UniqueAbsolutePath() string {
-	return ""
+var nowfunc = time.Now
+const (
+	timeformat = "20060102-150405"
+)
+
+// UniqueValidName creates new names by inserting the current time
+// between the filename and the extension. Returns only the filename.
+// TODO(rjk): Extension should be in settings.
+func (s *Settings) UniqueValidName(datepath, filename, extension string) string {
+	fn := filename + extension
+
+	if _, err := os.Stat(filepath.Join(s.Wikidir, datepath, fn)); err == nil {
+		nfn := filename + "-" + nowfunc().Format(timeformat) + extension
+		return nfn
+	}
+	return fn
 }

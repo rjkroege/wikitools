@@ -20,12 +20,12 @@ func stripextension(fn string) string {
 
 // makesafename makes a name from the provided filename argument that would be
 // unique inside of the wiki directory but is actually a valid filename for the outputdir.
-func makesafename(outputdir, wikidir, fn string) string {
+// TODO(rjk): This might not be computing right paths.
+func makesafename(s *wiki.Settings, outputdir, wikidir, fn string) string {
 	noextensionname := stripextension(fn)
-	pathinwiki := wiki.UniqueAbsolutePath(wikidir,
-		wiki.ValidBaseName([]string{noextensionname}), ".md", wiki.SystemImpl(0))
+	ufn := s.UniqueValidName(wikidir, wiki.ValidBaseName([]string{noextensionname}), ".md")
 
-	return filepath.Join(outputdir, pathinwiki)
+	return filepath.Join(outputdir, ufn)
 }
 
 func getalltags(contents []byte) []string {
@@ -69,7 +69,7 @@ func Bearimport(settings *wiki.Settings, outputdir string, filestoprocess []stri
 
 		tags := getalltags(filecontents)
 		origdate := fsi.ModTime()
-		outputpath := makesafename(outputdir, settings.Wikidir, fsi.Name())
+		outputpath := makesafename(settings, outputdir, settings.Wikidir, fsi.Name())
 
 		// What we've done so far.
 		log.Println("title: ", fsi.Name(), "date:", origdate, "filename", outputpath, "tags:", tags)

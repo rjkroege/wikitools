@@ -1,14 +1,8 @@
 package wiki
 
 import (
-	"path/filepath"
 	"strings"
-	"time"
 	"unicode"
-)
-
-const (
-	timeformat = "20060102-150405"
 )
 
 // ValidName converts a given string to a valid filename without extension.
@@ -42,21 +36,4 @@ func ValidBaseName(words []string) string {
 	}
 
 	return b.String()
-}
-
-// Wraps functions that need mocking for tests.
-type System interface {
-	Exists(path string) bool
-	Now() time.Time
-}
-
-// UniqueValidName creates new names by inserting the current time
-// between the filename and the extension. Returns only the filename.
-// TODO(rjk): Move to settings
-func UniqueAbsolutePath(basepath string, filename string, extension string, system System) string {
-	fn := filename + extension
-	if system.Exists(filepath.Join(basepath, fn)) {
-		return filename + "-" + system.Now().Format(timeformat) + extension
-	}
-	return fn
 }

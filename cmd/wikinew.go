@@ -17,9 +17,9 @@ import (
 func Makearticle(settings *wiki.Settings, args []string, tags []string) *article.MetaData {
 	s := strings.Join(args, " ")
 
+	// TODO(rjk): This is silly way to get a relative date directory.
 	tmpmd := article.NewArticle("", "", []string{})
-	destpath := filepath.Join(settings.Wikidir, tmpmd.RelativeDateDirectory())
-	filename := wiki.UniqueAbsolutePath(destpath, wiki.ValidBaseName(args), wiki.Extension, wiki.SystemImpl(0))
+	filename := settings.UniqueValidName(tmpmd.RelativeDateDirectory(), wiki.ValidBaseName(args), wiki.Extension)
 	return article.NewArticle(filename, s, tags)
 }
 
