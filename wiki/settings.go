@@ -90,6 +90,7 @@ func (s *Settings) IsWikiMarkdownLink(dest []byte) bool {
 }
 
 var nowfunc = time.Now
+
 const (
 	timeformat = "20060102-150405"
 )

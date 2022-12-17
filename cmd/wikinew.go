@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
-	// "fmt"			// needeebugging.
+	"time"
 
 	"9fans.net/go/acme"
 	"github.com/rjkroege/wikitools/article"
@@ -17,9 +17,7 @@ import (
 func Makearticle(settings *wiki.Settings, args []string, tags []string) *article.MetaData {
 	s := strings.Join(args, " ")
 
-	// TODO(rjk): This is silly way to get a relative date directory.
-	tmpmd := article.NewArticle("", "", []string{})
-	filename := settings.UniqueValidName(tmpmd.RelativeDateDirectory(), wiki.ValidBaseName(args), wiki.Extension)
+	filename := settings.UniqueValidName(article.RelativeDateDirectoryForTime(time.Now()), wiki.ValidBaseName(args), wiki.Extension)
 	return article.NewArticle(filename, s, tags)
 }
 

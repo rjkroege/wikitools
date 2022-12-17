@@ -135,13 +135,14 @@ var shortmonths = [...]string{
 	"Dec",
 }
 
+func RelativeDateDirectoryForTime(t time.Time) string {
+	return filepath.Join(fmt.Sprintf("%d", t.Year()), fmt.Sprintf("%02d-%s", t.Month(), shortmonths[t.Month()-1]), fmt.Sprintf("%d", t.Day()))
+}
+
 // RelativeDateDirectory generates the name of the file in the structured
 // date-based sorting.
 func (md *MetaData) RelativeDateDirectory() string {
-	t := md.PreferredDate()
-
-	return filepath.Join(fmt.Sprintf("%d", t.Year()), fmt.Sprintf("%02d-%s", t.Month(), shortmonths[t.Month()-1]), fmt.Sprintf("%d", t.Day()))
-
+	return RelativeDateDirectoryForTime(md.PreferredDate())
 }
 
 // Generate the string of the extra keys.

@@ -1,10 +1,10 @@
 package wiki
 
 import (
-	"testing"
-	"time"
 	"os"
 	"path/filepath"
+	"testing"
+	"time"
 )
 
 func TestValidBaseName(t *testing.T) {
@@ -65,6 +65,7 @@ func (m MockSystem) Exists(path string) bool {
 }
 
 var mocktime time.Time
+
 func mocknow() time.Time {
 	return mocktime
 }
@@ -80,7 +81,7 @@ func TestUniqueValidName(t *testing.T) {
 	nowfunc = mocknow
 
 	// TODO(rjk): fix this up
-	
+
 	if got, want := s.UniqueValidName("", "there", ".md"), "there.md"; got != want {
 		t.Errorf("got %s, want %s", got, want)
 	}
@@ -89,7 +90,7 @@ func TestUniqueValidName(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(s.Wikidir, "there.md"), []byte("testfile"), 0644); err != nil {
 		t.Errorf("can't write temp file: %v", err)
 	}
-	
+
 	if got, want := s.UniqueValidName("", "there", ".md"), "there-19990321-170000.md"; got != want {
 		t.Errorf("got %s, want %s", got, want)
 	}
