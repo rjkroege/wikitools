@@ -22,7 +22,7 @@ func stripextension(fn string) string {
 // unique inside of the wiki directory but is actually a valid filename for the outputdir.
 func makesafename(outputdir, wikidir, fn string) string {
 	noextensionname := stripextension(fn)
-	pathinwiki := wiki.UniqueValidName(wikidir,
+	pathinwiki := wiki.UniqueAbsolutePath(wikidir,
 		wiki.ValidBaseName([]string{noextensionname}), ".md", wiki.SystemImpl(0))
 
 	return filepath.Join(outputdir, pathinwiki)

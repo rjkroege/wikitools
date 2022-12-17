@@ -15,6 +15,7 @@ import (
 type Settings struct {
 	Wikidir        string            `json:"wikidir"`
 	TemplateForTag map[string]string `json:"templatefortag"`
+	// TODO(rjk): Consider making the extension configurable.
 }
 
 // Read opens a json format configuration file.
@@ -85,4 +86,9 @@ func (s *Settings) IsWikiMarkdownLink(dest []byte) bool {
 		return true
 	}
 	return false
+}
+
+// ValidAbsPath retruns a complete path for a given article guaranteed to be unique.
+func (s *Settings) UniqueAbsolutePath() string {
+	return ""
 }

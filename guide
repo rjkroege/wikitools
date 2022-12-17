@@ -1,5 +1,10 @@
 Edit X:wikitools/\+Errors: 1,$d
 X:wikitools/.*\.go: w
 
-go test ./...
+go test -covermode=count -coverprofile=count.out ./...
+go tool cover -html=count.out
+
 go build
+
+# Can't I add this to the autosave stuff above?
+gofmt -w -s .

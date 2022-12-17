@@ -14,17 +14,17 @@ const (
 // ValidName converts a given string to a valid filename without extension.
 func ValidName(s string) string {
 	var b strings.Builder
-		for _, r := range s {
-			switch {
-			case unicode.IsDigit(r),
-				unicode.IsLetter(r):
-				b.WriteRune(r)
-			case unicode.IsSpace(r):
-				b.WriteRune('-')
-			case unicode.IsPunct(r):
-				b.WriteRune('_')
-			}
+	for _, r := range s {
+		switch {
+		case unicode.IsDigit(r),
+			unicode.IsLetter(r):
+			b.WriteRune(r)
+		case unicode.IsSpace(r):
+			b.WriteRune('-')
+		case unicode.IsPunct(r):
+			b.WriteRune('_')
 		}
+	}
 
 	return b.String()
 }
@@ -44,7 +44,7 @@ func ValidBaseName(words []string) string {
 	return b.String()
 }
 
-// TODO(rjk): Do I need this?
+// Wraps functions that need mocking for tests.
 type System interface {
 	Exists(path string) bool
 	Now() time.Time
@@ -52,8 +52,8 @@ type System interface {
 
 // UniqueValidName creates new names by inserting the current time
 // between the filename and the extension. Returns only the filename.
-// TODO(rjk): Can have a better name.
-func UniqueValidName(basepath string, filename string, extension string, system System) string {
+// TODO(rjk): Move to settings
+func UniqueAbsolutePath(basepath string, filename string, extension string, system System) string {
 	fn := filename + extension
 	if system.Exists(filepath.Join(basepath, fn)) {
 		return filename + "-" + system.Now().Format(timeformat) + extension

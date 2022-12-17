@@ -72,8 +72,8 @@ func Test_UniqueValidName(t *testing.T) {
 	realisticdate, _ := ParseDateUnix("1999/03/21 17:00:00")
 
 	nd := &MockSystem{false, time.Time{}}
-	testhelpers.AssertString(t, "there.md", UniqueValidName("hello/", "there", ".md", nd))
+	testhelpers.AssertString(t, "there.md", UniqueAbsolutePath("hello/", "there", ".md", nd))
 
 	nd = &MockSystem{true, realisticdate}
-	testhelpers.AssertString(t, "there-19990321-170000.md", UniqueValidName("hello/", "there", ".md", nd))
+	testhelpers.AssertString(t, "there-19990321-170000.md", UniqueAbsolutePath("hello/", "there", ".md", nd))
 }

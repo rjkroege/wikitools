@@ -19,7 +19,7 @@ func Makearticle(settings *wiki.Settings, args []string, tags []string) *article
 
 	tmpmd := article.NewArticle("", "", []string{})
 	destpath := filepath.Join(settings.Wikidir, tmpmd.RelativeDateDirectory())
-	filename := wiki.UniqueValidName(destpath, wiki.ValidBaseName(args), wiki.Extension, wiki.SystemImpl(0))
+	filename := wiki.UniqueAbsolutePath(destpath, wiki.ValidBaseName(args), wiki.Extension, wiki.SystemImpl(0))
 	return article.NewArticle(filename, s, tags)
 }
 
