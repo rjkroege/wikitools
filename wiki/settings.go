@@ -5,6 +5,7 @@ package wiki
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -95,15 +96,57 @@ const (
 	timeformat = "20060102-150405"
 )
 
-// UniqueValidName creates new names by inserting the current time
-// between the filename and the extension. Returns only the filename.
-// TODO(rjk): Extension should be in settings.
-func (s *Settings) UniqueValidName(datepath, filename, extension string) string {
-	fn := filename + extension
+// UniquingExtension computes a string that will make the filename unique
+// in the desired directory. datepath is the relative date specific path, filename
+// is the desired filename without an extension.
+// Currently includes the leading -.
+func (s *Settings) UniquingExtension(datepath, filename string) string {
+	fn := s.ExtensionedFileName(filename)
 
 	if _, err := os.Stat(filepath.Join(s.Wikidir, datepath, fn)); err == nil {
-		nfn := filename + "-" + nowfunc().Format(timeformat) + extension
+		nfn := "-" + nowfunc().Format(timeformat)
 		return nfn
 	}
-	return fn
+	return ""
+}
+
+// TODO(rjk): The extension should become configurable.
+func (s *Settings) ExtensionedFileName(filename string) string {
+	return filename + ".md"
+}
+
+func (s *Settings) Extension() string {
+	return ".md"
+}
+
+// SplitActualDir returns the relative date dir (possibly empty) for a
+// given absolute path.
+func (s *Settings) SplitActualDir(abspath string) string {
+	d := filepath.Dir(abspath)
+	rp, err := filepath.Rel(s.Wikidir, d)
+	if err != nil {
+		log.Fatalf("can't split the dir %#v: %v", abspath, err)
+	}
+	return rp
+}
+
+// SplitActualName divides fn into the preferred name, its (optional)
+// uniquing extension (with its leading -) and the filename extension.
+func SplitActualName(fn string) (string, string, string) {
+	ext := filepath.Ext(fn)
+	nexs := fn[0 : len(fn)-len(ext)]
+	ps := strings.Split(nexs, "-")
+
+	// It's possible that the last two pieces make a date.
+	uniqueing := ""
+	if len(ps) > 2 {
+		uniqueing = strings.Join([]string{ps[len(ps)-2], ps[len(ps)-1]}, "-")
+		if _, err := time.Parse(timeformat, uniqueing); err == nil {
+			nexs = strings.Join(ps[0:len(ps)-2], "-")
+			uniqueing = "-" + uniqueing
+		} else {
+			uniqueing = ""
+		}
+	}
+	return nexs, uniqueing, ext
 }

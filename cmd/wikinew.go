@@ -16,9 +16,12 @@ import (
 
 func Makearticle(settings *wiki.Settings, args []string, tags []string) *article.MetaData {
 	s := strings.Join(args, " ")
+	vfn := wiki.ValidBaseName(args)
+	reldir := article.RelativeDateDirectoryForTime(time.Now())
+	ufn := settings.UniquingExtension(reldir, vfn)
 
-	filename := settings.UniqueValidName(article.RelativeDateDirectoryForTime(time.Now()), wiki.ValidBaseName(args), wiki.Extension)
-	return article.NewArticle(filename, s, tags)
+	// TODO(rjk): The API can be better.
+	return article.NewArticle(filepath.Join(settings.Wikidir, reldir, settings.ExtensionedFileName(vfn+ufn)), s, tags)
 }
 
 type ExpandedArticle struct {

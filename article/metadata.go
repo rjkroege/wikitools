@@ -3,12 +3,14 @@ package article
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rjkroege/wikitools/bibtex"
 	"log"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/rjkroege/wikitools/bibtex"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 var pathForContent = ""
@@ -58,8 +60,6 @@ func MakeMetaData(name string, statTime time.Time) *MetaData {
 	}
 }
 
-// TODO(rjk): A
-
 // TODO(rjk): filenamechange NewArticleWithTime -> NewArticle, NewArticle -> NewArticleDefaultTimes
 // NewArticleTest makes an article for testing.
 func NewArticleWithTime(name string, stat time.Time, meta time.Time, title string, mdtype MetadataType) *MetaData {
@@ -84,6 +84,7 @@ func NewArticle(name string, title string, tags []string) *MetaData {
 	}
 }
 
+// TODO(rjk): Remove this.
 func (md *MetaData) Name() string {
 	// TODO(rjk): filenamechange make sure that every call to this thinks that it's the filename
 	// TODO(rjk): conceivably this function can be removed eventually.
@@ -94,6 +95,20 @@ func (md *MetaData) Name() string {
 // A complete journal article path will be filepath.Join(config.Basepath, RelativeDataDirectory, FileName)
 func (md *MetaData) FileName() string {
 	return md.filename
+}
+
+// PreferredFileName is the preferred name for this journal article
+// without an extension.
+func (md *MetaData) PreferredFileName(settings *wiki.Settings) string {
+	ns := md.filename
+	if md.Title != "" {
+		ns = md.Title
+	} else {
+		// Strip the extension.
+		ns = ns[0 : len(ns)-len(filepath.Ext(ns))]
+		// TODO(rjk): Strip the uniquing extension here
+	}
+	return wiki.ValidName(ns)
 }
 
 // Type is an accessor for the type (e.g. version/vintage) of this MetaData
@@ -110,11 +125,12 @@ func (md *MetaData) Tagstring() string {
 	return strings.Join(ta, " ")
 }
 
+// TODO(rjk): Can I remove?
 func (md *MetaData) FullPathName(basepath string) string {
 	return filepath.Join(basepath, md.RelativeDateDirectory(), md.FileName())
 }
 
-// HdMetaData returns true if the file has metadata of some kind.
+// HadMetaData returns true if the file has metadata of some kind.
 // TODO(rjk): This exists to support legacy code. Remove when possible.
 func (md *MetaData) HadMetaData() bool {
 	return md.mdtype != MdInvalid

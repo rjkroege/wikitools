@@ -56,6 +56,7 @@ func TestEachFile(t *testing.T) {
 
 	writeFile(t, s, wrongplacefilename, wrongplacecontents)
 	writeFile(t, s, rightplacefilename, rightplacecontents)
+	writeFile(t, s, unnecessaryuniquingfilename, unnecessaryuniquingcontents)
 
 	fm, err := NewFilemover(s, false)
 	if err != nil {
@@ -67,12 +68,14 @@ func TestEachFile(t *testing.T) {
 	}
 
 	// TODO(rjk): This is what should pass.
-	// readFile(t, s, wrongplacefilename, "2020/11-Nov/6/Session.md", wrongplacecontents)
+	readFile(t, s, wrongplacefilename, "2020/11-Nov/6/Session.md", wrongplacecontents)
 	// But this is what currently does because I currently don't rename, I
 	// just move the file.
-	readFile(t, s, wrongplacefilename, "2020/11-Nov/6/foo.md", wrongplacecontents)
+	// readFile(t, s, wrongplacefilename, "2020/11-Nov/6/foo.md", wrongplacecontents)
 
 	readFile(t, s, rightplacefilename, rightplacefilename, rightplacecontents)
+
+	readFile(t, s, unnecessaryuniquingfilename, "2022/11-Nov/29/Inversion-of-Control.md", unnecessaryuniquingcontents)
 
 }
 
@@ -92,6 +95,16 @@ const rightplacecontents = `---
 title: Wikitidy
 date: Fri  9 Dec 2022, 06:44:23 EST
 tags: #entry #planning #wikitools
+---
+
+
+`
+
+const unnecessaryuniquingfilename = "2022/11-Nov/29/Inversion-of-Control-20221220-055304.md"
+const unnecessaryuniquingcontents = `---
+title: Inversion of Control
+date: Tue 29 Nov 2022, 07:04:34 EST
+tags: #entry #edwood #nurmi #planning
 ---
 
 

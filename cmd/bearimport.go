@@ -22,10 +22,10 @@ func stripextension(fn string) string {
 // unique inside of the wiki directory but is actually a valid filename for the outputdir.
 // TODO(rjk): This might not be computing right paths.
 func makesafename(s *wiki.Settings, outputdir, wikidir, fn string) string {
-	noextensionname := stripextension(fn)
-	ufn := s.UniqueValidName(wikidir, wiki.ValidBaseName([]string{noextensionname}), ".md")
+	vfn := wiki.ValidName(stripextension(fn))
+	ufn := s.UniquingExtension(wikidir, vfn)
 
-	return filepath.Join(outputdir, ufn)
+	return filepath.Join(outputdir, vfn+ufn)
 }
 
 func getalltags(contents []byte) []string {

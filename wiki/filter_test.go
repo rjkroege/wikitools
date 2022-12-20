@@ -70,7 +70,7 @@ func mocknow() time.Time {
 	return mocktime
 }
 
-func TestUniqueValidName(t *testing.T) {
+func TestUniquingExtension(t *testing.T) {
 	s := &Settings{
 		Wikidir: t.TempDir(),
 	}
@@ -82,8 +82,8 @@ func TestUniqueValidName(t *testing.T) {
 
 	// TODO(rjk): fix this up
 
-	if got, want := s.UniqueValidName("", "there", ".md"), "there.md"; got != want {
-		t.Errorf("got %s, want %s", got, want)
+	if got, want := s.UniquingExtension("", "there"), ""; got != want {
+		t.Errorf("got %#v, want %#v", got, want)
 	}
 
 	mocktime = realisticdate
@@ -91,7 +91,7 @@ func TestUniqueValidName(t *testing.T) {
 		t.Errorf("can't write temp file: %v", err)
 	}
 
-	if got, want := s.UniqueValidName("", "there", ".md"), "there-19990321-170000.md"; got != want {
-		t.Errorf("got %s, want %s", got, want)
+	if got, want := s.UniquingExtension("", "there"), "-19990321-170000"; got != want {
+		t.Errorf("got %#v, want %#v", got, want)
 	}
 }
