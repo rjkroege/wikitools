@@ -29,10 +29,11 @@ var CLI struct {
 
 	Tidy struct {
 		// TODO(rjk): Need to write this.
-		All        struct{} `cmd help:"Do all possible tidying."  default:"1"`
-		Deepclean  struct{} `cmd help:"Modernize the metadata, fix links, etc."`
-		Move       struct{} `cmd help:"Move files into the correct places."`
-		Findersync struct{} `cmd help:"Sync metadata info the Spotlight metadata attributes."`
+		All           struct{} `cmd help:"Do all possible tidying."  default:"1"`
+		Deepclean     struct{} `cmd help:"Modernize the metadata, fix links, etc."`
+		Move          struct{} `cmd help:"Move files into the correct places."`
+		Findersync    struct{} `cmd help:"Sync metadata info the Spotlight metadata attributes."`
+		Updatetaglist struct{} `cmd help:"Update the cached list of tags for tag autocompletion."`
 	} `cmd help:"Clean up wiki aritcles: right structure, corrected metadata, etc."`
 
 	Report struct {
@@ -79,6 +80,17 @@ func main() {
 		tidying, err := tidy.NewMetadataUpdater()
 		if err != nil {
 			log.Fatal("Can't make a MetadataUpdater( because:", err)
+		}
+		if err := corpus.Everyfile(settings, tidying); err != nil {
+			log.Fatal(err)
+		}
+		if err := tidying.Summary(); err != nil {
+			log.Fatal("report Summary: ", err)
+		}
+	case "tidy updatetaglist":
+		tidying, err := tidy.NewTagsDumper(settings)
+		if err != nil {
+			log.Fatal("Can't make a TagsDumper( because:", err)
 		}
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)

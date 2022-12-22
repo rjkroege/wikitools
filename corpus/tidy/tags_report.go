@@ -22,7 +22,6 @@ func NewTagsReporter(settings *wiki.Settings) (corpus.Tidying, error) {
 		tags:     make(map[string]int),
 		settings: settings,
 	}, nil
-	// TODO(rjk): Goo!
 }
 
 func (abc *tagsReport) EachFile(path string, info os.FileInfo, err error) error {
