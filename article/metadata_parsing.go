@@ -62,7 +62,7 @@ func (md *MetaData) rootThroughFileForMetadataImpl(rd *bufio.Reader) error {
 			} else if s == "tags" {
 				for _, u := range strings.Split(strings.TrimSpace(m1[2]), " ") {
 					if u != "" && len(u) > 1 && (u[0] == '#' || u[0] == '@') {
-						md.tags = append(md.tags, u[1:])
+						md.Tags = append(md.Tags, u[1:])
 					}
 				}
 			} else {

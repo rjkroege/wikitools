@@ -52,7 +52,7 @@ func (md *MetaData) Dump() string {
 		Title:            md.Title,
 		Dynamicstring:    md.Dynamicstring,
 		Mdtype:           MdtypeNames[md.mdtype],
-		Tags:             md.tags,
+		Tags:             md.Tags,
 		ExtraKeys:        md.extraKeys,
 		Datepath:         md.datepath,
 	}

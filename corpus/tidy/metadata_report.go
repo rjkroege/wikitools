@@ -57,14 +57,14 @@ func (abc *metadataReport) EachFile(path string, info os.FileInfo, err error) er
 
 	d, err := os.Stat(path)
 	if err != nil {
-		log.Println("updateMetadata Stat error", err)
-		return fmt.Errorf("can't DoMetadataUpdate Stat %s: %v", path, err)
+		log.Println("metadataReport Stat error", err)
+		return fmt.Errorf("can't metadataReport Stat %s: %v", path, err)
 	}
 
 	ifd, err := os.Open(path)
 	if err != nil {
-		log.Println("updateMetadata Open error", err)
-		return fmt.Errorf("can't DoMetadataUpdate Open %s: %v", path, err)
+		log.Println("metadataReport Open error", err)
+		return fmt.Errorf("can't metadataReport Open %s: %v", path, err)
 	}
 	defer ifd.Close()
 	fd := bufio.NewReader(ifd)

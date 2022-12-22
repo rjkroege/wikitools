@@ -43,7 +43,7 @@ type MetaData struct {
 	Title            string
 	Dynamicstring    string
 	mdtype           MetadataType
-	tags             []string
+	Tags             []string
 	extraKeys        map[string]string
 
 	// The path where the article would go in the date-based article
@@ -79,7 +79,7 @@ func NewArticle(name string, title string, tags []string) *MetaData {
 		DateFromStat:     time.Time{},
 		DateFromMetadata: time.Now(),
 		Title:            title,
-		tags:             tags,
+		Tags:             tags,
 		extraKeys:        map[string]string{},
 	}
 }
@@ -118,8 +118,8 @@ func (md *MetaData) Type() MetadataType {
 
 // Tagstring generates the string from the list of tags.
 func (md *MetaData) Tagstring() string {
-	ta := make([]string, 0, len(md.tags))
-	for _, v := range md.tags {
+	ta := make([]string, 0, len(md.Tags))
+	for _, v := range md.Tags {
 		ta = append(ta, "#"+v)
 	}
 	return strings.Join(ta, " ")
@@ -233,13 +233,13 @@ func (md *MetaData) MarshalJSON() ([]byte, error) {
 
 // HaveBibTex returns true if this article has a BibTeX entry.
 func (md *MetaData) HaveBibTex() bool {
-	_, err := bibtex.ExtractBibTeXEntryType(md.tags)
+	_, err := bibtex.ExtractBibTeXEntryType(md.Tags)
 	return err == nil
 }
 
 // BibTexEntry return a BibTex Entry for this article.
 func (md *MetaData) BibTexEntry() string {
-	s, err := bibtex.CreateBibTexEntry(md.tags, md.extraKeys)
+	s, err := bibtex.CreateBibTexEntry(md.Tags, md.extraKeys)
 	if err != nil {
 		// TODO(rjkroege): Do something more rational with errors.
 		log.Print("Problem with bibtex entry: " + err.Error())
