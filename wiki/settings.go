@@ -150,3 +150,13 @@ func SplitActualName(fn string) (string, string, string) {
 	}
 	return nexs, uniqueing, ext
 }
+
+func (s *Settings) MakeGenDir() (string, error) {
+	// TODO(rjk): Consider adding Reportpath to the configurable state.
+	genpath := filepath.Join(s.Wikidir, Reportpath)
+	if err := os.MkdirAll(genpath, 0700); err != nil {
+		return "", fmt.Errorf("MakeGenDir can't mkdir %#v: %v", genpath, err)
+	}
+
+	return genpath, nil
+}

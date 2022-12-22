@@ -98,9 +98,9 @@ type MetadataSection struct {
 }
 
 func (abc *metadataReport) Summary() error {
-	path := filepath.Join(abc.settings.Wikidir, wiki.Reportpath)
-	if err := os.MkdirAll(path, 0700); err != nil {
-		return fmt.Errorf("writeMetadataUpdateReport can't mkdir %s: %v", path, err)
+	path, err := abc.settings.MakeGenDir()
+	if err != nil {
+		return err
 	}
 
 	if _, err := abc.tmpl.New("cleaningreport").Parse(cleaningreportformat); err != nil {
