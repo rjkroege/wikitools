@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"strings"
 
 	"github.com/alecthomas/kong"
 	"github.com/rjkroege/wikitools/cmd"
@@ -17,8 +19,13 @@ var CLI struct {
 	Debug      bool   `help:"Enable debugging conveniences as needed."`
 	Dryrun     bool   `help:"Don't actually modify anything but instead just show what would happen."`
 
-	// Might have a different command for Alfred vs Non-alfted case?
+	// This is the action case.
 	New struct {
+		Tagsandtitle []string `arg:"" name:"tagsandtitle" help:"List of article tags and its title"`
+	} `cmd help:"Create new wiki article"`
+
+	// New op for Alfred case. (But note that Alfred requires reprocessing the arguments.)
+	Newautocomplete struct {
 		Tagsandtitle []string `arg:"" name:"tagsandtitle" help:"List of article tags and its title"`
 	} `cmd help:"Create new wiki article"`
 
@@ -52,6 +59,31 @@ var CLI struct {
 }
 
 func main() {
+	// TODO(rjk): Make this code into a helper and have a test.
+	// Alfred app doesn't split apart its args. It just dumps everything as a
+	// single string and execs the command. This makes a (certain kind of)
+	// sense. So re-process os.Args iff we are running inside Alfred.
+	if _, forkedbyalfred := os.LookupEnv("alfred_workflow_uid"); forkedbyalfred {
+		nwa := make([]string, 0, 8)
+		nwa = append(nwa, os.Args[0])
+		for i, s := range strings.Split(os.Args[1], " ") {
+			// can do something different here
+			if i == 0 && s == cmd.ActionMarker {
+				nwa = append(nwa, "new")
+				continue
+			}
+			if i == 0 {
+				nwa = append(nwa, "newautocomplete")
+			}
+			if len(s) > 0 {
+				nwa = append(nwa, s)
+			}
+		}
+		os.Args = nwa
+	}
+	// Post-processed arguments.
+	// log.Printf("%#v", os.Args)
+
 	ctx := kong.Parse(&CLI)
 
 	// TODO(rjk): wiki => config
@@ -65,6 +97,8 @@ func main() {
 	case "new <tagsandtitle>":
 		log.Println("should run Wikinew here", CLI.New.Tagsandtitle)
 		cmd.Wikinew(settings, CLI.New.Tagsandtitle)
+	case "newautocomplete <tagsandtitle>":
+		cmd.WikinewAutocomplete(settings, CLI.Newautocomplete.Tagsandtitle)
 	case "preview <article>":
 		// TODO(rjk): Figure out what this is for.
 		cmd.Preview(settings, CLI.Debug)
