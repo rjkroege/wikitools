@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"strings"
 
 	"github.com/alecthomas/kong"
 	"github.com/rjkroege/wikitools/cmd"
@@ -59,31 +58,7 @@ var CLI struct {
 }
 
 func main() {
-	// TODO(rjk): Make this code into a helper and have a test.
-	// Alfred app doesn't split apart its args. It just dumps everything as a
-	// single string and execs the command. This makes a (certain kind of)
-	// sense. So re-process os.Args iff we are running inside Alfred.
-	if _, forkedbyalfred := os.LookupEnv("alfred_workflow_uid"); forkedbyalfred {
-		nwa := make([]string, 0, 8)
-		nwa = append(nwa, os.Args[0])
-		for i, s := range strings.Split(os.Args[1], " ") {
-			// can do something different here
-			if i == 0 && s == cmd.ActionMarker {
-				nwa = append(nwa, "new")
-				continue
-			}
-			if i == 0 {
-				nwa = append(nwa, "newautocomplete")
-			}
-			if len(s) > 0 {
-				nwa = append(nwa, s)
-			}
-		}
-		os.Args = nwa
-	}
-	// Post-processed arguments.
-	// log.Printf("%#v", os.Args)
-
+	os.Args = cmd.ArgsAlfredPreprocess(os.Args)
 	ctx := kong.Parse(&CLI)
 
 	// TODO(rjk): wiki => config
