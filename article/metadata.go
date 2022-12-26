@@ -125,11 +125,6 @@ func (md *MetaData) Tagstring() string {
 	return strings.Join(ta, " ")
 }
 
-// TODO(rjk): Can I remove?
-func (md *MetaData) FullPathName(basepath string) string {
-	return filepath.Join(basepath, md.RelativeDateDirectory(), md.FileName())
-}
-
 // HadMetaData returns true if the file has metadata of some kind.
 // TODO(rjk): This exists to support legacy code. Remove when possible.
 func (md *MetaData) HadMetaData() bool {

@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
-	"time"
 
 	"9fans.net/go/acme"
 	"github.com/rjkroege/wikitools/article"
@@ -17,11 +16,7 @@ import (
 func Makearticle(settings *wiki.Settings, args []string, tags []string) *article.MetaData {
 	s := strings.Join(args, " ")
 	vfn := wiki.ValidBaseName(args)
-	reldir := article.RelativeDateDirectoryForTime(time.Now())
-	ufn := settings.UniquingExtension(reldir, vfn)
-
-	// TODO(rjk): The API can be better.
-	return article.NewArticle(filepath.Join(settings.Wikidir, reldir, settings.ExtensionedFileName(vfn+ufn)), s, tags)
+	return article.NewArticle(vfn, s, tags)
 }
 
 type ExpandedArticle struct {
@@ -39,7 +34,13 @@ func (md *ExpandedArticle) Plumb(settings *wiki.Settings) {
 		log.Fatal(err)
 	}
 
-	err = win.Name(md.FullPathName(settings.Wikidir))
+	reldir := md.RelativeDateDirectory()
+	filename := md.PreferredFileName(settings)
+	ufn := settings.UniquingExtension(reldir, filename)
+
+	fullpathname := filepath.Join(settings.Wikidir, reldir, settings.ExtensionedFileName(filename + ufn))
+
+	err = win.Name(fullpathname)
 	if err != nil {
 		log.Fatal(err)
 	}
