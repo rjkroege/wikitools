@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/rjkroege/wikitools/wiki"
 )
@@ -34,7 +35,7 @@ func (_ *listAllWikiFiles) EachFile(path string, info os.FileInfo, err error) er
 		log.Println("couldn't read ", path, ": ", err)
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
-	log.Printf("%s: %v\n", path, info)
+	log.Printf("%s: %s\n", path, info.ModTime().Format(time.RFC822))
 	return nil
 }
 
