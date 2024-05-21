@@ -2,10 +2,12 @@ package tidy
 
 import (
 	"bufio"
+	"cmp"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus"
@@ -59,10 +61,29 @@ func (tr *tagsReport) recordTags(md *article.MetaData) {
 	}
 }
 
+type tagreport struct {
+	tag   string
+	count int
+}
+
 func (tr *tagsReport) Summary() error {
-	// TODO(rjk): Could sort.
+	ts := make([]tagreport, 0)
+
 	for k, v := range tr.tags {
-		log.Println(k, v)
+		ts = append(ts, tagreport{k, v})
 	}
+
+	slices.SortFunc(ts, func(a, b tagreport) int {
+		if n := cmp.Compare(a.count, b.count); n != 0 {
+			return -n
+		}
+		// If names are equal, order by tag
+		return cmp.Compare(a.tag, b.tag)
+	})
+
+	for _, t := range ts {
+		log.Println(t.tag, t.count)
+	}
+
 	return nil
 }

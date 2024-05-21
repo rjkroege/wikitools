@@ -1,6 +1,6 @@
 module github.com/rjkroege/wikitools
 
-go 1.14
+go 1.22
 
 require (
 	9fans.net/go v0.0.2
