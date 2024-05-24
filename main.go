@@ -48,7 +48,7 @@ var CLI struct {
 		Metadata struct{} `cmd help:"List the metadata versions of each article."`
 		Tags     struct{} `cmd help:"List all of the in-use tags."`
 		Todos    struct{} `cmd help:"List all outstanding TODO items."`
-		Urls    struct{} `cmd help:"Report all the URLs"`
+		Urls     struct{} `cmd help:"Report all the URLs"`
 	} `cmd help:"Generate reports on the wiki corpus."`
 
 	Bearimport struct {
@@ -142,7 +142,16 @@ func main() {
 			log.Fatal("report Summary: ", err)
 		}
 	case "report urls":
-		log.Println("report urls not implemented")
+		tidying, err := tidy.NewUrlReporter(settings)
+		if err != nil {
+			log.Fatal("Can't make a NewUrlReporter because:", err)
+		}
+		if err := corpus.Everyfile(settings, tidying); err != nil {
+			log.Fatal(err)
+		}
+		if err := tidying.Summary(); err != nil {
+			log.Fatal("report Summary: ", err)
+		}
 	case "report todos":
 		log.Println("report todos not implemented")
 	case "report articles":

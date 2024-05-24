@@ -1,3 +1,4 @@
+// TODO(rjk): It's arguable that this might be the wrong class name.
 package wikiextension
 
 import (
@@ -11,46 +12,63 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-// I followed along with the goldmark code with this pattern but I'm not
-// sure why it should be arranged that way.
-type Linkminer struct {
-	settings *wiki.Settings
+type UrlRecorder interface {
+	Record(display, url, file string)
 }
 
-func NewLinkminer(settings *wiki.Settings) *Linkminer {
+// I followed along with the goldmark code with this pattern but I'm not
+// sure why it should be arranged that way.
+// NB: there is a separate Linkminer instance per file.
+type Linkminer struct {
+	settings *wiki.Settings
+	recorder UrlRecorder
+	fpath    string
+}
+
+func NewLinkminer(settings *wiki.Settings, recorder UrlRecorder, fpath string) *Linkminer {
 	return &Linkminer{
 		settings: settings,
+		recorder: recorder,
+		fpath:    fpath,
 	}
 }
 
-//var Linkminer = &linkminer{
-//}
+// Show that Linkminer is a goldmark.Extender
+var _ goldmark.Extender = (*Linkminer)(nil)
 
 func (e *Linkminer) Extend(m goldmark.Markdown) {
 	m.Parser().AddOptions(
 		parser.WithASTTransformers(
 			// I don't understand how to correctly set priorties in goldmark's extensions.
-			util.Prioritized(NewLinkMinerASTTransformation(e.settings), 999),
+			util.Prioritized(NewLinkMinerASTTransformation(e.settings, e.recorder, e.fpath), 999),
 		),
 	)
 }
 
+// It's arguable that I could have a single struct that implements all the stuff?
+// And it would end up being simpler code?
+// TODO(rjk): Consider opportunities for code simplification
 type linkMinerASTTransformation struct {
 	settings *wiki.Settings
+	recorder UrlRecorder
+	fpath    string
 }
+
+// Show that linkMinerASTTransformation is a goldmark.ASTTransformer
+var _ parser.ASTTransformer = (*linkMinerASTTransformation)(nil)
 
 // NewLinkMinerASTTransformation returns a new parser.ASTTransformer that
 // can extract all of the Links found in a document.
-func NewLinkMinerASTTransformation(settings *wiki.Settings) parser.ASTTransformer {
+func NewLinkMinerASTTransformation(settings *wiki.Settings, recorder UrlRecorder, fpath string) parser.ASTTransformer {
 	return &linkMinerASTTransformation{
 		settings: settings,
+		recorder: recorder,
+		fpath:    fpath,
 	}
 }
 
 // Transform is an example of one way to extend goldmark.
 func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.Reader, pc parser.Context) {
-	outboundwikilinks := make([][]byte, 0)
-
 	// goldmark's Walk function starts at the given node and invokes the
 	// provided function on every node. Nodes (well at least Link nodes)
 	// invoke the function both on entering and leaving the node.
@@ -64,40 +82,26 @@ func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.
 
 			link, ok := n.(*gast.Link)
 			if !ok {
-				// Conceivably this is an internal error in Goldmark
+				// Conceivably this is an internal error in Goldmark because I should
+				// have made sure that n is a Link above.
 				return gast.WalkContinue, nil
 			}
 
-			log.Println("Link des:", string(link.Destination))
-			// link.Destination here is the actual link (URL). In the case of
-			// intra-wiki links, these are the []byte that I want to store and use fo
-			// generating link maps, etc.
+			// dest is the foofoo in [blah](foofoo).
+			dest := string(link.Destination)
 
-			// The actual writing of the links to the KV-store can happen
-			// asynchronously so I could send them off to a service Go routine here?
-			// Maybe not.
-
-			// Filter the link here
-			if a.settings.IsWikiMarkdownLink(link.Destination) {
-				outboundwikilinks = append(outboundwikilinks, link.Destination)
+			// title is the blah in [blah](foofoo).
+			title := string(link.Title)
+			if title == "" {
+				title = string(n.Text(reader.Source()))
 			}
+			a.recorder.Record(title, dest, a.fpath)
+
+			// I can use a.settings.IsWikiMarkdownLink() to determine if a
+			// URL points into the wiki. It is possible that I do not need this feature.
 		}
 		return gast.WalkContinue, nil
-
 	})
-
-	// Dump everything (i.e. the root of the AST). For debugging.
-	// node.Dump(reader.Source(), 0)
-
-	// Dump the links.
-	for _, d := range outboundwikilinks {
-		log.Println("link", string(d))
-	}
-
-	// TODO(rjk): Insert link map instead
-	log.Println("attempting to insert link map")
-	a.insertLinkMap(node, reader, pc)
-
 }
 
 // testInsertNode is an experiment to add stuff to the AST. Appends HelloWorld. This block of
