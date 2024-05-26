@@ -38,9 +38,10 @@ func (abc *metadataReport) recordMetadataState(md *article.MetaData, path string
 }
 
 func NewMetadataReporter(settings *wiki.Settings) (corpus.Tidying, error) {
+	// TODO(rjk): These should be configurable?
 	tmpl, err := template.New("newstylemetadata").Parse(iawritermetadataformat)
 	if err != nil {
-		return nil, fmt.Errorf("can't MakeMetadataUpdater %v", err)
+		return nil, fmt.Errorf("can't NewMetadataReporter %v", err)
 	}
 	return &metadataReport{
 		missingmd: make([][]*articleReportEntry, article.MdModern+1),
