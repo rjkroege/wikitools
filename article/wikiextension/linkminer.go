@@ -10,6 +10,7 @@ import (
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
 	"github.com/yuin/goldmark/util"
+	"go.abhg.dev/goldmark/wikilink"
 )
 
 type UrlRecorder interface {
@@ -73,8 +74,26 @@ func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.
 	// provided function on every node. Nodes (well at least Link nodes)
 	// invoke the function both on entering and leaving the node.
 	gast.Walk(node, func(n gast.Node, entering bool) (gast.WalkStatus, error) {
+		if n.Kind() == wikilink.Kind && !entering {
+			link, ok := n.(*wikilink.Node)
+			if !ok {
+				// Conceivably this is an internal error in Goldmark because I should
+				// have made sure that n is a WikiLink above.
+				log.Println("WikiLink node not the right type!!!!")
+				return gast.WalkContinue, nil
+			}
+
+			// WikiLinks are perhaps more complicated. They can also have a location.
+			// Some parsing extensions might be needed.
+			log.Printf("WikiLink Node %q %q %q", string(link.Target), string(link.Fragment), a.fpath)
+
+			// TODO(rjk): Need to mark this kind of link differently so that they can be formatted
+			// correctly.
+			a.recorder.Record(string(link.Fragment), string(link.Target), a.fpath)
+		}
+
 		if n.Kind() == gast.KindLink && !entering {
-			log.Println("node:", n.Type(), "kind:", n.Kind(), "entering:", entering)
+			log.Println(a.fpath, "node:", n.Type(), "kind:", n.Kind(), "entering:", entering)
 			log.Println("node text:", string(n.Text(reader.Source())))
 
 			// Dump all link nodes.

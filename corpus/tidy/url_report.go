@@ -18,6 +18,7 @@ import (
 	// TODO(rjk): Support parsing math.
 	//	mathjax "github.com/litao91/goldmark-mathjax"
 	"github.com/rjkroege/wikitools/article/wikiextension"
+	"go.abhg.dev/goldmark/wikilink"
 )
 
 type urlReport struct {
@@ -31,8 +32,8 @@ type urlReport struct {
 	markdownparser goldmark.Markdown
 
 	// This is a forward database.
-	forwardlinks map[string][]urlrecord
-	backlinks    map[string][]string
+	forwardlinks map[string]map[urlrecord]struct{}
+	backlinks    map[string]map[string]struct{}
 
 	tmpl *template.Template
 }
@@ -50,8 +51,8 @@ func NewUrlReporter(settings *wiki.Settings) (corpus.Tidying, error) {
 	return &urlReport{
 		iawriterlinks: []string{},
 		settings:      settings,
-		forwardlinks:  make(map[string][]urlrecord),
-		backlinks:     make(map[string][]string),
+		forwardlinks:  make(map[string]map[urlrecord]struct{}),
+		backlinks:     make(map[string]map[string]struct{}),
 		tmpl:          tmpl,
 	}, nil
 }
@@ -96,6 +97,8 @@ func (abc *urlReport) EachFile(path string, info os.FileInfo, err error) error {
 			extension.DefinitionList,
 			//			mathjax.MathJax,
 			wikiextension.NewLinkminer(abc.settings, abc, path),
+			// TODO(rjk): Figure out what kind of resolver that I need to write.
+			&wikilink.Extender{},
 		),
 	)
 
@@ -108,14 +111,14 @@ func (abc *urlReport) EachFile(path string, info os.FileInfo, err error) error {
 
 // TODO(rjk): I might want to make the paths better.
 const urllistingreport = `{{template "newstylemetadata" .Metadata}}{{range $index, $element :=  .Articles}}*  {{ $index }}
-{{range $element }}	* [{{.DisplayText}}]({{.Url}})
+{{range $k, $v :=  . }}	* [{{$k.DisplayText}}]({{$k.Url}})
 {{end}}
 {{end}}
 `
 
 type CompleteUrlReportDocument struct {
 	Metadata *IaWriterMetadataOutput
-	Articles map[string][]urlrecord
+	Articles map[string]map[urlrecord]struct{}
 }
 
 // TODO(rjk): Above, I blithered about how to refactor this to share the
@@ -172,22 +175,23 @@ type urlrecord struct {
 }
 
 func (abc *urlReport) Record(display, url, file string) {
+	log.Println("Record", display, url, file)
 	// Update the forward links.
 	f, ok := abc.forwardlinks[file]
 	if ok {
-		f = append(f, urlrecord{
+		f[urlrecord{
 			DisplayText: display,
 			Url:         url,
-		})
+		}] = struct{}{}
+		log.Println(f)
 	} else {
-		f = []urlrecord{
-			{
-				DisplayText: display,
-				Url:         url,
-			},
-		}
+		f = make(map[urlrecord]struct{})
+		f[urlrecord{
+			DisplayText: display,
+			Url:         url,
+		}] = struct{}{}
+		abc.forwardlinks[file] = f
 	}
-	abc.forwardlinks[file] = f
 
 	// If url has already been uniqued (this is a particular challenge with the
 	// wiki text links) then this will all work.
@@ -196,9 +200,10 @@ func (abc *urlReport) Record(display, url, file string) {
 	// Update the reverse links.
 	b, ok := abc.backlinks[url]
 	if ok {
-		b = append(b, file)
+		b[file] = struct{}{}
 	} else {
-		b = []string{file}
+		b = make(map[string]struct{})
+		b[file] = struct{}{}
+		abc.backlinks[url] = b
 	}
-	abc.backlinks[url] = b
 }
