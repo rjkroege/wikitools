@@ -22,18 +22,10 @@ import (
 )
 
 type urlReport struct {
-	iawriterlinks []string
-	settings      *wiki.Settings
+	settings *wiki.Settings
 
-	// TODO(rjk): Are these thread safe? If I want to parse all files in
-	// parallel, I probably want to have a different parser per goroutine.
-	// Aside: if I watch for writes to wiki articles from Edwood (like slurp)
-	// then it's O(number of modified articles) and will be fast.
-	markdownparser goldmark.Markdown
-
-	// This is a forward database.
-	forwardlinks map[string]map[urlrecord]struct{}
-	backlinks    map[string]map[string]struct{}
+	// The store of links both forward and backwards.
+	links *corpus.Links
 
 	tmpl *template.Template
 }
@@ -49,11 +41,9 @@ func NewUrlReporter(settings *wiki.Settings) (corpus.Tidying, error) {
 		return nil, fmt.Errorf("can't NewUrlReporter template %v", err)
 	}
 	return &urlReport{
-		iawriterlinks: []string{},
-		settings:      settings,
-		forwardlinks:  make(map[string]map[urlrecord]struct{}),
-		backlinks:     make(map[string]map[string]struct{}),
-		tmpl:          tmpl,
+		settings: settings,
+		links:    corpus.MakeLinks(),
+		tmpl:     tmpl,
 	}, nil
 }
 
@@ -111,14 +101,14 @@ func (abc *urlReport) EachFile(path string, info os.FileInfo, err error) error {
 
 // TODO(rjk): I might want to make the paths better.
 const urllistingreport = `{{template "newstylemetadata" .Metadata}}{{range $index, $element :=  .Articles}}*  {{ $index }}
-{{range $k, $v :=  . }}	* [{{$k.DisplayText}}]({{$k.Url}})
+{{range $k, $v :=  . }}	* [{{$k.Title}}]({{$k.Url}})
 {{end}}
 {{end}}
 `
 
 type CompleteUrlReportDocument struct {
 	Metadata *IaWriterMetadataOutput
-	Articles map[string]map[urlrecord]struct{}
+	Articles map[string]map[corpus.Urllink]corpus.Empty
 }
 
 // TODO(rjk): Above, I blithered about how to refactor this to share the
@@ -149,7 +139,7 @@ func (abc *urlReport) Summary() error {
 	}
 	report := CompleteUrlReportDocument{
 		Metadata: nmd,
-		Articles: abc.forwardlinks,
+		Articles: abc.links.OutUrls,
 	}
 
 	if err := abc.tmpl.ExecuteTemplate(nfd, "urlreport", report); err != nil {
@@ -160,50 +150,12 @@ func (abc *urlReport) Summary() error {
 }
 
 // Show that Linkminer is a goldmark.Extender
-var _ wikiextension.UrlRecorder = (*urlReport)(nil)
+var _ corpus.UrlRecorder = (*urlReport)(nil)
 
-// A Markdown URL is [blah](http://blah.blah). Or we have wikitext
-// and it's [[blah]].
-// TODO(rjk): differentiate [[blah]] links in some way?
-// TODO(rjk): Need to actually be able to parse the links.
-type urlrecord struct {
-	// The [blah] part.
-	DisplayText string
-
-	// The (http://blah.blah) part or the [[blah]].
-	Url string
+func (abc *urlReport) RecordUrl(displaytext, url, filepath string) {
+	abc.links.AddForwardUrl(displaytext, url, filepath)
 }
 
-func (abc *urlReport) Record(display, url, file string) {
-	log.Println("Record", display, url, file)
-	// Update the forward links.
-	f, ok := abc.forwardlinks[file]
-	if ok {
-		f[urlrecord{
-			DisplayText: display,
-			Url:         url,
-		}] = struct{}{}
-		log.Println(f)
-	} else {
-		f = make(map[urlrecord]struct{})
-		f[urlrecord{
-			DisplayText: display,
-			Url:         url,
-		}] = struct{}{}
-		abc.forwardlinks[file] = f
-	}
-
-	// If url has already been uniqued (this is a particular challenge with the
-	// wiki text links) then this will all work.
-	// TODO(rjk): worry about the URL uniquing.
-
-	// Update the reverse links.
-	b, ok := abc.backlinks[url]
-	if ok {
-		b[file] = struct{}{}
-	} else {
-		b = make(map[string]struct{})
-		b[file] = struct{}{}
-		abc.backlinks[url] = b
-	}
+func (abc *urlReport) RecordWikilink(displaytext, wikitext, filepath string) {
+	abc.links.AddWikilink(displaytext, wikitext, filepath)
 }

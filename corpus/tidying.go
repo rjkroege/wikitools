@@ -62,3 +62,10 @@ func Everyfile(settings *wiki.Settings, tidying Tidying) error {
 // Write me. Use the Spotlight tooling to extract a window.
 func Filteredfiles() {
 }
+
+// TODO(rjk): It's conceivable that this API could be better?
+// I had considered using the link structure but I think no.
+type UrlRecorder interface {
+	RecordUrl(displaytext, url, filepath string)
+	RecordWikilink(displaytext, wikitext, filepath string)
+}

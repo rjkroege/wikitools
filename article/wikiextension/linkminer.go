@@ -4,6 +4,7 @@ package wikiextension
 import (
 	"log"
 
+	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/wiki"
 	"github.com/yuin/goldmark"
 	gast "github.com/yuin/goldmark/ast"
@@ -13,20 +14,16 @@ import (
 	"go.abhg.dev/goldmark/wikilink"
 )
 
-type UrlRecorder interface {
-	Record(display, url, file string)
-}
-
 // I followed along with the goldmark code with this pattern but I'm not
 // sure why it should be arranged that way.
 // NB: there is a separate Linkminer instance per file.
 type Linkminer struct {
 	settings *wiki.Settings
-	recorder UrlRecorder
+	recorder corpus.UrlRecorder
 	fpath    string
 }
 
-func NewLinkminer(settings *wiki.Settings, recorder UrlRecorder, fpath string) *Linkminer {
+func NewLinkminer(settings *wiki.Settings, recorder corpus.UrlRecorder, fpath string) *Linkminer {
 	return &Linkminer{
 		settings: settings,
 		recorder: recorder,
@@ -51,7 +48,7 @@ func (e *Linkminer) Extend(m goldmark.Markdown) {
 // TODO(rjk): Consider opportunities for code simplification
 type linkMinerASTTransformation struct {
 	settings *wiki.Settings
-	recorder UrlRecorder
+	recorder corpus.UrlRecorder
 	fpath    string
 }
 
@@ -60,7 +57,7 @@ var _ parser.ASTTransformer = (*linkMinerASTTransformation)(nil)
 
 // NewLinkMinerASTTransformation returns a new parser.ASTTransformer that
 // can extract all of the Links found in a document.
-func NewLinkMinerASTTransformation(settings *wiki.Settings, recorder UrlRecorder, fpath string) parser.ASTTransformer {
+func NewLinkMinerASTTransformation(settings *wiki.Settings, recorder corpus.UrlRecorder, fpath string) parser.ASTTransformer {
 	return &linkMinerASTTransformation{
 		settings: settings,
 		recorder: recorder,
@@ -89,7 +86,7 @@ func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.
 
 			// TODO(rjk): Need to mark this kind of link differently so that they can be formatted
 			// correctly.
-			a.recorder.Record(string(link.Fragment), string(link.Target), a.fpath)
+			a.recorder.RecordWikilink(string(link.Fragment), string(link.Target), a.fpath)
 		}
 
 		if n.Kind() == gast.KindLink && !entering {
@@ -114,7 +111,7 @@ func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.
 			if title == "" {
 				title = string(n.Text(reader.Source()))
 			}
-			a.recorder.Record(title, dest, a.fpath)
+			a.recorder.RecordUrl(title, dest, a.fpath)
 
 			// I can use a.settings.IsWikiMarkdownLink() to determine if a
 			// URL points into the wiki. It is possible that I do not need this feature.
