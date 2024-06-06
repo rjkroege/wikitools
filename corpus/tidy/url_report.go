@@ -101,14 +101,14 @@ func (abc *urlReport) EachFile(path string, info os.FileInfo, err error) error {
 
 // TODO(rjk): I might want to make the paths better.
 const urllistingreport = `{{template "newstylemetadata" .Metadata}}{{range $index, $element :=  .Articles}}*  {{ $index }}
-{{range $k, $v :=  . }}	* [{{$k.Title}}]({{$k.Url}})
+{{range . }}	* {{.}}
 {{end}}
 {{end}}
 `
 
 type CompleteUrlReportDocument struct {
 	Metadata *IaWriterMetadataOutput
-	Articles map[string]map[corpus.Urllink]corpus.Empty
+	Articles map[string][]string
 }
 
 // TODO(rjk): Above, I blithered about how to refactor this to share the
@@ -132,6 +132,24 @@ func (abc *urlReport) Summary() error {
 	}
 	defer nfd.Close()
 
+	// Zipper over the various outgoing links.
+	articles := make(map[string][]string)
+	for k, v := range abc.links.OutUrls {
+		for u := range v {
+			articles[k] = append(articles[k], u.Markdown())
+		}
+	}
+	for k, v := range abc.links.ForwardLinks {
+		for u := range v {
+			articles[k] = append(articles[k], u.Markdown())
+		}
+	}
+	for k, v := range abc.links.DamagedLinks {
+		for u := range v {
+			articles[k] = append(articles[k], "*damaged* " + u.Markdown())
+		}
+	}
+
 	nmd := &IaWriterMetadataOutput{
 		Title: "Forward URL Report",
 		Date:  article.DetailedDateImpl(time.Now()),
@@ -139,7 +157,7 @@ func (abc *urlReport) Summary() error {
 	}
 	report := CompleteUrlReportDocument{
 		Metadata: nmd,
-		Articles: abc.links.OutUrls,
+		Articles: articles,
 	}
 
 	if err := abc.tmpl.ExecuteTemplate(nfd, "urlreport", report); err != nil {

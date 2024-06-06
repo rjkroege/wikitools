@@ -50,6 +50,13 @@ func MakeWikilink(id, title string) Wikilink {
 	}
 }
 
+func (wl *Wikilink) Markdown() string {
+	if wl.Title != "" {
+		return fmt.Sprintf("[[%s | %s]]", wl.Id, wl.Title)
+	}
+	return fmt.Sprintf("[[%s]]", wl.Id)
+}
+
 // TODO(rjk): These stubs need refinement. They are here with comments to
 // capture my API surface thinking.
 
@@ -96,6 +103,16 @@ func MakeUrllink(url, title string) Urllink {
 		Url:   url,
 		Title: title,
 	}
+}
+
+func (ul *Urllink) Markdown() string {
+	return fmt.Sprintf("[%s](%s)", ul.Title, ul.Url)
+}
+
+// Markdownable requires the Markdown function to produce a Markdown
+// representation of the object.
+type Markdownable interface {
+	Markdown() string
 }
 
 type Links struct {
