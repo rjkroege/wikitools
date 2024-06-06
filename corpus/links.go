@@ -108,7 +108,8 @@ type Links struct {
 	// A set of outgoing URLs from each fullpath-specified article.
 	OutUrls map[string]map[Urllink]Empty
 
-	// TODO(rjk): Record the d
+	// Forward wikitext links that do not unambiguously refer to a specific target.
+	DamagedLinks map[string]map[Wikilink]Empty
 }
 
 func MakeLinks() *Links {
@@ -116,6 +117,7 @@ func MakeLinks() *Links {
 		ForwardLinks: make(map[string]map[Wikilink]Empty),
 		BackLinks:    make(map[string]map[Wikilink]Empty),
 		OutUrls:      make(map[string]map[Urllink]Empty),
+		DamagedLinks: make(map[string]map[Wikilink]Empty),
 	}
 }
 
@@ -123,6 +125,23 @@ func MakeLinks() *Links {
 // to point to so the destination URL is nil.
 func (links *Links) AddWikilink(displaytext, wikitext, filepath string) {
 	urlref := MakeWikilink(wikitext, displaytext)
+
+	// TODO(rjk): Allpaths requires some kind of index whether that's the
+	// index provided by Spotlight or something lower-tech.
+	paths, err := urlref.Allpaths(&StubWikilinkNameIndex{})
+	if err != nil || len(paths) == 0 || len(paths) > 1 {
+		log.Printf("wikilink %v in %q experienced an error: %v or is missing or ambiguous: %v", urlref, filepath, err, paths)
+
+		perfilemap, ok := links.DamagedLinks[filepath]
+		if ok {
+			perfilemap[urlref] = Empty{}
+		} else {
+			perfilemap = make(map[Wikilink]Empty)
+			perfilemap[urlref] = Empty{}
+			links.DamagedLinks[filepath] = perfilemap
+		}
+		return
+	}
 
 	perfilemap, ok := links.ForwardLinks[filepath]
 	if ok {
@@ -132,24 +151,6 @@ func (links *Links) AddWikilink(displaytext, wikitext, filepath string) {
 		perfilemap = make(map[Wikilink]Empty)
 		perfilemap[urlref] = Empty{}
 		links.ForwardLinks[filepath] = perfilemap
-	}
-
-	// TODO(rjk): Allpaths requires some kind of index whether that's the
-	// index provided by Spotlight or something lower-tech.
-	paths, err := urlref.Allpaths(&StubWikilinkNameIndex{})
-	if err != nil {
-		log.Printf("not back-linking %v in %q because %v", urlref, filepath, err)
-		return
-	}
-
-	if len(paths) == 0 {
-		log.Printf("outgoing wikilink %v in %q points at nothing", urlref, filepath)
-		return
-	}
-
-	if len(paths) > 1 {
-		log.Printf("outgoing wikilink %v in %q is ambiguous and could refer to %v", urlref, filepath, paths)
-		return
 	}
 
 	destpath := paths[0]
