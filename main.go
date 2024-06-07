@@ -33,6 +33,10 @@ var CLI struct {
 		Article string `arg:"" name:"article" type:"path" help:"Article to preview"`
 	} `cmd help:"Preview a wiki article"`
 
+	Plumb struct {
+		Wikitext string `arg:"" name:"wikitext" help:"Wikilink text to open"`
+	} `cmd help:"Plumb helper to open another wikitext link"`
+
 	Tidy struct {
 		// TODO(rjk): Need to write this.
 		All           struct{} `cmd help:"Do all possible tidying."  default:"1"`
@@ -78,6 +82,9 @@ func main() {
 	case "preview <article>":
 		// TODO(rjk): Figure out what this is for.
 		cmd.Preview(settings, CLI.Debug)
+	case "plumb <wikitext>":
+		log.Println("plumb!")
+		cmd.PlumberHelper(settings, CLI.Plumb.Wikitext)
 	case "bearimport <filestoprocess>":
 		log.Println("should run Bearimport here", CLI.Bearimport.Filestoprocess)
 		cmd.Bearimport(settings, CLI.Bearimport.Outputdir, CLI.Bearimport.Filestoprocess)
