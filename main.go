@@ -77,7 +77,7 @@ func main() {
 	startmessageloop(ctx, settings)
 }
 
-func _main(ctx	*kong.Context,  settings *wiki.Settings) {
+func _main(ctx *kong.Context, settings *wiki.Settings) {
 
 	switch ctx.Command() {
 	case "new <tagsandtitle>":

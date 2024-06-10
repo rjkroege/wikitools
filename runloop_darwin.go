@@ -14,7 +14,7 @@ import (
 
 // startmessageloop starts the mac application runloop and runs the core main
 // in a go routine.
-func startmessageloop(ctx	*kong.Context,  settings *wiki.Settings) {
+func startmessageloop(ctx *kong.Context, settings *wiki.Settings) {
 	// runs macOS application event loop with a callback on success
 	macos.RunApp(func(app appkit.Application, delegate *appkit.ApplicationDelegate) {
 		// TODO(rjk): Assorted setup here to figure out.
