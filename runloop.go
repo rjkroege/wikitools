@@ -9,6 +9,6 @@ import (
 )
 
 // startmessageloop just directly executes the _main.
-func startmessageloop(ctx	*kong.Context,  settings *wiki.Settings) {
-			_main(ctx, settings)
+func startmessageloop(ctx *kong.Context, settings *wiki.Settings) {
+	_main(ctx, settings)
 }

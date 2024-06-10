@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/rjkroege/wikitools/corpus"
-	"github.com/progrium/macdriver/macos/foundation"
 	"github.com/progrium/macdriver/dispatch"
+	"github.com/progrium/macdriver/macos/foundation"
 	"github.com/progrium/macdriver/objc"
+	"github.com/rjkroege/wikitools/corpus"
 )
 
 // spotlightWikilinkIndexer hides all of the darwin-specific code needed
@@ -20,7 +20,7 @@ type spotlightWikilinkIndexer struct {
 }
 
 // There are subtle rules about queues (and custom queues) that I will need to learn.
-func (_ *spotlightWikilinkIndexer) Allpaths(wikitext string)  ([]string, error) {
+func (_ *spotlightWikilinkIndexer) Allpaths(wikitext string) ([]string, error) {
 	log.Println("Allpaths: the goroutine")
 	waiterchan := make(chan foundation.MetadataQuery)
 	qs := fmt.Sprintf("kMDItemFSName == '%s'", wikitext)
@@ -53,7 +53,7 @@ func (_ *spotlightWikilinkIndexer) Allpaths(wikitext string)  ([]string, error) 
 				log.Println("Allpaths sez finished gathering on runloop!")
 				nc.RemoveObserver(token)
 				query.StopQuery()
-				
+
 				// I am passing responsibility for cleanup to a different thread along
 				// with the object.
 				waiterchan <- query
@@ -72,8 +72,8 @@ func (_ *spotlightWikilinkIndexer) Allpaths(wikitext string)  ([]string, error) 
 }
 
 func MakeWikilinkNameIndex() corpus.WikilinkNameIndex {
-// The Apple docs imply (very strongly) that there can only be a single
-// query running at a time.
+	// The Apple docs imply (very strongly) that there can only be a single
+	// query running at a time.
 	spidx := &spotlightWikilinkIndexer{}
 	return spidx
 }
