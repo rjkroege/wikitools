@@ -73,6 +73,12 @@ func main() {
 		log.Fatal("No configuration file. Fatai:", err)
 	}
 
+	// Invokes _main inside on platforms where I assume that functionality (e.g. darwin).
+	startmessageloop(ctx, settings)
+}
+
+func _main(ctx	*kong.Context,  settings *wiki.Settings) {
+
 	switch ctx.Command() {
 	case "new <tagsandtitle>":
 		log.Println("should run Wikinew here", CLI.New.Tagsandtitle)
@@ -169,4 +175,5 @@ func main() {
 	default:
 		log.Fatal("Missing command: ", ctx.Command())
 	}
+
 }

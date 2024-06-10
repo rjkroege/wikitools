@@ -10,4 +10,7 @@ require (
 	github.com/yuin/goldmark v1.7.1
 )
 
-require go.abhg.dev/goldmark/wikilink v0.5.0 // indirect
+require (
+	github.com/progrium/macdriver v0.5.0-preview.0.20240307055056-32e7360ca836 // indirect
+	go.abhg.dev/goldmark/wikilink v0.5.0 // indirect
+)
