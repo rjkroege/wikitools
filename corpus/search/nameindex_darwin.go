@@ -39,7 +39,8 @@ func (_ *spotlightWikilinkIndexer) Allpaths(wikitext string) ([]string, error) {
 		// to be retained.
 		objc.Retain(&query)
 
-		// SetPredicate has the @property(copy) so predicate is copied here.
+		// SetPredicate has the @property(copy) so predicate is copied here (good) because
+		// this function runs on a different thread from Allpaths.
 		query.SetPredicate(predicate)
 
 		nc := foundation.NotificationCenter_DefaultCenter()
@@ -65,15 +66,13 @@ func (_ *spotlightWikilinkIndexer) Allpaths(wikitext string) ([]string, error) {
 	})
 
 	// TODO(rjk): I might need to return some kind of status. Things can go wrong.
-	// TODO(rjk): generate actual output here. The "best" path finding is probably common code.
-	afterQueryDone(<-waiterchan)
-
-	return nil, fmt.Errorf("spotlightWikilinkIndexer not implemented")
+	return afterQueryDone(<-waiterchan)
 }
 
 func MakeWikilinkNameIndex() corpus.WikilinkNameIndex {
 	// The Apple docs imply (very strongly) that there can only be a single
-	// query running at a time.
+	// query running at a time. Remember this if I should convert the tidy
+	// code to run concurrently.
 	spidx := &spotlightWikilinkIndexer{}
 	return spidx
 }
@@ -81,28 +80,14 @@ func MakeWikilinkNameIndex() corpus.WikilinkNameIndex {
 // afterQueryDone is code to run on the goroutine to process the results from the query.
 // TODO(rjk): I am assuming that nothing here (i.e. methods on query) need to run on
 // the runloop thread.
-func afterQueryDone(query foundation.MetadataQuery) {
+func afterQueryDone(query foundation.MetadataQuery) ([]string, error) {
 	defer query.Release()
 	rc := query.ResultCount()
+	paths := make([]string, 0, rc)
 	for i := 0; uint(i) < rc; i++ {
 		// I dislike this syntax but I disassembled the output and it's
 		// effectively a nop. I believe that I can just fold this together.
 		mdi := &foundation.MetadataItem{query.ResultAtIndex(uint(i))}
-		values := mdi.ValuesForAttributes(mdi.Attributes())
-
-		for k, v := range values {
-			// Can refer to the embedded class data like this. I think that this
-			// pattern is generally right.
-			if v.IsKindOfClass(foundation.StringClass.Class) {
-				// This works. Is there a nicer way? I'm creating an additional
-				// pointer sized object to note the type of something? Couldn't
-				// we have generic APIs?
-				s := foundation.String{v}
-				log.Println(k, s.Description())
-			} else {
-				log.Println(k, "not a string")
-			}
-		}
 
 		// The keys are just strings. However, they do not appear to be defined in progrium.
 		// I can just define the path and pass it in. See MDItem.h for the actual string values
@@ -117,6 +102,9 @@ func afterQueryDone(query foundation.MetadataQuery) {
 		// Go documentation says that the underlying implementation will
 		// duplicate the string. Conclusion: this is the right way to implement
 		// getting a string value from an NSString instance.
-		log.Println("path?", objc.ToGoString(s.Ptr()))
+		log.Println("path", objc.ToGoString(s.Ptr()))
+
+		paths = append(paths, objc.ToGoString(s.Ptr()))
 	}
+	return paths, nil
 }
