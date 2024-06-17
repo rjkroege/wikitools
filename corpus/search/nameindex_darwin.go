@@ -18,8 +18,12 @@ import (
 // Changes to this structure need to be synchronized correctly.
 type spotlightWikilinkIndexer struct {
 }
+var _ corpus.WikilinkNameIndex = (*spotlightWikilinkIndexer)(nil)
 
 // There are subtle rules about queues (and custom queues) that I will need to learn.
+// TODO(rjk): nb: the input text (i.e. from the link) can have a prefix.
+// TODO(rjk): the input text might or might not have a file name extension. I'm currently
+// not clear about that.
 func (_ *spotlightWikilinkIndexer) Allpaths(wikitext string) ([]string, error) {
 	log.Println("Allpaths: the goroutine")
 	waiterchan := make(chan foundation.MetadataQuery)
@@ -69,7 +73,7 @@ func (_ *spotlightWikilinkIndexer) Allpaths(wikitext string) ([]string, error) {
 	return afterQueryDone(<-waiterchan)
 }
 
-func MakeWikilinkNameIndex() corpus.WikilinkNameIndex {
+func MakeWikilinkNameIndex() *spotlightWikilinkIndexer {
 	// The Apple docs imply (very strongly) that there can only be a single
 	// query running at a time. Remember this if I should convert the tidy
 	// code to run concurrently.
@@ -108,3 +112,4 @@ func afterQueryDone(query foundation.MetadataQuery) ([]string, error) {
 	}
 	return paths, nil
 }
+

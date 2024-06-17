@@ -3,8 +3,24 @@ X:wikitools/.*\.go: w
 
 go test -covermode=count -coverprofile=count.out ./...
 go tool cover -html=count.out
+go test ./wiki 
+
+go test ./corpus/search
+
 
 go build
+GOOS=linux GOARCH=arm go build
 
 # Can't I add this to the autosave stuff above?
 gofmt -w -s .
+
+
+./wikitools report metadata
+./wikitools tidy move --dryrun
+./wikitools report urls
+./wikitools report tags
+
+./wikitools plumb 15/Saturday.md
+
+go install
+
