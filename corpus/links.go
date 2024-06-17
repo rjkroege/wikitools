@@ -74,6 +74,7 @@ func MakeWikilinkFromPathPair(frompath, topath string) Wikilink {
 // index of wikilink text to path names.
 type WikilinkNameIndex interface {
 	// Returns all (absolute) paths in the wiki that would match wikitext.
+	// TODO(rjk): Define the API better.
 	Allpaths(wikitext string) ([]string, error)
 }
 
