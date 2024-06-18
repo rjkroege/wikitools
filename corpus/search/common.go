@@ -1,7 +1,6 @@
 package search
 
 import (
-	"path/filepath"
 	"strings"
 	"errors"
 )
@@ -43,11 +42,10 @@ func disambiguatewikipaths(location, lsd, wikitext string, allpaths []string) (s
 		return allpaths[0], nil
 	}
 
-	expanded := filepath.Join(lsd, wikitext)
 	matches := 0
 	onematch := ""
 	for _, p := range(allpaths) {
-		if strings.HasSuffix(p, expanded) {
+		if strings.HasSuffix(p, wikitext) && strings.HasPrefix(p, lsd) {
 			matches++
 			onematch = p
 		}
@@ -57,19 +55,18 @@ func disambiguatewikipaths(location, lsd, wikitext string, allpaths []string) (s
 		return onematch, nil
 	}
 
-	expanded = filepath.Join(location, wikitext)
 	matches = 0
 	onematch = ""
 	for _, p := range(allpaths) {
-		if strings.HasSuffix(p, expanded) {
+		if strings.HasSuffix(p, wikitext) && strings.HasPrefix(p, location) {
 			matches++
+			onematch = p
 		}
 	}
 
 	if matches == 1 {
 		return onematch, nil
 	} else {
-		// TODO(rjk): make a more useful error message that I can dump somewhere.
 		return "", AmbiguousWikitext
 	}
 }
