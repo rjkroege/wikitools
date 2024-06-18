@@ -28,12 +28,72 @@ func TestDisambiguateWikiPaths(t *testing.T) {
 	testtab  := []teststim {
 		{
 			location: location,
-			lsd: "2013/07-Jul/14",
+			lsd: location,
 			wikitext: "Sunday.md",
 			allpaths: []string{
 			},
 			want: "",
 			wanterr: NoFileForWikitext,
+		},
+		{
+			location: location,
+			lsd: "/wiki/2013/07-Jul/14",
+			wikitext: "Sunday.md",
+			allpaths: []string{
+				"/wiki/Sunday.md",
+			},
+			want: "/wiki/Sunday.md",
+			wanterr: nil,
+		},
+		{
+			location: location,
+			lsd: "/wiki/2013/07-Jul/14",
+			wikitext: "Sunday.md",
+			allpaths: []string{
+				"/wiki/2013/07-Jul/14/Sunday.md",
+				"/wiki/2013/07-Jul/13/Sunday.md",
+				"/wiki/2013/06-Jun/13/Sunday.md",
+				"/wiki/2013/06-Jun/13/puddle/Sunday.md",
+			},
+			want: "/wiki/2013/07-Jul/14/Sunday.md",
+			wanterr: nil,
+		},
+		{
+			location: location,
+			lsd: "/wiki/2013/06-Jun/14",
+			wikitext: "Sunday.md",
+			allpaths: []string{
+				"/wiki/2013/07-Jul/13/Sunday.md",
+				"/wiki/2013/06-Jun/13/Sunday.md",
+				"/wiki/2013/06-Jun/14/puddle/Sunday.md",
+			},
+			want: "/wiki/2013/06-Jun/14/puddle/Sunday.md",
+			wanterr: nil,
+		},
+		{
+			location: location,
+			lsd: "/wiki/2013/07-Jul/14",
+			wikitext: "13/Sunday.md",
+			allpaths: []string{
+				"/wiki/2013/07-Jul/13/Sunday.md",
+				"/wiki/2013/06-Jun/13/Sunday.md",
+				"/wiki/2013/06-Jun/13/puddle/Sunday.md",
+			},
+			want: "",
+			wanterr: AmbiguousWikitext,
+		},
+		{
+			location: location,
+			lsd: "/wiki",
+			wikitext: "07-Jul/13/Sunday.md",
+			allpaths: []string{
+				"/wiki/2013/07-Jul/14/Sunday.md",
+				"/wiki/2013/07-Jul/13/Sunday.md",
+				"/wiki/2013/06-Jun/13/Sunday.md",
+				"/wiki/2013/06-Jun/13/puddle/Sunday.md",
+			},
+			want: "/wiki/2013/07-Jul/13/Sunday.md",
+			wanterr: nil,
 		},
 	}
 
