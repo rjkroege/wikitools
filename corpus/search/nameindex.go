@@ -12,14 +12,19 @@ import (
 	"github.com/rjkroege/wikitools/corpus"
 )
 
-type portableWikilinkIndexer struct {
+type portableWikilinkNameIndex struct {
 }
 
-func (_ *portableWikilinkIndexer) Allpaths(_ string) ([]string, error) {
-	return nil, fmt.Errorf("portableWikilinkIndexer not implemented")
+var _ corpus.LinkToFile = (*portableWikilinkNameIndex)(nil)
+
+func (_ *portableWikilinkNameIndex) Path(_, _, _ string) (string, error) {
+	return "", fmt.Errorf("portableWikilinkNameIndex.Path not implemented")
+}
+func (_ *portableWikilinkNameIndex) Allpaths(_, _, _ string) ([]string, error) {
+	return nil, fmt.Errorf("portableWikilinkNameIndex.Allpaths not implemented")
 }
 
-func MakeWikilinkNameIndex() corpus.WikilinkNameIndex {
+func MakeWikilinkNameIndex() *portableWikilinkNameIndex {
 	log.Println("hi not from darwin")
-	return &portableWikilinkIndexer{}
+	return &portableWikilinkNameIndex{}
 }
