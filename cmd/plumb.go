@@ -7,29 +7,24 @@ import (
 	"github.com/rjkroege/wikitools/wiki"
 )
 
-
 // I get here on main. But I need to actually run the the response in a
 // callback.
 
-// Proposed behaviour for 
+// Proposed behaviour for
 
-
-func PlumberHelper(settings *wiki.Settings, wikilink string) {
-	log.Println("PlumberHelper", wikilink)
+func PlumberHelper(settings *wiki.Settings, lsd, wikitext string) {
+	log.Println("PlumberHelper", wikitext)
 
 	// Remember that on darwin that we are running in a secondary Go routine.
-	indexer := search.MakeWikilinkNameIndex()
+	// TODO(rjk): Consider renaming this later.
+	mapper := search.MakeWikilinkNameIndex()
 
 	// TODO(rjk): Trial code.
-	paths, err := indexer.Allpaths(wikilink)
+	fp, err := mapper.Path(settings.Wikidir, lsd, wikitext)
 	if err != nil {
-		log.Printf("indexer.Allpaths errored on %q: %v", wikilink, err)
+		log.Printf("indexer.Path errored on %q: %v", wikitext, err)
 	}
-	log.Println(paths)
 
-	// TODO(rjk): Eventually here, we need to
-	// a. do the path searching for the result of Allpaths
-	// b do the disambiguation for the 1 or more paths.
-	
-	// TODO(rjk): api needs to change because a wikitext path needs to know
+	log.Println(fp)
+	// TODO(rjk): actually plumb the file to the Edwood.
 }

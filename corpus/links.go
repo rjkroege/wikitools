@@ -70,25 +70,40 @@ func MakeWikilinkFromPathPair(frompath, topath string) Wikilink {
 	}
 }
 
-// WikilinkNameIndex defines an interface implementing a per-corpus
-// index of wikilink text to path names.
-type WikilinkNameIndex interface {
+// TODO(rjk):
+// 2 distinct interfaces:
+// 1 for taking a wikilink to its corresponding file
+// 1 returns an array of (wikilink, path) corresponding to a given string. (to use
+// for both auto-completion and to generate the report. (Go refactor the reporting)
+// But: DO NOT WRITE CODE THAT IS NOT YET NECESSARY.
+
+// LinkToFile is implemented by objects that can return a unique or all file paths corresponding
+// to a given wikilink.
+type LinkToFile interface {
+	// Returns a single unique path corresponding to the wikitext or error.
+	Path(location, lsd, wikitext string) (string, error)
+
 	// Returns all (absolute) paths in the wiki that would match wikitext.
-	// TODO(rjk): Define the API better.
-	Allpaths(wikitext string) ([]string, error)
+	Allpaths(location, lsd, wikitext string) ([]string, error)
 }
 
-type StubWikilinkNameIndex struct {
+// Do I still use this?
+type StubLinkToFile struct {
 }
 
-func (_ *StubWikilinkNameIndex) Allpaths(_ string) ([]string, error) {
-	return nil, fmt.Errorf("StubWikilinkNameIndex not implemented")
+func (_ *StubLinkToFile) Path(_, _, _ string) (string, error) {
+	return "", fmt.Errorf("StubLinkToFile.Path not implemented")
+}
+func (_ *StubLinkToFile) Allpaths(_, _, _ string) ([]string, error) {
+	return nil, fmt.Errorf("StubLinkToFile.Allpaths not implemented")
 }
 
 // Allpaths returns all (absolute) paths of files in the wiki that could
 // be referred to by [[wl.Id]] by using a provided index.
-func (wl *Wikilink) Allpaths(index WikilinkNameIndex) ([]string, error) {
-	return index.Allpaths(wl.Id)
+// TODO(rjk): this is wrongs.
+func (wl *Wikilink) Allpaths(index LinkToFile) ([]string, error) {
+	// TODO(rjk): Very wrong
+	return index.Allpaths("", "", wl.Id)
 }
 
 // A Urllink holds a Markdown URL where there is a [title](http://foo.foo) structure.
@@ -146,7 +161,7 @@ func (links *Links) AddWikilink(displaytext, wikitext, filepath string) {
 
 	// TODO(rjk): Allpaths requires some kind of index whether that's the
 	// index provided by Spotlight or something lower-tech.
-	paths, err := urlref.Allpaths(&StubWikilinkNameIndex{})
+	paths, err := urlref.Allpaths(&StubLinkToFile{})
 	if err != nil || len(paths) == 0 || len(paths) > 1 {
 		log.Printf("wikilink %v in %q experienced an error: %v or is missing or ambiguous: %v", urlref, filepath, err, paths)
 

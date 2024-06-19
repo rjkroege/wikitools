@@ -6,6 +6,7 @@ package search
 import (
 	"fmt"
 	"log"
+	"path/filepath"
 
 	"github.com/progrium/macdriver/dispatch"
 	"github.com/progrium/macdriver/macos/foundation"
@@ -18,22 +19,42 @@ import (
 // Changes to this structure need to be synchronized correctly.
 type spotlightWikilinkIndexer struct {
 }
-var _ corpus.WikilinkNameIndex = (*spotlightWikilinkIndexer)(nil)
 
-// There are subtle rules about queues (and custom queues) that I will need to learn.
-// TODO(rjk): nb: the input text (i.e. from the link) can have a prefix.
+var _ corpus.LinkToFile = (*spotlightWikilinkIndexer)(nil)
+
+func (spix *spotlightWikilinkIndexer) Path(location, lsd, wikitext string) (string, error) {
+	basepart := filepath.Base(wikitext)
+	if basepart == "" {
+		return "", EmptyWikitextFile
+	}
+
+	allpaths, err := spix.pathsforwikitext(location, basepart)
+	if err != nil {
+		return "", err
+	}
+
+	return disambiguatewikipaths(location, lsd, wikitext, allpaths)
+}
+
+func (_ *spotlightWikilinkIndexer) Allpaths(location, lsd, wikitext string) ([]string, error) {
+	return nil, fmt.Errorf("StubLinkToFile not implemented")
+}
+
+// pathsforwikitext returns all the absolute paths for resources in directory tree specified by
+// location with leaf path wikitextfile.
 // TODO(rjk): the input text might or might not have a file name extension. I'm currently
 // not clear about that.
-func (_ *spotlightWikilinkIndexer) Allpaths(wikitext string) ([]string, error) {
+// TODO(rjk): does it need an object?
+func (_ *spotlightWikilinkIndexer) pathsforwikitext(location, wikitextfile string) ([]string, error) {
 	log.Println("Allpaths: the goroutine")
 	waiterchan := make(chan foundation.MetadataQuery)
-	qs := fmt.Sprintf("kMDItemFSName == '%s'", wikitext)
+	qs := fmt.Sprintf("kMDItemFSName == '%s'", wikitextfile)
 	predicate := foundation.Predicate_PredicateFromMetadataQueryString(qs)
 
 	// Post task to runloop.
 	q := dispatch.MainQueue()
 	q.DispatchAsync(func() {
-		log.Println("Allpaths: on runloop")
+		log.Println("pathsforwikitext: on runloop")
 		// Create new query.
 		// TODO(rjk): Could I create this outside?
 		// TODO(rjk): Can I run the query from an arbitrary thread?
@@ -55,7 +76,7 @@ func (_ *spotlightWikilinkIndexer) Allpaths(wikitext string) ([]string, error) {
 			foundation.OperationQueue_CurrentQueue(),
 			func(notification foundation.Notification) {
 				// This runs on the runloop thread.
-				log.Println("Allpaths sez finished gathering on runloop!")
+				log.Println("pathsforwikitext sez finished gathering on runloop!")
 				nc.RemoveObserver(token)
 				query.StopQuery()
 
@@ -112,4 +133,3 @@ func afterQueryDone(query foundation.MetadataQuery) ([]string, error) {
 	}
 	return paths, nil
 }
-
