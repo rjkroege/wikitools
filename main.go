@@ -34,6 +34,7 @@ var CLI struct {
 	} `cmd help:"Preview a wiki article"`
 
 	Plumb struct {
+		Lsd string `arg:"" name:"lsd" help:"Directory containing the origin file (i.e. containing wikitext)"`
 		Wikitext string `arg:"" name:"wikitext" help:"Wikilink text to open"`
 	} `cmd help:"Plumb helper to open another wikitext link"`
 
@@ -88,8 +89,8 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 	case "preview <article>":
 		// TODO(rjk): Figure out what this is for.
 		cmd.Preview(settings, CLI.Debug)
-	case "plumb <wikitext>":
-		log.Println("plumb!")
+	case "plumb <lsd> <wikitext>":
+		log.Println("plumb!",  CLI.Plumb.Lsd, CLI.Plumb.Wikitext)
 		cmd.PlumberHelper(settings, CLI.Plumb.Wikitext)
 	case "bearimport <filestoprocess>":
 		log.Println("should run Bearimport here", CLI.Bearimport.Filestoprocess)
