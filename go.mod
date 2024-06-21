@@ -1,9 +1,9 @@
 module github.com/rjkroege/wikitools
 
-go 1.22
+go 1.22.4
 
 require (
-	9fans.net/go v0.0.2
+	9fans.net/go v0.0.5
 	github.com/alecthomas/kong v0.7.1
 	github.com/google/go-cmp v0.5.9
 	github.com/litao91/goldmark-mathjax v0.0.0-20191101121019-011def32b12f
@@ -12,5 +12,6 @@ require (
 
 require (
 	github.com/progrium/macdriver v0.5.0-preview.0.20240307055056-32e7360ca836 // indirect
+	github.com/rjkroege/gozen v0.0.0-20240621232324-84afaf132de7 // indirect
 	go.abhg.dev/goldmark/wikilink v0.5.0 // indirect
 )
