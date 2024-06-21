@@ -5,6 +5,7 @@ import (
 
 	"github.com/rjkroege/wikitools/corpus/search"
 	"github.com/rjkroege/wikitools/wiki"
+	"github.com/rjkroege/gozen"
 )
 
 // I get here on main. But I need to actually run the the response in a
@@ -26,5 +27,5 @@ func PlumberHelper(settings *wiki.Settings, lsd, wikitext string) {
 	}
 
 	log.Println(fp)
-	// TODO(rjk): actually plumb the file to the Edwood.
+	gozen.Editinacme(fp)
 }
