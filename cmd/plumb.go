@@ -8,11 +8,6 @@ import (
 	"github.com/rjkroege/gozen"
 )
 
-// I get here on main. But I need to actually run the the response in a
-// callback.
-
-// Proposed behaviour for
-
 func PlumberHelper(settings *wiki.Settings, lsd, wikitext string) {
 	log.Println("PlumberHelper", wikitext)
 
