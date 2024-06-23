@@ -142,15 +142,20 @@ type Links struct {
 	OutUrls map[string]map[Urllink]Empty
 
 	// Forward wikitext links that do not unambiguously refer to a specific target.
+	// TODO(rjk): I should track *why* they're damaged.
 	DamagedLinks map[string]map[Wikilink]Empty
+
+	// mapper instance takes a wikitext link to its corresponding filename.
+	mapper LinkToFile
 }
 
-func MakeLinks() *Links {
+func MakeLinks(mapper LinkToFile) *Links {
 	return &Links{
 		ForwardLinks: make(map[string]map[Wikilink]Empty),
 		BackLinks:    make(map[string]map[Wikilink]Empty),
 		OutUrls:      make(map[string]map[Urllink]Empty),
 		DamagedLinks: make(map[string]map[Wikilink]Empty),
+		mapper: mapper,
 	}
 }
 

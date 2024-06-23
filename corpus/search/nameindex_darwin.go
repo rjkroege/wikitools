@@ -48,6 +48,7 @@ func (_ *spotlightWikilinkIndexer) Allpaths(location, lsd, wikitext string) ([]s
 func (_ *spotlightWikilinkIndexer) pathsforwikitext(location, wikitextfile string) ([]string, error) {
 	log.Println("Allpaths: the goroutine")
 	waiterchan := make(chan foundation.MetadataQuery)
+	// See [File Metadata Search Programming Guide](https://developer.apple.com/library/archive/documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html#//apple_ref/doc/uid/TP40001849-CJBEJBHH) for how to configure this string.
 	qs := fmt.Sprintf("kMDItemFSName == '%s'", wikitextfile)
 	predicate := foundation.Predicate_PredicateFromMetadataQueryString(qs)
 
