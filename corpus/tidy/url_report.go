@@ -19,6 +19,7 @@ import (
 	//	mathjax "github.com/litao91/goldmark-mathjax"
 	"github.com/rjkroege/wikitools/article/wikiextension"
 	"go.abhg.dev/goldmark/wikilink"
+	"github.com/rjkroege/wikitools/corpus/search"
 )
 
 type urlReport struct {
@@ -42,7 +43,7 @@ func NewUrlReporter(settings *wiki.Settings) (corpus.Tidying, error) {
 	}
 	return &urlReport{
 		settings: settings,
-		links:    corpus.MakeLinks(),
+		links:    corpus.MakeLinks(search.MakeWikilinkNameIndex()),
 		tmpl:     tmpl,
 	}, nil
 }

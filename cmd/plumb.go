@@ -34,7 +34,6 @@ func PlumberHelper(settings *wiki.Settings, lsd, wikitext string) {
 	gozen.Editinacme(fp)
 }
 
-
 const logfile = "+Wikierror"
 
 // writewikierror appends text to the special file for wiki errors.
