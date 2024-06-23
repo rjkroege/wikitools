@@ -22,7 +22,8 @@ type spotlightWikilinkIndexer struct {
 
 var _ corpus.LinkToFile = (*spotlightWikilinkIndexer)(nil)
 
-func (spix *spotlightWikilinkIndexer) Path(location, lsd, wikitext string) (string, error) {
+func (spix *spotlightWikilinkIndexer) Path(location, fpath, wikitext string) (string, error) {
+	lsd := filepath.Base(fpath)
 	basepart := filepath.Base(wikitext)
 	if basepart == "" {
 		return "", EmptyWikitextFile
@@ -62,7 +63,8 @@ func (_ *spotlightWikilinkIndexer) pathsforwikitext(location, wikitextfile strin
 		// TODO(rjk): Can I get the notification back on a different thread?
 		query := foundation.NewMetadataQuery().Init()
 		// query persists beyond a single event cycle and therefore (I believe) needs
-		// to be retained.
+		// to be retained. Note that this transfers responsibility for freeing query to the
+		// Go GC.
 		objc.Retain(&query)
 
 		// SetPredicate has the @property(copy) so predicate is copied here (good) because
@@ -107,7 +109,6 @@ func MakeWikilinkNameIndex() *spotlightWikilinkIndexer {
 // TODO(rjk): I am assuming that nothing here (i.e. methods on query) need to run on
 // the runloop thread.
 func afterQueryDone(query foundation.MetadataQuery) ([]string, error) {
-	defer query.Release()
 	rc := query.ResultCount()
 	paths := make([]string, 0, rc)
 	for i := 0; uint(i) < rc; i++ {

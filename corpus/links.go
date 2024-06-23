@@ -80,7 +80,8 @@ func MakeWikilinkFromPathPair(frompath, topath string) Wikilink {
 // LinkToFile is implemented by objects that can return a unique or all file paths corresponding
 // to a given wikilink.
 type LinkToFile interface {
-	// Returns a single unique path corresponding to the wikitext or error.
+// Returns a single unique path corresponding to the wikitext with
+// location (i.e. root) and found in file lsd.
 	Path(location, lsd, wikitext string) (string, error)
 
 	// Returns all (absolute) paths in the wiki that would match wikitext.
@@ -147,15 +148,19 @@ type Links struct {
 
 	// mapper instance takes a wikitext link to its corresponding filename.
 	mapper LinkToFile
+
+	// location is the root of the wiki tree
+	location string
 }
 
-func MakeLinks(mapper LinkToFile) *Links {
+func MakeLinks(mapper LinkToFile, location string) *Links {
 	return &Links{
 		ForwardLinks: make(map[string]map[Wikilink]Empty),
 		BackLinks:    make(map[string]map[Wikilink]Empty),
 		OutUrls:      make(map[string]map[Urllink]Empty),
 		DamagedLinks: make(map[string]map[Wikilink]Empty),
 		mapper: mapper,
+		location: location,
 	}
 }
 
@@ -164,11 +169,9 @@ func MakeLinks(mapper LinkToFile) *Links {
 func (links *Links) AddWikilink(displaytext, wikitext, filepath string) {
 	urlref := MakeWikilink(wikitext, displaytext)
 
-	// TODO(rjk): Allpaths requires some kind of index whether that's the
-	// index provided by Spotlight or something lower-tech.
-	paths, err := urlref.Allpaths(&StubLinkToFile{})
-	if err != nil || len(paths) == 0 || len(paths) > 1 {
-		log.Printf("wikilink %v in %q experienced an error: %v or is missing or ambiguous: %v", urlref, filepath, err, paths)
+	destpath, err := links.mapper.Path(links.location, filepath, wikitext)
+	if err != nil {
+		log.Printf("links.mapper.Path on %q, [[%s]] error: %v", filepath, wikitext, err)
 
 		perfilemap, ok := links.DamagedLinks[filepath]
 		if ok {
@@ -191,7 +194,6 @@ func (links *Links) AddWikilink(displaytext, wikitext, filepath string) {
 		links.ForwardLinks[filepath] = perfilemap
 	}
 
-	destpath := paths[0]
 	backref := MakeWikilinkFromPathPair(filepath, destpath)
 
 	// Update the reverse links.

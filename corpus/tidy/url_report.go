@@ -43,7 +43,7 @@ func NewUrlReporter(settings *wiki.Settings) (corpus.Tidying, error) {
 	}
 	return &urlReport{
 		settings: settings,
-		links:    corpus.MakeLinks(search.MakeWikilinkNameIndex()),
+		links:    corpus.MakeLinks(search.MakeWikilinkNameIndex(), settings.Wikidir),
 		tmpl:     tmpl,
 	}, nil
 }
