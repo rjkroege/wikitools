@@ -5,10 +5,10 @@ import (
 	"log"
 	"path/filepath"
 
+	"9fans.net/go/acme"
+	"github.com/rjkroege/gozen"
 	"github.com/rjkroege/wikitools/corpus/search"
 	"github.com/rjkroege/wikitools/wiki"
-	"github.com/rjkroege/gozen"
-	"9fans.net/go/acme"
 )
 
 func PlumberHelper(settings *wiki.Settings, lsd, wikitext string) {
@@ -40,7 +40,7 @@ const logfile = "+Wikierror"
 func writewikierror(settings *wiki.Settings, text []byte) error {
 	// shove stuff into Edwood/Acme error area
 	fn := filepath.Join(settings.Wikidir, logfile)
-	
+
 	// Two choices: we already have the Window open.
 	wins, err := acme.Windows()
 	if err != nil {

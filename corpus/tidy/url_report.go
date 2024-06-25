@@ -18,8 +18,8 @@ import (
 	// TODO(rjk): Support parsing math.
 	//	mathjax "github.com/litao91/goldmark-mathjax"
 	"github.com/rjkroege/wikitools/article/wikiextension"
-	"go.abhg.dev/goldmark/wikilink"
 	"github.com/rjkroege/wikitools/corpus/search"
+	"go.abhg.dev/goldmark/wikilink"
 )
 
 type urlReport struct {
@@ -147,7 +147,7 @@ func (abc *urlReport) Summary() error {
 	}
 	for k, v := range abc.links.DamagedLinks {
 		for u := range v {
-			articles[k] = append(articles[k], "*damaged* " + u.Markdown())
+			articles[k] = append(articles[k], "*damaged* "+u.Markdown())
 		}
 	}
 

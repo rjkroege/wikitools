@@ -81,8 +81,8 @@ func MakeWikilinkFromPathPair(frompath, topath string) Wikilink {
 // LinkToFile is implemented by objects that can return a unique or all file paths corresponding
 // to a given wikilink.
 type LinkToFile interface {
-// Returns a single unique path corresponding to the wikitext with
-// location (i.e. root) and found in file lsd.
+	// Returns a single unique path corresponding to the wikitext with
+	// location (i.e. root) and found in file lsd.
 	Path(location, lsd, wikitext string) (string, error)
 
 	// Returns all (absolute) paths in the wiki that would match wikitext.
@@ -160,8 +160,8 @@ func MakeLinks(mapper LinkToFile, location string) *Links {
 		BackLinks:    make(map[string]map[Wikilink]Empty),
 		OutUrls:      make(map[string]map[Urllink]Empty),
 		DamagedLinks: make(map[string]map[Wikilink]Empty),
-		mapper: mapper,
-		location: location,
+		mapper:       mapper,
+		location:     location,
 	}
 }
 
