@@ -22,8 +22,7 @@ type spotlightWikilinkIndexer struct {
 
 var _ corpus.LinkToFile = (*spotlightWikilinkIndexer)(nil)
 
-func (spix *spotlightWikilinkIndexer) Path(location, fpath, wikitext string) (string, error) {
-	lsd := filepath.Base(fpath)
+func (spix *spotlightWikilinkIndexer) Path(location, lsd, wikitext string) (string, error) {
 	basepart := filepath.Base(wikitext)
 	if basepart == "" {
 		return "", EmptyWikitextFile
