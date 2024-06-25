@@ -3,6 +3,7 @@ package corpus
 import (
 	"fmt"
 	"log"
+	"path/filepath"
 )
 
 // TODO(rjk): overview I am working towards a system where I get
@@ -166,59 +167,64 @@ func MakeLinks(mapper LinkToFile, location string) *Links {
 
 // AddWikilink adds a URLs leaving the node. There is no node for them
 // to point to so the destination URL is nil.
-func (links *Links) AddWikilink(displaytext, wikitext, filepath string) {
+func (links *Links) AddWikilink(displaytext, wikitext, fpath string) {
 	urlref := MakeWikilink(wikitext, displaytext)
 
-	destpath, err := links.mapper.Path(links.location, filepath, wikitext)
-	if err != nil {
-		log.Printf("links.mapper.Path on %q, [[%s]] error: %v", filepath, wikitext, err)
+	if filepath.Ext(wikitext) == "" {
+		wikitext = wikitext + ".md"
+	}
 
-		perfilemap, ok := links.DamagedLinks[filepath]
+	log.Println("AddWikilink", links.location, fpath, wikitext)
+	destpath, err := links.mapper.Path(links.location, filepath.Dir(fpath), wikitext)
+	if err != nil {
+		log.Printf("links.mapper.Path on %q, [[%s]] error: %v", fpath, wikitext, err)
+
+		perfilemap, ok := links.DamagedLinks[fpath]
 		if ok {
 			perfilemap[urlref] = Empty{}
 		} else {
 			perfilemap = make(map[Wikilink]Empty)
 			perfilemap[urlref] = Empty{}
-			links.DamagedLinks[filepath] = perfilemap
+			links.DamagedLinks[fpath] = perfilemap
 		}
 		return
 	}
 
-	perfilemap, ok := links.ForwardLinks[filepath]
+	perfilemap, ok := links.ForwardLinks[fpath]
 	if ok {
 		perfilemap[urlref] = Empty{}
-		log.Println(filepath)
+		log.Println(fpath)
 	} else {
 		perfilemap = make(map[Wikilink]Empty)
 		perfilemap[urlref] = Empty{}
-		links.ForwardLinks[filepath] = perfilemap
+		links.ForwardLinks[fpath] = perfilemap
 	}
 
-	backref := MakeWikilinkFromPathPair(filepath, destpath)
+	backref := MakeWikilinkFromPathPair(fpath, destpath)
 
 	// Update the reverse links.
-	perfilemap, ok = links.BackLinks[filepath]
+	perfilemap, ok = links.BackLinks[fpath]
 	if ok {
 		perfilemap[backref] = Empty{}
 	} else {
 		perfilemap = make(map[Wikilink]Empty)
 		perfilemap[backref] = Empty{}
-		links.BackLinks[filepath] = perfilemap
+		links.BackLinks[fpath] = perfilemap
 	}
 }
 
 // AddForwardUrl adds a URLs leaving the node. There is no node for them
 // to point to so the destination URL is nil.
-func (links *Links) AddForwardUrl(displaytext, url, filepath string) {
+func (links *Links) AddForwardUrl(displaytext, url, fpath string) {
 	urlref := MakeUrllink(url, displaytext)
 
-	perfilemap, ok := links.OutUrls[filepath]
+	perfilemap, ok := links.OutUrls[fpath]
 	if ok {
 		perfilemap[urlref] = Empty{}
-		log.Println(filepath)
+		log.Println(fpath)
 	} else {
 		perfilemap = make(map[Urllink]Empty)
 		perfilemap[urlref] = Empty{}
-		links.OutUrls[filepath] = perfilemap
+		links.OutUrls[fpath] = perfilemap
 	}
 }
