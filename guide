@@ -5,7 +5,7 @@ go test -covermode=count -coverprofile=count.out ./...
 go tool cover -html=count.out
 go test ./wiki 
 
-go test ./corpus/nodes
+go test ./article
 
 
 go build
@@ -19,7 +19,7 @@ gofmt -w -s .
 ./wikitools tidy move --dryrun
 ./wikitools report urls
 ./wikitools report tags
-./wikitools plumb /Users/rjkroege/Documents/wiki/2024/05-May/20 What-to-Do.md
+./wikitools plumb /Users/rjkroege/Documents/wiki/2024/05-May/20 02-Feb/9/Sunday.md
 
 go install
 

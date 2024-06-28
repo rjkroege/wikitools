@@ -14,4 +14,5 @@ require (
 	github.com/progrium/macdriver v0.5.0-preview.0.20240307055056-32e7360ca836 // indirect
 	github.com/rjkroege/gozen v0.0.0-20240621232324-84afaf132de7 // indirect
 	go.abhg.dev/goldmark/wikilink v0.5.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
 )
