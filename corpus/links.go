@@ -154,6 +154,9 @@ type Links struct {
 	location string
 }
 
+// Show that Linkminer is a UrlRecorder
+var _ UrlRecorder = (*Links)(nil)
+
 func MakeLinks(mapper LinkToFile, location string) *Links {
 	return &Links{
 		ForwardLinks: make(map[string]map[Wikilink]Empty),
@@ -227,4 +230,14 @@ func (links *Links) AddForwardUrl(displaytext, url, fpath string) {
 		perfilemap[urlref] = Empty{}
 		links.OutUrls[fpath] = perfilemap
 	}
+}
+
+// TODO(rjk): The presence of this forwarder suggests that I might want
+// to change the UrlRecorder interface?
+func (links *Links) RecordUrl(displaytext, url, filepath string) {
+	links.AddForwardUrl(displaytext, url, filepath)
+}
+
+func (links *Links) RecordWikilink(displaytext, wikitext, filepath string) {
+	links.AddWikilink(displaytext, wikitext, filepath)
 }

@@ -87,7 +87,7 @@ func (abc *urlReport) EachFile(path string, info os.FileInfo, err error) error {
 			extension.GFM,
 			extension.DefinitionList,
 			//			mathjax.MathJax,
-			wikiextension.NewLinkminer(abc.settings, abc, path),
+			wikiextension.NewLinkminer(abc.settings, abc.links, path),
 			// TODO(rjk): Figure out what kind of resolver that I need to write.
 			&wikilink.Extender{},
 		),
@@ -166,15 +166,4 @@ func (abc *urlReport) Summary() error {
 		return fmt.Errorf("can't urlReport Execute template: %v", err)
 	}
 	return nil
-}
-
-// Show that Linkminer is a goldmark.Extender
-var _ corpus.UrlRecorder = (*urlReport)(nil)
-
-func (abc *urlReport) RecordUrl(displaytext, url, filepath string) {
-	abc.links.AddForwardUrl(displaytext, url, filepath)
-}
-
-func (abc *urlReport) RecordWikilink(displaytext, wikitext, filepath string) {
-	abc.links.AddWikilink(displaytext, wikitext, filepath)
 }
