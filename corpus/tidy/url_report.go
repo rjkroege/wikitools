@@ -48,7 +48,7 @@ func NewUrlReporter(settings *wiki.Settings) (corpus.Tidying, error) {
 	}, nil
 }
 
-func (abc *urlReport) EachFile(path string, info os.FileInfo, err error) error {
+func onefileimpl(settings *wiki.Settings, links *corpus.Links, path string, info os.FileInfo, err error) error {
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)
 		return fmt.Errorf("couldn't read %s: %v", path, err)
@@ -87,7 +87,7 @@ func (abc *urlReport) EachFile(path string, info os.FileInfo, err error) error {
 			extension.GFM,
 			extension.DefinitionList,
 			//			mathjax.MathJax,
-			wikiextension.NewLinkminer(abc.settings, abc.links, path),
+			wikiextension.NewLinkminer(settings, links, path),
 			// TODO(rjk): Figure out what kind of resolver that I need to write.
 			&wikilink.Extender{},
 		),
@@ -98,6 +98,10 @@ func (abc *urlReport) EachFile(path string, info os.FileInfo, err error) error {
 	}
 
 	return nil
+}
+
+func (abc *urlReport) EachFile(path string, info os.FileInfo, err error) error {
+	return  onefileimpl(abc.settings, abc.links, path , info , err )
 }
 
 // TODO(rjk): I might want to make the paths better.
