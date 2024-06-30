@@ -45,6 +45,7 @@ var CLI struct {
 		Move          struct{} `cmd help:"Move files into the correct places."`
 		Findersync    struct{} `cmd help:"Sync metadata info the Spotlight metadata attributes."`
 		Updatetaglist struct{} `cmd help:"Update the cached list of tags for tag autocompletion."`
+		Backlinks struct{} `cmd help:"Update all files to have backlink data encoded into it"`
 	} `cmd help:"Clean up wiki aritcles: right structure, corrected metadata, etc."`
 
 	Report struct {
@@ -123,6 +124,9 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		}
 	case "tidy findersync":
 		log.Println("tidy findersync not implemented")
+		// TODO(rjk): Write me.
+	case "tidy backlinks":
+		log.Println("tidy backlinks not implemented")
 		// TODO(rjk): Write me.
 	case "tidy move":
 		tidying, _ := tidy.NewFilemover(settings, CLI.Dryrun)
