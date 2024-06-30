@@ -125,9 +125,15 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 	case "tidy findersync":
 		log.Println("tidy findersync not implemented")
 		// TODO(rjk): Write me.
+		// What is this even suppose to do? (Put the tags in the spotlight data?)
 	case "tidy backlinks":
-		log.Println("tidy backlinks not implemented")
-		// TODO(rjk): Write me.
+		tidying, _ := tidy.NewBacklinkwriter(settings, CLI.Dryrun)
+		if err := corpus.Everyfile(settings, tidying); err != nil {
+			log.Fatal(err)
+		}
+		if err := tidying.Summary(); err != nil {
+			log.Fatal("tidy backlinks summary: ", err)
+		}
 	case "tidy move":
 		tidying, _ := tidy.NewFilemover(settings, CLI.Dryrun)
 		if err := corpus.Everyfile(settings, tidying); err != nil {
