@@ -10,6 +10,8 @@ import (
 type backlinkWriter struct {
 }
 
+// TODO(rjk): Share code with the report generator.
+
 
 func NewBacklinkwriter(settings *wiki.Settings, dryrun bool) (*backlinkWriter, error) {
 	return &backlinkWriter{
