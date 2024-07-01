@@ -58,26 +58,6 @@ func (wl *Wikilink) Markdown() string {
 	return fmt.Sprintf("[[%s]]", wl.Id)
 }
 
-// TODO(rjk): These stubs need refinement. They are here with comments to
-// capture my API surface thinking.
-
-// MakeWikilinkFromPathPair creates a Wikilink object such that right-clicking on
-// the result's string representation in frompath will open topath.
-// TODO(rjk): somewhere there will be code that will determine the actual
-// paths. Line that up with some tests.
-func MakeWikilinkFromPathPair(frompath, topath string) Wikilink {
-	return Wikilink{
-		Id: "not implemented",
-	}
-}
-
-// TODO(rjk):
-// 2 distinct interfaces:
-// 1 for taking a wikilink to its corresponding file
-// 1 returns an array of (wikilink, path) corresponding to a given string. (to use
-// for both auto-completion and to generate the report. (Go refactor the reporting)
-// But: DO NOT WRITE CODE THAT IS NOT YET NECESSARY.
-
 // LinkToFile is implemented by objects that can return a unique or all file paths corresponding
 // to a given wikilink.
 type LinkToFile interface {
@@ -87,17 +67,10 @@ type LinkToFile interface {
 
 	// Returns all (absolute) paths in the wiki that would match wikitext.
 	Allpaths(location, lsd, wikitext string) ([]string, error)
-}
 
-// Do I still use this?
-type StubLinkToFile struct {
-}
-
-func (_ *StubLinkToFile) Path(_, _, _ string) (string, error) {
-	return "", fmt.Errorf("StubLinkToFile.Path not implemented")
-}
-func (_ *StubLinkToFile) Allpaths(_, _, _ string) ([]string, error) {
-	return nil, fmt.Errorf("StubLinkToFile.Allpaths not implemented")
+	// Wikitext returns a wikitext such that clicking on it in frompath will
+	// open topath or an error if it was impossible to do so.
+	Wikitext(frompath, topath string) (string, error)
 }
 
 // Allpaths returns all (absolute) paths of files in the wiki that could
@@ -203,7 +176,12 @@ func (links *Links) AddWikilink(displaytext, wikitext, fpath string) {
 		links.ForwardLinks[fpath] = perfilemap
 	}
 
-	backref := MakeWikilinkFromPathPair(fpath, destpath)
+	backtext, err := links.mapper.Wikitext(fpath, destpath)
+	if err != nil {
+		log.Printf("links.mapper.Wikitext from %q to %q failed: %v", fpath, destpath, err)
+		return
+	}
+	backref := MakeWikilink(backtext, "")
 
 	// Update the reverse links.
 	perfilemap, ok = links.BackLinks[fpath]
