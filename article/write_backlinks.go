@@ -20,12 +20,12 @@ func WriteBacklinks(fname string, backmap map[corpus.Wikilink]corpus.Empty) erro
 	buffy := new(bytes.Buffer)
 	encoder := json.NewEncoder(buffy)
 	if err := encoder.Encode(links); err != nil {
-		return fmt.Errorf("Can't WriteBacklinks to %q because %v", fname, err)
+		return fmt.Errorf("Can't WriteBacklinks to %q because %w", fname, err)
 	}
 
 	// Write it to the file
 	if err := unix.Setxattr(fname, backlinkkey, buffy.Bytes(), 0); err != nil {
-		return fmt.Errorf("Can't WriteBacklinks to %q because %v", fname, err)
+		return fmt.Errorf("Can't WriteBacklinks to %q because %w", fname, err)
 	}
 	return nil
 }
@@ -36,7 +36,7 @@ func ReadBacklinks(fname string) (map[corpus.Wikilink]corpus.Empty, error) {
 	by := make([]byte, 1<<16)
 	sz, err := unix.Getxattr(fname, backlinkkey, by)
 	if err != nil {
-		return nil, fmt.Errorf("Can't ReadBacklinks to %q because %v", fname, err)
+		return nil, fmt.Errorf("Can't ReadBacklinks to %q because %w", fname, err)
 	}
 	// I would be surprised if this didn't happen. But still.
 	by = by[0:sz]
@@ -45,7 +45,7 @@ func ReadBacklinks(fname string) (map[corpus.Wikilink]corpus.Empty, error) {
 	links := make([]corpus.Wikilink, 0)
 	decoder := json.NewDecoder(buffy)
 	if err := decoder.Decode(&links); err != nil {
-		return nil, fmt.Errorf("Can't ReadBacklinks to %q because %v", fname, err)
+		return nil, fmt.Errorf("Can't ReadBacklinks to %q because %w", fname, err)
 	}
 
 	backmap := make(map[corpus.Wikilink]corpus.Empty)
