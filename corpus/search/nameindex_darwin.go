@@ -134,3 +134,7 @@ func afterQueryDone(query foundation.MetadataQuery) ([]string, error) {
 	}
 	return paths, nil
 }
+
+func (spix *spotlightWikilinkIndexer) Wikitext(frompath, topath string) (string, error) {
+	return "", fmt.Errorf("Wikitext not implemented")
+}
