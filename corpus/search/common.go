@@ -101,7 +101,7 @@ func buildshortestwikitext(root, topath string, allpaths []string) (string, erro
 	// TODO(rjk): it conceivably is possible to use dynamic programming here to reduce the work.
 	b束 := len(
 		strings.Split(
-			strings.Trim(location, string(filepath.Separator)),
+			strings.Trim(root, string(filepath.Separator)),
 			string(filepath.Separator)))
 	c := 0
 	for j := len(束) - 1; j > b束; j-- {

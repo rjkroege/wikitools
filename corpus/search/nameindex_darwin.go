@@ -18,6 +18,7 @@ import (
 // to support indexing using spotlight.
 // Changes to this structure need to be synchronized correctly.
 type spotlightWikilinkIndexer struct {
+	wikiroot string
 }
 
 var _ corpus.LinkToFile = (*spotlightWikilinkIndexer)(nil)
@@ -96,11 +97,13 @@ func (_ *spotlightWikilinkIndexer) pathsforwikitext(location, wikitextfile strin
 	return afterQueryDone(<-waiterchan)
 }
 
-func MakeWikilinkNameIndex() *spotlightWikilinkIndexer {
+func MakeWikilinkNameIndex(wikiroot string) *spotlightWikilinkIndexer {
 	// The Apple docs imply (very strongly) that there can only be a single
 	// query running at a time. Remember this if I should convert the tidy
 	// code to run concurrently.
-	spidx := &spotlightWikilinkIndexer{}
+	spidx := &spotlightWikilinkIndexer{
+		wikiroot: wikiroot,
+	}
 	return spidx
 }
 
@@ -138,19 +141,14 @@ func afterQueryDone(query foundation.MetadataQuery) ([]string, error) {
 // make suffix stripping configurable. I expect that I'd want svg etc to keep its
 // suffix?
 func (spix *spotlightWikilinkIndexer) Wikitext(frompath, topath string) (string, error) {
-	return "", fmt.Errorf("Wikitext not implemented")
-
-	// find allz of the paths
-
+	// Find allz of the paths
 	allpaths, err := spix.pathsforwikitext(filepath.Dir(frompath), filepath.Base(topath))
 	if err != nil {
 		// TODO(rjk): maybe want something more?
 		return "", fmt.Errorf("Wikitext pathsforwikitext %w", err)
 	}
-
 	log.Println(allpaths)
 
 	// Need to do something here.
-	return "", fmt.Errorf("Wikitext not implemented")
-
+	return buildshortestwikitext(spix.wikiroot, topath, allpaths)
 }

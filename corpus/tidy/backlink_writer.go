@@ -25,7 +25,7 @@ func NewBacklinkwriter(settings *wiki.Settings, dryrun bool) (*backlinkWriter, e
 }
 
 func (blw *backlinkWriter) EachFile(path string, info os.FileInfo, err error) error {
-	linkies := corpus.MakeLinks(search.MakeWikilinkNameIndex(), blw.settings.Wikidir)
+	linkies := corpus.MakeLinks(search.MakeWikilinkNameIndex(blw.settings.Wikidir), blw.settings.Wikidir)
 	if err := onefileimpl(blw.settings, linkies, path, info, err); err != nil {
 		return fmt.Errorf("backlinkWriter.EachFile onefileimpl on %q fail %w", path, err)
 	}

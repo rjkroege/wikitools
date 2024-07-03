@@ -43,7 +43,7 @@ func NewUrlReporter(settings *wiki.Settings) (corpus.Tidying, error) {
 	}
 	return &urlReport{
 		settings: settings,
-		links:    corpus.MakeLinks(search.MakeWikilinkNameIndex(), settings.Wikidir),
+		links:    corpus.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
 		tmpl:     tmpl,
 	}, nil
 }
@@ -101,7 +101,7 @@ func onefileimpl(settings *wiki.Settings, links *corpus.Links, path string, info
 }
 
 func (abc *urlReport) EachFile(path string, info os.FileInfo, err error) error {
-	return  onefileimpl(abc.settings, abc.links, path , info , err )
+	return onefileimpl(abc.settings, abc.links, path, info, err)
 }
 
 // TODO(rjk): I might want to make the paths better.
