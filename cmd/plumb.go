@@ -16,7 +16,7 @@ func PlumberHelper(settings *wiki.Settings, lsd, wikitext string) {
 
 	// Remember that on darwin that we are running in a secondary Go routine.
 	// TODO(rjk): Consider renaming this later.
-	mapper := search.MakeWikilinkNameIndex()
+	mapper := search.MakeWikilinkNameIndex(settings.Wikidir)
 
 	if filepath.Ext(wikitext) == "" {
 		wikitext = wikitext + ".md"
