@@ -2,12 +2,14 @@ package search
 
 import (
 	"errors"
+	"path/filepath"
 	"strings"
 )
 
 var AmbiguousWikitext = errors.New("ambiguous wikitext")
 var NoFileForWikitext = errors.New("no matching wikitext")
 var EmptyWikitextFile = errors.New("wikitext file portion is empty")
+var NoValidMatch = errors.New("buildshortestwikitext no valid match")
 
 // disambiguatewikipaths takes local source directory lsd in which the
 // contents containing a wikitext was found, the location of the wiki
@@ -86,3 +88,39 @@ func disambiguatewikipaths(location, lsd, wikitext string, allpaths []string) (s
 // is not necessary. So just auto-complete with either no prefix for
 // it's a unique name or in directory or the prefix w.r.t. origin or the
 // prefix w.r.t. root.
+
+// location is the root of the wiki
+// topath is the absolute path of the desired destination article.
+// allpaths is the result of running pathsforwikitext: a list of wikipaths.
+// One of allpaths should be lsd.
+func buildshortestwikitext(root, topath string, allpaths []string) (string, error) {
+	// 2. split the topath into a bundle (たば), chopping the separator.
+	束 := strings.Split(strings.Trim(topath, string(filepath.Separator)), string(filepath.Separator))
+
+	// 3. Find the shortest unique prefix
+	// TODO(rjk): it conceivably is possible to use dynamic programming here to reduce the work.
+	b束 := len(
+		strings.Split(
+			strings.Trim(location, string(filepath.Separator)),
+			string(filepath.Separator)))
+	c := 0
+	for j := len(束) - 1; j > b束; j-- {
+		s束 := filepath.Join(束[j:]...)
+		c = counter(allpaths, s束)
+		if c == 1 {
+			return s束, nil
+		}
+	}
+
+	return "", NoValidMatch
+}
+
+func counter(束 []string, s string) int {
+	c := 0
+	for _, k := range 束 {
+		if strings.HasSuffix(k, s) {
+			c++
+		}
+	}
+	return c
+}

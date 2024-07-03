@@ -135,6 +135,22 @@ func afterQueryDone(query foundation.MetadataQuery) ([]string, error) {
 	return paths, nil
 }
 
+// make suffix stripping configurable. I expect that I'd want svg etc to keep its
+// suffix?
 func (spix *spotlightWikilinkIndexer) Wikitext(frompath, topath string) (string, error) {
 	return "", fmt.Errorf("Wikitext not implemented")
+
+	// find allz of the paths
+
+	allpaths, err := spix.pathsforwikitext(filepath.Dir(frompath), filepath.Base(topath))
+	if err != nil {
+		// TODO(rjk): maybe want something more?
+		return "", fmt.Errorf("Wikitext pathsforwikitext %w", err)
+	}
+
+	log.Println(allpaths)
+
+	// Need to do something here.
+	return "", fmt.Errorf("Wikitext not implemented")
+
 }
