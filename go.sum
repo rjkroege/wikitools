@@ -2,6 +2,8 @@
 9fans.net/go v0.0.2/go.mod h1:lfPdxjq9v8pVQXUMBCx5EO5oLXWQFlKRQgs1kEkjoIM=
 9fans.net/go v0.0.5 h1:u0H3Et5NowdVm56FDD+aWcDOao9zEo+zolNFsr8qyQk=
 9fans.net/go v0.0.5/go.mod h1:Rxvbbc1e+1TyGMjAvLthGTyO97t+6JMQ6ly+Lcs9Uf0=
+9fans.net/go v0.0.7 h1:H5CsYJTf99C8EYAQr+uSoEJnLP/iZU8RmDuhyk30iSM=
+9fans.net/go v0.0.7/go.mod h1:Rxvbbc1e+1TyGMjAvLthGTyO97t+6JMQ6ly+Lcs9Uf0=
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.38.0/go.mod h1:990N+gfupTy94rShfmMCWGDn0LpTmnzTp2qbd1dvSRU=
@@ -173,6 +175,8 @@ github.com/prometheus/procfs v0.0.0-20190507164030-5867b95ac084/go.mod h1:TjEm7z
 github.com/prometheus/tsdb v0.7.1/go.mod h1:qhTCs0VvXwvX/y3TZrWD7rabWM+ijKTux40TwIPHuXU=
 github.com/rjkroege/gozen v0.0.0-20240621232324-84afaf132de7 h1:YF5jMS2oebfa/r4XgF4BuZj0ogXN+afZ/jsbhfj4AKM=
 github.com/rjkroege/gozen v0.0.0-20240621232324-84afaf132de7/go.mod h1:vHFqWm4FyR02rX/TzmBNH7oZa73bwiXI9cv6iDhi0oo=
+github.com/rjkroege/gozen v0.0.0-20240705123120-988fc551a498 h1:jkSPggLFd9+mHBbtsiFrG0UYsL1t+2PYlTNgJkj+bgs=
+github.com/rjkroege/gozen v0.0.0-20240705123120-988fc551a498/go.mod h1:vHFqWm4FyR02rX/TzmBNH7oZa73bwiXI9cv6iDhi0oo=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
