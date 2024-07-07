@@ -81,20 +81,18 @@ func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.
 			}
 
 			// WikiLinks are perhaps more complicated. They can also have a location.
-			// Some parsing extensions might be needed.
-			log.Printf("WikiLink Node %q %q %q", string(link.Target), string(link.Fragment), a.fpath)
-
-			// TODO(rjk): Need to mark this kind of link differently so that they can be formatted
-			// correctly.
+			// Some additional processing might be needed here.
+			if a.settings.Debugmarkdownparsing {
+				log.Printf("WikiLink Node %q %q %q", string(link.Target), string(link.Fragment), a.fpath)
+			}
 			a.recorder.RecordWikilink(string(link.Fragment), string(link.Target), a.fpath)
 		}
 
 		if n.Kind() == gast.KindLink && !entering {
-			log.Println(a.fpath, "node:", n.Type(), "kind:", n.Kind(), "entering:", entering)
-			log.Println("node text:", string(n.Text(reader.Source())))
-
 			// Dump all link nodes.
-			n.Dump(reader.Source(), 1)
+			if a.settings.Debugmarkdownparsing {
+				n.Dump(reader.Source(), 1)
+			}
 
 			link, ok := n.(*gast.Link)
 			if !ok {
@@ -112,9 +110,6 @@ func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.
 				title = string(n.Text(reader.Source()))
 			}
 			a.recorder.RecordUrl(title, dest, a.fpath)
-
-			// I can use a.settings.IsWikiMarkdownLink() to determine if a
-			// URL points into the wiki. It is possible that I do not need this feature.
 		}
 		return gast.WalkContinue, nil
 	})

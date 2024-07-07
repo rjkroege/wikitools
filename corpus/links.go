@@ -75,9 +75,8 @@ type LinkToFile interface {
 
 // Allpaths returns all (absolute) paths of files in the wiki that could
 // be referred to by [[wl.Id]] by using a provided index.
-// TODO(rjk): this is wrongs.
+// TODO(rjk): Check if this is working.
 func (wl *Wikilink) Allpaths(index LinkToFile) ([]string, error) {
-	// TODO(rjk): Very wrong
 	return index.Allpaths("", "", wl.Id)
 }
 
@@ -150,11 +149,8 @@ func (links *Links) AddWikilink(displaytext, wikitext, fpath string) {
 		wikitext = wikitext + ".md"
 	}
 
-	log.Println("AddWikilink", links.location, fpath, wikitext)
 	destpath, err := links.mapper.Path(links.location, filepath.Dir(fpath), wikitext)
 	if err != nil {
-		log.Printf("links.mapper.Path on %q, [[%s]] error: %v", fpath, wikitext, err)
-
 		perfilemap, ok := links.DamagedLinks[fpath]
 		if ok {
 			perfilemap[urlref] = Empty{}
@@ -169,28 +165,28 @@ func (links *Links) AddWikilink(displaytext, wikitext, fpath string) {
 	perfilemap, ok := links.ForwardLinks[fpath]
 	if ok {
 		perfilemap[urlref] = Empty{}
-		log.Println(fpath)
 	} else {
 		perfilemap = make(map[Wikilink]Empty)
 		perfilemap[urlref] = Empty{}
 		links.ForwardLinks[fpath] = perfilemap
 	}
 
-	backtext, err := links.mapper.Wikitext(fpath, destpath)
+	backtext, err := links.mapper.Wikitext(destpath, fpath)
 	if err != nil {
 		log.Printf("links.mapper.Wikitext from %q to %q failed: %v", fpath, destpath, err)
 		return
 	}
 	backref := MakeWikilink(backtext, "")
 
-	// Update the reverse links.
-	perfilemap, ok = links.BackLinks[fpath]
+// Update the reverse links. NB: the destpath needs the update with a
+// synthesized wikilink back to fpath.
+	perfilemap, ok = links.BackLinks[destpath]
 	if ok {
 		perfilemap[backref] = Empty{}
 	} else {
 		perfilemap = make(map[Wikilink]Empty)
 		perfilemap[backref] = Empty{}
-		links.BackLinks[fpath] = perfilemap
+		links.BackLinks[destpath] = perfilemap
 	}
 }
 
@@ -202,7 +198,6 @@ func (links *Links) AddForwardUrl(displaytext, url, fpath string) {
 	perfilemap, ok := links.OutUrls[fpath]
 	if ok {
 		perfilemap[urlref] = Empty{}
-		log.Println(fpath)
 	} else {
 		perfilemap = make(map[Urllink]Empty)
 		perfilemap[urlref] = Empty{}
@@ -216,6 +211,6 @@ func (links *Links) RecordUrl(displaytext, url, filepath string) {
 	links.AddForwardUrl(displaytext, url, filepath)
 }
 
-func (links *Links) RecordWikilink(displaytext, wikitext, filepath string) {
-	links.AddWikilink(displaytext, wikitext, filepath)
+func (links *Links) RecordWikilink(displaytext, wikitext, fpath string) {
+	links.AddWikilink(displaytext, wikitext, fpath)
 }

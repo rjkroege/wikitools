@@ -5,7 +5,6 @@ package search
 
 import (
 	"fmt"
-	"log"
 	"path/filepath"
 
 	"github.com/progrium/macdriver/dispatch"
@@ -47,7 +46,6 @@ func (_ *spotlightWikilinkIndexer) Allpaths(location, lsd, wikitext string) ([]s
 // not clear about that.
 // TODO(rjk): does it need an object?
 func (_ *spotlightWikilinkIndexer) pathsforwikitext(location, wikitextfile string) ([]string, error) {
-	log.Println("Allpaths: the goroutine")
 	waiterchan := make(chan foundation.MetadataQuery)
 	// See [File Metadata Search Programming Guide](https://developer.apple.com/library/archive/documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html#//apple_ref/doc/uid/TP40001849-CJBEJBHH) for how to configure this string.
 	qs := fmt.Sprintf("kMDItemFSName == '%s'", wikitextfile)
@@ -56,13 +54,12 @@ func (_ *spotlightWikilinkIndexer) pathsforwikitext(location, wikitextfile strin
 	// Post task to runloop.
 	q := dispatch.MainQueue()
 	q.DispatchAsync(func() {
-		log.Println("pathsforwikitext: on runloop")
 		// Create new query.
 		// TODO(rjk): Could I create this outside?
 		// TODO(rjk): Can I run the query from an arbitrary thread?
 		// TODO(rjk): Can I get the notification back on a different thread?
 		query := foundation.NewMetadataQuery().Init()
-		// query persists beyond a single event cycle and therefore (I believe) needs
+		// query persists beyond a single event cycle and therefore needs
 		// to be retained. Note that this transfers responsibility for freeing query to the
 		// Go GC.
 		objc.Retain(&query)
@@ -79,7 +76,6 @@ func (_ *spotlightWikilinkIndexer) pathsforwikitext(location, wikitextfile strin
 			foundation.OperationQueue_CurrentQueue(),
 			func(notification foundation.Notification) {
 				// This runs on the runloop thread.
-				log.Println("pathsforwikitext sez finished gathering on runloop!")
 				nc.RemoveObserver(token)
 				query.StopQuery()
 
@@ -131,8 +127,6 @@ func afterQueryDone(query foundation.MetadataQuery) ([]string, error) {
 		// Go documentation says that the underlying implementation will
 		// duplicate the string. Conclusion: this is the right way to implement
 		// getting a string value from an NSString instance.
-		log.Println("path", objc.ToGoString(s.Ptr()))
-
 		paths = append(paths, objc.ToGoString(s.Ptr()))
 	}
 	return paths, nil
@@ -144,11 +138,7 @@ func (spix *spotlightWikilinkIndexer) Wikitext(frompath, topath string) (string,
 	// Find allz of the paths
 	allpaths, err := spix.pathsforwikitext(filepath.Dir(frompath), filepath.Base(topath))
 	if err != nil {
-		// TODO(rjk): maybe want something more?
 		return "", fmt.Errorf("Wikitext pathsforwikitext %w", err)
 	}
-	log.Println(allpaths)
-
-	// Need to do something here.
 	return buildshortestwikitext(spix.wikiroot, topath, allpaths)
 }
