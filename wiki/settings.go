@@ -18,6 +18,7 @@ type Settings struct {
 	Wikidir        string            `json:"wikidir"`
 	TemplateForTag map[string]string `json:"templatefortag"`
 	// TODO(rjk): Consider making the extension configurable.
+	Debugmarkdownparsing bool
 }
 
 // Read opens a json format configuration file.
