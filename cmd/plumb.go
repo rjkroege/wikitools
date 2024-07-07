@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"strings"
 
 	"9fans.net/go/acme"
 	"github.com/rjkroege/gozen"
+	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus/search"
 	"github.com/rjkroege/wikitools/wiki"
 )
@@ -30,8 +32,26 @@ func PlumberHelper(settings *wiki.Settings, lsd, wikitext string) {
 		return
 	}
 
+	backlinks := makebacklinkstring(fp)
+
 	log.Println(fp)
-	gozen.Editinacme(fp)
+	gozen.Editinacme(fp, gozen.Addtotag(backlinks))
+
+}
+
+func makebacklinkstring(fp string) string {
+	backlinks, err := article.ReadBacklinks(fp)
+	if err != nil {
+		log.Printf("can't read backlinks from %q, maybe none exist: %v", fp, err)
+		return ""
+	}
+	// Add the backlinks to Edwood.
+	var b strings.Builder
+	for k := range backlinks {
+		b.WriteString(k.Markdown())
+		b.WriteRune(' ')
+	}
+	return b.String()
 }
 
 const logfile = "+Wikierror"
