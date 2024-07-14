@@ -179,6 +179,8 @@ github.com/rjkroege/gozen v0.0.0-20240705123120-988fc551a498 h1:jkSPggLFd9+mHBbt
 github.com/rjkroege/gozen v0.0.0-20240705123120-988fc551a498/go.mod h1:vHFqWm4FyR02rX/TzmBNH7oZa73bwiXI9cv6iDhi0oo=
 github.com/rjkroege/gozen v0.0.0-20240709220557-dfbdacc3d40a h1:dWOhl4+FPYWOiPSmRi6LUDDEeNDP7lJ5CgeJPu2EgCM=
 github.com/rjkroege/gozen v0.0.0-20240709220557-dfbdacc3d40a/go.mod h1:vHFqWm4FyR02rX/TzmBNH7oZa73bwiXI9cv6iDhi0oo=
+github.com/rjkroege/gozen v0.0.0-20240714232118-787da60d55a0 h1:r3yxG5vVo+V/BhIMtol5ZVQk4+WJDr/0z0i+jeI7MsU=
+github.com/rjkroege/gozen v0.0.0-20240714232118-787da60d55a0/go.mod h1:vHFqWm4FyR02rX/TzmBNH7oZa73bwiXI9cv6iDhi0oo=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=

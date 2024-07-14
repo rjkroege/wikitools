@@ -35,7 +35,7 @@ func PlumberHelper(settings *wiki.Settings, lsd, wikitext string) {
 	backlinks := makebacklinkstring(fp)
 
 	log.Println(fp)
-	gozen.Editinacme(fp, gozen.Addtotag(backlinks))
+	gozen.Editinacme(fp, gozen.Addtotag(backlinks), gozen.Blinktag(""))
 
 }
 
