@@ -12,7 +12,7 @@ require (
 
 require (
 	github.com/progrium/macdriver v0.5.0-preview.0.20240307055056-32e7360ca836 // indirect
-	github.com/rjkroege/gozen v0.0.0-20240709220557-dfbdacc3d40a // indirect
+	github.com/rjkroege/gozen v0.0.0-20240714232118-787da60d55a0 // indirect
 	github.com/sanity-io/litter v1.5.5 // indirect
 	go.abhg.dev/goldmark/wikilink v0.5.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
