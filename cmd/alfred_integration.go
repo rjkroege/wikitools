@@ -29,6 +29,11 @@ func ArgsAlfredPreprocess(args []string) []string {
 			nwa = append(nwa, "new")
 			continue
 		}
+		if i == 0 && s == PlumbMarker {
+			nwa = append(nwa, "plumb")
+			continue
+		}
+
 		if i == 0 {
 			nwa = append(nwa, "newautocomplete")
 		}
@@ -142,6 +147,7 @@ func WikinewAutocomplete(settings *wiki.Settings, args []string) {
 }
 
 const ActionMarker = "#actionphase"
+const PlumbMarker = "^plumbphase"
 
 type Item struct {
 	Uid          string `json:"uid,omitempty"`
