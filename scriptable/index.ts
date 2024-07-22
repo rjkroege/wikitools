@@ -1,7 +1,5 @@
-import ForNow from "./paths.js";
-
-
-
-console.log("Hello via Bun!");
+import { ForNow } from "./paths";
+// import * as original from "./original";
 
 console.log(ForNow());
+

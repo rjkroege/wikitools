@@ -1,7 +1,4 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file. Do not edit.
-// icon-color: teal; icon-glyph: magic;
-// I want to create a script that lets me make a new journal article. 
+import { ForNow } from "./paths";
 
 let foo = "# test doc";
 let kNewJournalArticlePath = "/Locations/wiki/unsorted/"
@@ -55,28 +52,6 @@ function loadTemplate(path) {
 return templatestring
 }
 
-let months = [	"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
-
-
-// Get the relative path for today's date.
-function makePathForTime() {
-	let now = new Date();
-
-	let year = now.getFullYear();
-	let month0 = now.getMonth();
-	let month = month0 + 1;
-	let day = now.getDate();
-
-	// zero-pad.
-	let finalmonth = ((month < 10) ? "0" + month : "" + month) + "-" + months[month0];
-
-	// is there a joining...
-	return [year, finalmonth, day].join('/');
-}
-
-// Get the wikidate for today's date
-function makeWikiDateForTime() {
-}
 
 // 
 function writeFileToSomewhere(targetpath, ) {
@@ -100,10 +75,6 @@ function writeFileToSomewhere(targetpath, ) {
 
 // let s = loadTemplate("journal_pm");
 // let timer = Timer.schedule(10*1000, false, ()=>{ console.log("end timer")});
-
-
-console.log(makePathForTime());
-
 
 
 

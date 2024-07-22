@@ -1,0 +1,4 @@
+Edit X:wikitools/.*\.[jt]s: w
+
+# Give it the right name in the outdir.
+bun run build.ts
