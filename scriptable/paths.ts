@@ -1,6 +1,6 @@
 // Export ForNow as a function visible outside of this class.
 
-let months = [
+const months : string[]  = [
   "Jan",
   "Feb",
   "Mar",
@@ -12,7 +12,7 @@ let months = [
   "Sep",
   "Oct",
   "Nov",
-  "Dec",
+  "Dec"
 ];
 
 // Get the relative path for today's date.
@@ -21,7 +21,7 @@ export function ForNow() {
   return forNowImpl(now);
 }
 
-export function forNowImpl(now) {
+export function forNowImpl(now: Date) {
   let year = now.getFullYear();
   let month0 = now.getMonth();
   let month = month0 + 1;
