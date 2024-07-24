@@ -21,7 +21,7 @@ export function ForNow() {
   return forNowImpl(now);
 }
 
-export function forNowImpl(now: Date) {
+export function forNowImpl(now: Date) : string {
   let year = now.getFullYear();
   let month0 = now.getMonth();
   let month = month0 + 1;
@@ -33,4 +33,14 @@ export function forNowImpl(now: Date) {
 
   // is there a joining...
   return [year, finalmonth, day].join("/");
+}
+
+const dewhiter = /\s/ug;
+// Regexp derived from https://github.com/sindresorhus/filename-reserved-regex/tree/main, MIT license
+const cleaner = /[<>:"/\\|?*\u0000-\u001F^]/ug;
+
+// Makes name into a sane name.
+export function SaneFileName(filename: string) : string {
+	const saner = filename.replace(cleaner, "_");
+	return saner.replace(dewhiter, "-");
 }
