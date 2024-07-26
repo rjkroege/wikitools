@@ -1,11 +1,5 @@
 import { ForNow } from "./paths";
 
-let foo = "# test doc";
-let kNewJournalArticlePath = "/Locations/wiki/unsorted/";
-let templateDirectory =
-  "/var/mobile/Library/Mobile Documents/com~apple~CloudDocs/wiki/templates";
-// read a doc here from the somewhere
-
 // Make a call to the app in which to write journal articles.
 function openIaWriter(title, contents) {
   let iawurl = new CallbackURL("iawriter://new");
@@ -18,7 +12,7 @@ function openIaWriter(title, contents) {
 // templates are stored with respect to the wiki bookmark.
 // path is the name of the template in the templates directory.
 // returns the template.
-function loadTemplate(path) {
+function LoadTemplate(path) {
   console.log("loadTemplate: " + path);
   let fm = FileManager.iCloud();
   let bpath = fm.bookmarkedPath("wiki");
