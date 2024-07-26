@@ -2,6 +2,8 @@ Edit X:wikitools/.*\.[jt]s: w
 
 # Give it the right name in the outdir.
 bun run build.ts
+bun test
 
 # Format nicely
+bun add --dev --exact prettier
 bun prettier . --write
