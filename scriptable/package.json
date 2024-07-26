@@ -9,6 +9,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@types/scriptable-ios": "^1.7.7"
+    "@types/scriptable-ios": "^1.7.7",
+    "date-and-time": "^3.4.1"
   }
 }

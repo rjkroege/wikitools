@@ -1,19 +1,5 @@
 // Export ForNow as a function visible outside of this class.
-
-const months : string[]  = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec"
-];
+import date from "date-and-time";
 
 // Get the relative path for today's date.
 export function ForNow() {
@@ -21,26 +7,28 @@ export function ForNow() {
   return forNowImpl(now);
 }
 
-export function forNowImpl(now: Date) : string {
-  let year = now.getFullYear();
-  let month0 = now.getMonth();
-  let month = month0 + 1;
-  let day = now.getDate();
-
-  // zero-pad.
-  let finalmonth =
-    (month < 10 ? "0" + month : "" + month) + "-" + months[month0];
-
-  // is there a joining...
-  return [year, finalmonth, day].join("/");
+// TODO(rjk): This code is dumb about timezones!
+export function forNowImpl(now: Date): string {
+  return date.format(now, "YYYY/MM-MMM/DD");
 }
 
-const dewhiter = /\s/ug;
+const dewhiter = /\s/gu;
 // Regexp derived from https://github.com/sindresorhus/filename-reserved-regex/tree/main, MIT license
-const cleaner = /[<>:"/\\|?*\u0000-\u001F^]/ug;
+const cleaner = /[<>:"/\\|?*\u0000-\u001F^]/gu;
 
 // Makes name into a sane name.
-export function SaneFileName(filename: string) : string {
-	const saner = filename.replace(cleaner, "_");
-	return saner.replace(dewhiter, "-");
+// TODO(rjk): Add the extension.
+export function SaneFileName(filename: string): string {
+  const saner = filename.replace(cleaner, "_");
+  return saner.replace(dewhiter, "-");
+}
+
+export function Wikidate(): string {
+  const now = new Date();
+  return wikidateimpl(now);
+}
+
+export function wikidateimpl(now: Date): string {
+  // unixlikezoned  = "Mon _2 Jan 2006, 15:04:05 -0700"
+  return date.format(now, "ddd DD MMM YYYY, HH:mm:ss UTC");
 }
