@@ -1,6 +1,6 @@
 // [bun test – Test runner | Bun Docs](https://bun.sh/docs/cli/test)
 import { expect, test } from "bun:test";
-import { forNowImpl, SaneFileName, wikidateimpl, padnumber } from "./paths";
+import { forNowImpl, SaneFileName, wikidateimpl } from "./paths";
 
 test("1995-12-17T03:24:00", () => {
   expect(forNowImpl(new Date("1995-12-17T03:24:00"))).toBe("1995/12-Dec/17");

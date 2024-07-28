@@ -1,7 +1,9 @@
-Edit X:wikitools/.*\.[jt]s: w
+Edit X:scriptable/\+Errors: 1,$d
+X:wikitools/.*\.[jt]s: w
 
 # Give it the right name in the outdir.
 bun run build.ts
+bun tsc
 bun test
 
 # Format nicely
