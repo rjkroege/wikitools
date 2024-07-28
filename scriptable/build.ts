@@ -1,18 +1,20 @@
 // Build script
 
-// As of July 2024, bun, node, TypeScript ecosystem is new to me. So I'm
-// adding extra comments to capture
+// Bun lets me import text files and they become variables.
+// NB: This construct however appears to confuse the typescript compiler.
+// TODO(rjk): Fix this.
 import contents from "./header.txt";
 
 // This imports the entire package.
 import path from "node:path";
 
 // This imports a single function I think.
-import { mkdir } from "node:fs/promises";
+import { mkdir, unlink } from "node:fs/promises";
 
 // Logs something.
-console.log("building wikitools package");
-const thepath = "build";
+const home : string = process.env.HOME ?? "/home/me";
+const thepath = path.join(home, "Library/Mobile Documents/iCloud~dk~simonbs~Scriptable/Documents");
+console.log("thepath", thepath);
 
 const thebuild = await Bun.build({
   entrypoints: ["./index.ts"],
@@ -24,7 +26,9 @@ const thebuild = await Bun.build({
 for (const output of thebuild.outputs) {
   const blob = await output;
   await mkdir(thepath, { recursive: true });
-  const fd = Bun.file(path.join(thepath, output.path));
+  const thefile = path.join(thepath, output.path)
+  await unlink(thefile);
+  const fd = Bun.file(thefile);
   const fdw = fd.writer();
   fdw.write(contents);
   fdw.write(await blob.arrayBuffer());
