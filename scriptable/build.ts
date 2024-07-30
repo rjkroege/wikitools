@@ -12,8 +12,11 @@ import path from "node:path";
 import { mkdir, unlink } from "node:fs/promises";
 
 // Logs something.
-const home : string = process.env.HOME ?? "/home/me";
-const thepath = path.join(home, "Library/Mobile Documents/iCloud~dk~simonbs~Scriptable/Documents");
+const home: string = process.env.HOME ?? "/home/me";
+const thepath = path.join(
+  home,
+  "Library/Mobile Documents/iCloud~dk~simonbs~Scriptable/Documents",
+);
 console.log("thepath", thepath);
 
 const thebuild = await Bun.build({
@@ -26,7 +29,7 @@ const thebuild = await Bun.build({
 for (const output of thebuild.outputs) {
   const blob = await output;
   await mkdir(thepath, { recursive: true });
-  const thefile = path.join(thepath, output.path)
+  const thefile = path.join(thepath, output.path);
   await unlink(thefile);
   const fd = Bun.file(thefile);
   const fdw = fd.writer();
