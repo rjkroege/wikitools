@@ -50,3 +50,18 @@ export function LoadTemplate(templatename: string): Promise<string> {
     return fm.readString(templatepath);
   });
 }
+
+export function GetTemplateNames(): string[] {
+  console.log("GetTemplateNames()");
+  const fm = FileManager.iCloud();
+  const bpath = fm.bookmarkedPath("wiki");
+  const tpath = bpath + "/templates";
+
+  const direntries = fm.listContents(tpath);
+
+  const templatenames = direntries
+    .filter((e) => e.endsWith(Markdownext))
+    .map((e) => e.substring(0, e.length - Markdownext.length));
+
+  return templatenames;
+}
