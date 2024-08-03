@@ -162,7 +162,7 @@ func TestRelativeDateDirectory(t *testing.T) {
 		},
 		{
 			in:   &MetaData{"", statdate, otherdate, "What I want 0", "", MdInvalid, []string{}, map[string]string{}, ""},
-			want: "2012/03-Mar/3",
+			want: "2012/03-Mar/03",
 		},
 	} {
 		if got, want := tv.in.RelativeDateDirectory(), tv.want; got != want {

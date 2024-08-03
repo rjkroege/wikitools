@@ -94,7 +94,7 @@ func onefileimpl(settings *wiki.Settings, links *corpus.Links, path string, info
 	)
 
 	if err := mkp.Convert(markdowntext, io.Discard); err != nil {
-		log.Println("couldn't process and discard %q: %v", path, err)
+		log.Printf("couldn't process and discard %q: %v", path, err)
 	}
 
 	return nil
