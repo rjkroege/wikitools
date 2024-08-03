@@ -147,7 +147,7 @@ var shortmonths = [...]string{
 }
 
 func RelativeDateDirectoryForTime(t time.Time) string {
-	return filepath.Join(fmt.Sprintf("%d", t.Year()), fmt.Sprintf("%02d-%s", t.Month(), shortmonths[t.Month()-1]), fmt.Sprintf("%d", t.Day()))
+	return filepath.Join(fmt.Sprintf("%d", t.Year()), fmt.Sprintf("%02d-%s", t.Month(), shortmonths[t.Month()-1]), fmt.Sprintf("%02d", t.Day()))
 }
 
 // RelativeDateDirectory generates the name of the file in the structured

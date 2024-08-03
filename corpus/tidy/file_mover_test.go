@@ -67,14 +67,8 @@ func TestEachFile(t *testing.T) {
 		t.Errorf("Everyfile didn't succeed: %v", err)
 	}
 
-	// TODO(rjk): This is what should pass.
-	readFile(t, s, wrongplacefilename, "2020/11-Nov/6/Session.md", wrongplacecontents)
-	// But this is what currently does because I currently don't rename, I
-	// just move the file.
-	// readFile(t, s, wrongplacefilename, "2020/11-Nov/6/foo.md", wrongplacecontents)
-
+	readFile(t, s, wrongplacefilename, "2020/11-Nov/06/Session.md", wrongplacecontents)
 	readFile(t, s, rightplacefilename, rightplacefilename, rightplacecontents)
-
 	readFile(t, s, unnecessaryuniquingfilename, "2022/11-Nov/29/Inversion-of-Control.md", unnecessaryuniquingcontents)
 
 }
@@ -89,7 +83,7 @@ tags: #entry #therapy
 `
 const wrongplacefilename = "foo.md"
 
-const rightplacefilename = "2022/12-Dec/9/Wikitidy.md"
+const rightplacefilename = "2022/12-Dec/09/Wikitidy.md"
 
 const rightplacecontents = `---
 title: Wikitidy
