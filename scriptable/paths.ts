@@ -30,5 +30,5 @@ export function Wikidate(): string {
 
 export function wikidateimpl(now: Date): string {
   // unixlikezoned  = "Mon _2 Jan 2006, 15:04:05 -0700"
-  return date.format(now, "ddd DD MMM YYYY, HH:mm:ss UTC");
+  return date.format(now, "ddd DD MMM YYYY, HH:mm:ss Z");
 }
