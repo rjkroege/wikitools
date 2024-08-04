@@ -24,7 +24,11 @@ func (_ *portableWikilinkNameIndex) Allpaths(_, _, _ string) ([]string, error) {
 	return nil, fmt.Errorf("portableWikilinkNameIndex.Allpaths not implemented")
 }
 
-func MakeWikilinkNameIndex() *portableWikilinkNameIndex {
+func MakeWikilinkNameIndex(_ string) *portableWikilinkNameIndex {
 	log.Println("hi not from darwin")
 	return &portableWikilinkNameIndex{}
+}
+
+func (_ *portableWikilinkNameIndex) Wikitext( _, _ string) (string, error) {
+	return "", fmt.Errorf("portableWikilinkNameIndex.Wikitext not implemented")
 }
