@@ -9,7 +9,7 @@ import {
   GetTemplateNames,
 } from "./filesystem";
 import { GenerateArticle } from "./genarticle";
-import { OpenInEditor } from "./iawriter";
+import { OpenInEditor, NewInEditor } from "./iawriter";
 import { ShowNewArticleDialog } from "./alert";
 // Need a special statement to import types.
 import type { WikiArticleParms } from "./alert";
@@ -34,11 +34,8 @@ const articletext = GenerateArticle(thetemplate, title, wikidate);
 // Make the directory.
 Makedir(datepath);
 
-// TODO(rjk): Perhaps further refactor the pathing code.
-// Write the article to the desired location.
-const abspath = AbsPath(datepath, SaneFileName(title), Markdownext);
-WriteFile(abspath, articletext);
+const relpath = JoinPath(datepath, SaneFileName(title), Markdownext);
+const librarylocation = "wiki";
+const iapath = `${librarylocation}: ${relpath}`;
 
-OpenInEditor("wiki", JoinPath(datepath, SaneFileName(title), Markdownext));
-
-console.log(thetemplate);
+NewInEditor(iapath, articletext);
