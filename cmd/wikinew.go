@@ -67,12 +67,12 @@ func Expand(a *article.MetaData, tpl wiki.Template) *ExpandedArticle {
 	return &ExpandedArticle{a, b}
 }
 
-// TODO(rjkroege): add usage output on failure.
-// TODO(rjkroege): support editors other than Acme/Edwood.
+// TODO(rjkroege): return error state.
 func Wikinew(settings *wiki.Settings, args []string) {
 	tmpls := wiki.NewTemplatePalette()
 	tmpls.AddDynamcTemplates(settings.TemplateForTag)
 
+// TODO(rjk): refactor this.
 	args, tags := wiki.Split(args)
 	tm, args, tags := tmpls.Picktemplate(args, tags)
 	// TODO(rjk): This is too cute. Don't do things like this.

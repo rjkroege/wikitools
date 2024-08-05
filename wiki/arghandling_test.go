@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestSplit_Empty(t *testing.T) {
@@ -59,63 +61,67 @@ func TestSplit_Basic(t *testing.T) {
 	}
 }
 
-func TestPicktemplate_firstarg(t *testing.T) {
-	tmpls := NewTemplatePalette()
-
-	journaltimepicker = func() bool { return true }
-	defer func() { journaltimepicker = BeforeNoon }()
-
-	ar, tg := Split([]string{"@flong", "journal", "@fling"})
-	tm, ar, tg := tmpls.Picktemplate(ar, tg)
-	if tm != tmpls["journalam"] {
-		t.Errorf("didn't pick correct template, instead chose: %v", tm)
-	}
-	if got, want := tg, []string{"flong", "fling", "journal"}; !reflect.DeepEqual(got, want) {
-		t.Errorf("nontags got %v want %v\n", got, want)
-	}
-	if len(ar) != 0 {
-		t.Error("should not have any args")
-	}
-
-	ar, tg = Split([]string{"@flong", "@code"})
-	tm, ar, tg = tmpls.Picktemplate(ar, tg)
-	if tm != tmpls["code"] {
-		t.Errorf("didn't pick correct template, instead chose: %v", tm)
-	}
-	if got, want := tg, []string{"flong", "code"}; !reflect.DeepEqual(got, want) {
-		t.Errorf("nontags got %v want %v\n", got, want)
-	}
-	if len(ar) != 0 {
-		t.Error("should not have any args")
-	}
-
-	journaltimepicker = func() bool { return false }
-	ar, tg = Split([]string{"@flong", "@journal"})
-	tm, ar, tg = tmpls.Picktemplate(ar, tg)
-	if tm != tmpls["journalpm"] {
-		t.Errorf("didn't pick correct template, instead chose: %v", tm)
-	}
-	if got, want := tg, []string{"flong", "journal"}; !reflect.DeepEqual(got, want) {
-		t.Errorf("nontags got %v want %v\n", got, want)
-	}
-	if len(ar) != 0 {
-		t.Error("should not have any args")
-	}
-
+type teststim struct {
+	args []string
+	wanttemplate Template
+	wantargs []string
+	wanttags []string
+	wanterr error
 }
 
-func TestPicktemplate_tagpriority(t *testing.T) {
+func TestSplitPicktemplate(t *testing.T) {
 	tmpls := NewTemplatePalette()
-	ar, tg := Split([]string{"@flong", "journal", "@book"})
-	tm, ar, tg := tmpls.Picktemplate(ar, tg)
-	if tm != tmpls["book"] {
-		t.Error("didn't pick correct template")
+	journaltimepicker = func() bool { return true }
+
+	testtab := []teststim{
+		{
+			args: []string{"@flong", "journal", "@fling"},
+			wanttemplate:      tmpls["entry"],
+			wantargs: []string{"journal"},
+			wanttags: []string{"flong", "fling"},
+			wanterr: nil,
+		},
+		{
+			args: []string{"@flong", "@journal", "@fling", "hello"},
+			wanttemplate:      tmpls["journalam"],
+			wantargs: []string{"hello"},
+			wanttags: []string{"flong", "journalam", "fling"},
+			wanterr: nil,
+		},
+		{
+			args: []string{"hello", "world"},
+			wanttemplate:      tmpls["entry"],
+			wantargs: []string{"hello", "world"},
+			wanttags: []string{},
+			wanterr: nil,
+		},
+		{
+			args: []string{"hello", "world", "@putty", "#pingu"},
+			wanttemplate:      tmpls["entry"],
+			wantargs: []string{"hello", "world"},
+			wanttags: []string{"putty", "pingu"},
+			wanterr: nil,
+		},
 	}
-	if got, want := tg, []string{"flong", "book"}; !reflect.DeepEqual(got, want) {
-		t.Errorf("nontags got %v want %v\n", got, want)
-	}
-	if got, want := ar, []string{"journal"}; !reflect.DeepEqual(got, want) {
-		t.Errorf("nontags got %v want %v\n", got, want)
+	
+	for i, tv := range testtab {
+		gottempl, gotargs, gottags := tmpls.Picktemplate(Split(tv.args))
+		
+		if diff := cmp.Diff(tv.wanttemplate, gottempl); diff != "" {
+			t.Errorf("[%d] dump mismatch (-want +got):\n%s", i, diff)
+		}
+		if diff := cmp.Diff(tv.wantargs, gotargs); diff != "" {
+			t.Errorf("[%d] dump mismatch (-want +got):\n%s", i, diff)
+		}
+		if diff := cmp.Diff(tv.wanttags, gottags); diff != "" {
+			t.Errorf("[%d] dump mismatch (-want +got):\n%s", i, diff)
+		}
+		/*
+		// TODO(rjk): No errors yes. But there should be.
+		if diff := cmp.Diff(tv.wanterr, goterr, cmpopts.EquateErrors()); diff != "" {
+			t.Errorf("[%d] error dump mismatch (-want +got):\n%s", i, diff)
+		}
+		*/
 	}
 }
 

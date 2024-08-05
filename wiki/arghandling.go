@@ -63,10 +63,12 @@ func (tm TemplatePalette) AddDynamcTemplates(config map[string]string) {
 	}
 }
 
-// Picktemplate chooses a template for a new wiki entry bases on
-// the provided arguments and tags.
+// Picktemplate chooses a template for a new wiki entry bases on the
+// provided arguments and tags. Tags are bare here with the prefix '[#@]'
+// removed.
 func (templatemap TemplatePalette) Picktemplate(args []string, tags []string) (Template, []string, []string) {
 	// Handle book/article entries
+	// TODO(rjk): Are book formats right?
 	booktype, err := bibtex.ExtractBibTeXEntryType(tags)
 	if err == nil {
 		tm, ok := templatemap[booktype]
@@ -78,29 +80,26 @@ func (templatemap TemplatePalette) Picktemplate(args []string, tags []string) (T
 		}
 	}
 
+	// TODO(rjk): Perhaps I should error check? The highroad scheme is to
+	// create a filesystem *inside* the wikitools that contains the default
+	// template.
+	tm := templatemap["entry"]
+
+	modifiedtags := make([]string, 0, len(tags))
 	for _, t := range tags {
-		tg := journalfortime(t)
-		tm, ok := templatemap[tg]
-		if ok {
-			return tm, args, tags
+		if t == "journal" {
+			tg := journalfortime(t)
+			modifiedtags = append(modifiedtags, tg)
+			if ntm, ok := templatemap[tg]; ok {
+				tm = ntm
+			}
+			continue
 		}
+		modifiedtags = append(modifiedtags, t)
 	}
 
-	// If we do not have a @tag that is choosing a journal format, we use the first
-	// argument and it becomes a tag.
-	if len(args) < 1 {
-		log.Fatal("No candidate argument to specify a template\n")
-	}
-
-	templatespecifyingarg := args[0]
-	templatespecifyingarg = journalfortime(templatespecifyingarg)
-	tm, ok := templatemap[templatespecifyingarg]
-	if ok {
-		s := args[0]
-		return tm, args[1:], append(tags, s)
-	}
-	log.Fatal("No tag or first argument selecting a journal type")
-	return templatemap["entry"], []string{}, []string{}
+	// Otherwise, it's an entry
+	return tm, args, modifiedtags
 }
 
 // Split divides the provided arguments into those that wil serve as tags
