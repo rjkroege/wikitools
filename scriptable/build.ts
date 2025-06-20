@@ -19,21 +19,44 @@ const thepath = path.join(
 );
 console.log("thepath", thepath);
 
-const thebuild = await Bun.build({
-  entrypoints: ["./index.ts"],
-  // Don't set outdir so that Bun writes nothing itself.
-  // But keep the naming.
-  naming: "[dir]/wikitools.[ext]",
-});
+// Define the targets and their entry points
+const targets = [
+  {
+    entrypoint: "./index.ts",
+    outputName: "wikitools",
+  },
+  {
+    entrypoint: "./websummary.ts", // Replace with your second entry point
+    outputName: "websummary",
+  },
+];
 
-for (const output of thebuild.outputs) {
-  const blob = await output;
-  await mkdir(thepath, { recursive: true });
-  const thefile = path.join(thepath, output.path);
-  await unlink(thefile);
-  const fd = Bun.file(thefile);
-  const fdw = fd.writer();
-  fdw.write(contents);
-  fdw.write(await blob.arrayBuffer());
-  fdw.end();
+// Build each target
+for (const target of targets) {
+  const thebuild = await Bun.build({
+    entrypoints: [target.entrypoint],
+    naming: `[dir]/${target.outputName}.[ext]`,
+  });
+
+  for (const output of thebuild.outputs) {
+    const blob = await output;
+    await mkdir(thepath, { recursive: true });
+    const thefile = path.join(thepath, output.path);
+
+    // Attempt to unlink the file, ignore error if it doesn't exist
+    try {
+      await unlink(thefile);
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        // Log the error if it's not a "file not found" error
+        console.error(`Error unlinking file: ${thefile}`, error);
+      }
+    }
+
+    const fd = Bun.file(thefile);
+    const fdw = fd.writer();
+    fdw.write(contents);
+    fdw.write(await blob.arrayBuffer());
+    fdw.end();
+  }
 }

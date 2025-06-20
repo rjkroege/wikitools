@@ -9,3 +9,7 @@ bun test
 # Format nicely
 bun add --dev --exact prettier
 bun prettier . --write
+
+
+# The API surface.
+https://www.pinboard.in/api/
