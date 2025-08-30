@@ -29,6 +29,6 @@ func MakeWikilinkNameIndex(_ string) *portableWikilinkNameIndex {
 	return &portableWikilinkNameIndex{}
 }
 
-func (_ *portableWikilinkNameIndex) Wikitext( _, _ string) (string, error) {
+func (_ *portableWikilinkNameIndex) Wikitext(_, _ string) (string, error) {
 	return "", fmt.Errorf("portableWikilinkNameIndex.Wikitext not implemented")
 }

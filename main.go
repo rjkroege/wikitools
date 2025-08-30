@@ -45,7 +45,7 @@ var CLI struct {
 		Move          struct{} `cmd help:"Move files into the correct places."`
 		Findersync    struct{} `cmd help:"Sync metadata info the Spotlight metadata attributes."`
 		Updatetaglist struct{} `cmd help:"Update the cached list of tags for tag autocompletion."`
-		Backlinks struct{} `cmd help:"Update all files to have backlink data encoded into it"`
+		Backlinks     struct{} `cmd help:"Update all files to have backlink data encoded into it"`
 	} `cmd help:"Clean up wiki aritcles: right structure, corrected metadata, etc."`
 
 	Report struct {

@@ -9,6 +9,7 @@ go test ./article
 
 
 go build
+
 GOOS=linux GOARCH=arm go build
 
 # Can't I add this to the autosave stuff above?

@@ -23,7 +23,7 @@ func NewBacklinkwriter(settings *wiki.Settings, dryrun bool) (*backlinkWriter, e
 	return &backlinkWriter{
 		settings: settings,
 		dryrun:   dryrun,
-		linkies:    corpus.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
+		linkies:  corpus.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
 	}, nil
 }
 

@@ -178,8 +178,8 @@ func (links *Links) AddWikilink(displaytext, wikitext, fpath string) {
 	}
 	backref := MakeWikilink(backtext, "")
 
-// Update the reverse links. NB: the destpath needs the update with a
-// synthesized wikilink back to fpath.
+	// Update the reverse links. NB: the destpath needs the update with a
+	// synthesized wikilink back to fpath.
 	perfilemap, ok = links.BackLinks[destpath]
 	if ok {
 		perfilemap[backref] = Empty{}

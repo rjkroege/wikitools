@@ -3,11 +3,11 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
 	"9fans.net/go/acme"
-	"github.com/rjkroege/gozen"
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus/search"
 	"github.com/rjkroege/wikitools/wiki"
@@ -35,8 +35,17 @@ func PlumberHelper(settings *wiki.Settings, lsd, wikitext string) {
 	backlinks := makebacklinkstring(fp)
 
 	log.Println(fp)
-	gozen.Editinacme(fp, gozen.Addtotag(backlinks), gozen.Blinktag(""))
 
+	args := make([]string, 0, 4)
+	args = append(args, "-nw")
+	args = append(args, "-tag")
+	args = append(args, backlinks)
+	args = append(args, fp)
+
+	cmd := exec.Command("editinacme", args...)
+	if err := cmd.Run(); err != nil {
+		writewikierror(settings, []byte(fmt.Sprintf("failed to instruct Edwood to open %v", err)))
+	}
 }
 
 func makebacklinkstring(fp string) string {

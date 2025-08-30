@@ -62,11 +62,11 @@ func TestSplit_Basic(t *testing.T) {
 }
 
 type teststim struct {
-	args []string
+	args         []string
 	wanttemplate Template
-	wantargs []string
-	wanttags []string
-	wanterr error
+	wantargs     []string
+	wanttags     []string
+	wanterr      error
 }
 
 func TestSplitPicktemplate(t *testing.T) {
@@ -75,38 +75,38 @@ func TestSplitPicktemplate(t *testing.T) {
 
 	testtab := []teststim{
 		{
-			args: []string{"@flong", "journal", "@fling"},
-			wanttemplate:      tmpls["entry"],
-			wantargs: []string{"journal"},
-			wanttags: []string{"flong", "fling"},
-			wanterr: nil,
+			args:         []string{"@flong", "journal", "@fling"},
+			wanttemplate: tmpls["entry"],
+			wantargs:     []string{"journal"},
+			wanttags:     []string{"flong", "fling"},
+			wanterr:      nil,
 		},
 		{
-			args: []string{"@flong", "@journal", "@fling", "hello"},
-			wanttemplate:      tmpls["journalam"],
-			wantargs: []string{"hello"},
-			wanttags: []string{"flong", "journalam", "fling"},
-			wanterr: nil,
+			args:         []string{"@flong", "@journal", "@fling", "hello"},
+			wanttemplate: tmpls["journalam"],
+			wantargs:     []string{"hello"},
+			wanttags:     []string{"flong", "journalam", "fling"},
+			wanterr:      nil,
 		},
 		{
-			args: []string{"hello", "world"},
-			wanttemplate:      tmpls["entry"],
-			wantargs: []string{"hello", "world"},
-			wanttags: []string{},
-			wanterr: nil,
+			args:         []string{"hello", "world"},
+			wanttemplate: tmpls["entry"],
+			wantargs:     []string{"hello", "world"},
+			wanttags:     []string{},
+			wanterr:      nil,
 		},
 		{
-			args: []string{"hello", "world", "@putty", "#pingu"},
-			wanttemplate:      tmpls["entry"],
-			wantargs: []string{"hello", "world"},
-			wanttags: []string{"putty", "pingu"},
-			wanterr: nil,
+			args:         []string{"hello", "world", "@putty", "#pingu"},
+			wanttemplate: tmpls["entry"],
+			wantargs:     []string{"hello", "world"},
+			wanttags:     []string{"putty", "pingu"},
+			wanterr:      nil,
 		},
 	}
-	
+
 	for i, tv := range testtab {
 		gottempl, gotargs, gottags := tmpls.Picktemplate(Split(tv.args))
-		
+
 		if diff := cmp.Diff(tv.wanttemplate, gottempl); diff != "" {
 			t.Errorf("[%d] dump mismatch (-want +got):\n%s", i, diff)
 		}
@@ -117,10 +117,10 @@ func TestSplitPicktemplate(t *testing.T) {
 			t.Errorf("[%d] dump mismatch (-want +got):\n%s", i, diff)
 		}
 		/*
-		// TODO(rjk): No errors yes. But there should be.
-		if diff := cmp.Diff(tv.wanterr, goterr, cmpopts.EquateErrors()); diff != "" {
-			t.Errorf("[%d] error dump mismatch (-want +got):\n%s", i, diff)
-		}
+			// TODO(rjk): No errors yes. But there should be.
+			if diff := cmp.Diff(tv.wanterr, goterr, cmpopts.EquateErrors()); diff != "" {
+				t.Errorf("[%d] error dump mismatch (-want +got):\n%s", i, diff)
+			}
 		*/
 	}
 }

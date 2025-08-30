@@ -38,7 +38,7 @@ func (md *ExpandedArticle) Plumb(settings *wiki.Settings) {
 	filename := md.PreferredFileName(settings)
 	ufn := settings.UniquingExtension(reldir, filename)
 
-	fullpathname := filepath.Join(settings.Wikidir, reldir, settings.ExtensionedFileName(filename + ufn))
+	fullpathname := filepath.Join(settings.Wikidir, reldir, settings.ExtensionedFileName(filename+ufn))
 
 	err = win.Name(fullpathname)
 	if err != nil {
@@ -72,7 +72,7 @@ func Wikinew(settings *wiki.Settings, args []string) {
 	tmpls := wiki.NewTemplatePalette()
 	tmpls.AddDynamcTemplates(settings.TemplateForTag)
 
-// TODO(rjk): refactor this.
+	// TODO(rjk): refactor this.
 	args, tags := wiki.Split(args)
 	tm, args, tags := tmpls.Picktemplate(args, tags)
 	// TODO(rjk): This is too cute. Don't do things like this.

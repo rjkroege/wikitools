@@ -7,8 +7,8 @@ import (
 	"log"
 
 	"github.com/alecthomas/kong"
-	"github.com/progrium/macdriver/macos"
-	"github.com/progrium/macdriver/macos/appkit"
+	"github.com/progrium/darwinkit/macos"
+	"github.com/progrium/darwinkit/macos/appkit"
 	"github.com/rjkroege/wikitools/wiki"
 )
 
