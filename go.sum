@@ -6,8 +6,6 @@ github.com/alecthomas/repr v0.1.0 h1:ENn2e1+J3k09gyj2shc0dHr/yjaWSHRlrJ4DPMevDqE
 github.com/alecthomas/repr v0.1.0/go.mod h1:2kn6fqh/zIyPLmm3ugklbEi5hg5wS435eygvNfaDQL8=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/go-test/deep v1.1.0 h1:WOcxcdHcvdgThNXjw0t76K42FXTU7HpNQWHpA2HHNlg=
-github.com/go-test/deep v1.1.0/go.mod h1:5C2ZWiW0ErCdrYzpqxLbTX7MG14M9iiw8DgHncVwcsE=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/hexops/gotextdiff v1.0.3 h1:gitA9+qJrrTCsiCl7+kh75nPqQt1cx4ZkudSTLoUqJM=
@@ -16,8 +14,6 @@ github.com/litao91/goldmark-mathjax v0.0.0-20191101121019-011def32b12f h1:mTnjnO
 github.com/litao91/goldmark-mathjax v0.0.0-20191101121019-011def32b12f/go.mod h1:visY8Wq1v63x0pB96H2V3D/02Q32D6s37+q3ya1/gOM=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/progrium/darwinkit v0.5.1-0.20240715194340-61b9e31a12fa h1:tt/xmq4xYm+9iAWwvob4Z5P/9SOyeUl3aIXlxUh1RLo=
-github.com/progrium/darwinkit v0.5.1-0.20240715194340-61b9e31a12fa/go.mod h1:PxQhZuftnALLkCVaR8LaHtUOfoo4pm8qUDG+3C/sXNs=
 github.com/rjkroege/go v0.0.0-20250830183428-45f5717096f4 h1:9u4SW2BkiArHd+Vd7OiCHn3Z1IzJsNFLN4a9mWh3JPU=
 github.com/rjkroege/go v0.0.0-20250830183428-45f5717096f4/go.mod h1:ncXs8WM9yj+lkdkyHovPnMc6e+L0OVxZ9RYdHEXESSA=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

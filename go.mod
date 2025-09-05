@@ -12,6 +12,4 @@ require (
 	golang.org/x/sys v0.35.0
 )
 
-require github.com/progrium/darwinkit v0.5.1-0.20240715194340-61b9e31a12fa
-
 replace 9fans.net/go => github.com/rjkroege/go v0.0.0-20250830183428-45f5717096f4

@@ -75,8 +75,7 @@ func main() {
 		log.Fatal("No configuration file. Fatai:", err)
 	}
 
-	// Invokes _main inside on platforms where I assume that functionality (e.g. darwin).
-	startmessageloop(ctx, settings)
+	_main(ctx, settings)
 }
 
 func _main(ctx *kong.Context, settings *wiki.Settings) {
