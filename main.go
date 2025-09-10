@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/alecthomas/kong"
-	"github.com/rjkroege/wikitools/cmd"
+	"github.com/rjkroege/wikitools/actions"
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/corpus/tidy"
 	"github.com/rjkroege/wikitools/wiki"
