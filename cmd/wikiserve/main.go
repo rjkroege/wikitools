@@ -1,6 +1,7 @@
 package main
 
 import (
+    "flag"
     "fmt"
     "log"
     "net/http"
@@ -11,7 +12,11 @@ func hello(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+    port := flag.String("port", "8080", "HTTP listen port")
+    flag.Parse()
+
+    addr := ":" + *port
     http.HandleFunc("/", hello)
-    log.Println("Listening on http://localhost:8080 …")
-    log.Fatal(http.ListenAndServe(":8080", nil))
+    log.Printf("Listening on http://localhost%s …", addr)
+    log.Fatal(http.ListenAndServe(addr, nil))
 }
