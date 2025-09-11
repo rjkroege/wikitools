@@ -2,12 +2,11 @@ package main
 
 import (
     "encoding/json"
+	"flag"
     "fmt"
     "log"
     "net/http"
 )
-
-const addr = ":8080"
 
 // ---------- tiny helpers that pretend to do the real work --------------------
 
@@ -78,6 +77,10 @@ func wrap(f func() any) http.HandlerFunc {
 // ---------- entry point -------------------------------------------------------
 
 func main() {
+    port := flag.String("port", "8080", "HTTP server port")
+    flag.Parse()
+    addr := ":" + *port
+
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         if r.URL.Path != "/" {
             http.NotFound(w, r)
