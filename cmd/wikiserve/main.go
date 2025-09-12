@@ -23,7 +23,6 @@ func newTagsDumper() any            { return map[string]string{"tidy": "NewTagsD
 func newBacklinkwriter() any        { return map[string]string{"tidy": "NewBacklinkwriter"} }
 func newFilemover() any              { return map[string]string{"tidy": "NewFilemover"} }
 func newMetadataReporter() any      { return map[string]string{"tidy": "NewMetadataReporter"} }
-func newTagsReporter() any          { return map[string]string{"tidy": "NewTagsReporter"} }
 func newUrlReporter() any           { return map[string]string{"tidy": "NewUrlReporter"} }
 
 // corpus helpers (invoked by tidy actions)
@@ -32,6 +31,13 @@ func summary() any                 { return map[string]string{"tidying": "Summar
 
 // listAllWikiFilesTidying is a constructor, so we expose it too
 func listAllWikiFilesTidying() any { return map[string]string{"corpus": "NewListAllWikiFilesTidying"} }
+
+
+// TODO(rjk): First case to implement the new way.
+func tagsReport() any          { return map[string]string{"tidy": "NewTagsReporter"} }
+
+
+
 
 // ---------- routing table -----------------------------------------------------
 
@@ -54,7 +60,7 @@ var routes = []route{
     {"/tidy/new-backlinkwriter", wrap(newBacklinkwriter)},
     {"/tidy/new-filemover", wrap(newFilemover)},
     {"/tidy/new-metadata-reporter", wrap(newMetadataReporter)},
-    {"/tidy/new-tags-reporter", wrap(newTagsReporter)},
+    {"/tidy/new-tags-reporter", wrap(tagsReport)},
     {"/tidy/new-url-reporter", wrap(newUrlReporter)},
 
     // corpus helpers used by tidy
