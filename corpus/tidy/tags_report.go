@@ -87,3 +87,5 @@ func (tr *tagsReport) Summary() error {
 
 	return nil
 }
+
+var _ corpus.Tidying = (*tagsReport)(nil)
