@@ -1,8 +1,10 @@
 package tidy
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/rjkroege/wikitools/article"
@@ -40,7 +42,7 @@ func (blw *backlinkWriter) EachFile(path string, info os.FileInfo, err error) er
 // TODO(rjk): I will need to pull out the merging process into a helper function
 // TODO(rjk): The merging process needs to happen for all the paths that have
 // backlink additions.
-func (blw *backlinkWriter) Summary() error {
+func (blw *backlinkWriter) SummaryWrite(_ io.Writer) error {
 	allerrors := make([]error, 0)
 	for path, nbl := range blw.linkies.BackLinks {
 		obl, err := article.ReadBacklinks(path)
@@ -70,3 +72,9 @@ func (blw *backlinkWriter) Summary() error {
 	}
 	return errors.Join(allerrors...)
 }
+
+func (tr *backlinkWriter) SummaryEncode(_ *json.Encoder) error {
+	return nil
+}
+
+var _ corpus.Tidying = (*tagsReport)(nil)

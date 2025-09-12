@@ -1,7 +1,10 @@
 package corpus
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -16,31 +19,49 @@ type Tidying interface {
 	// EachFile is called by the filepath.Walk over each valid wiki file in the wiki tree.
 	EachFile(path string, info os.FileInfo, err error) error
 
-	// Summary provides the final output.
+	// SummaryWrite provides the final output to the provided io.Writer.
 	// TODO(rjk): I should make this more complicated. In a way that
 	// permits all the file actions to happen in parallel? The parsing of all
 	// the articles is definitely something that can transpire concurrently.
-	Summary() error
+	SummaryWrite(w io.Writer) error
+
+	// SummaryEncode provides the final output to the provided JSON
+	// encoder.
+	SummaryEncode(e *json.Encoder) error
 }
 
 // ListAllWikiFiles is a boring implementation of Tidying that lists all files.
-type listAllWikiFiles struct{}
+type listAllWikiFiles struct {
+	files []string
+}
 
 func NewListAllWikiFilesTidying() Tidying {
 	return &listAllWikiFiles{}
 }
 
-func (_ *listAllWikiFiles) EachFile(path string, info os.FileInfo, err error) error {
+func (tidy *listAllWikiFiles) EachFile(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
-	log.Printf("%s: %s\n", path, info.ModTime().Format(time.RFC822))
+
+	tidy.files = append(tidy.files, fmt.Sprintf("%s: %s\n", path, info.ModTime().Format(time.RFC822)))
 	return nil
 }
 
-func (_ *listAllWikiFiles) Summary() error {
+func (tidy *listAllWikiFiles) SummaryWrite(w io.Writer) error {
+	b := bufio.NewWriter(w)
+	defer b.Flush()
+	for _, s := range tidy.files {
+		if _, err := b.WriteString(s); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+func (tidy *listAllWikiFiles) SummaryEncode(e *json.Encoder) error {
+	return e.Encode(tidy.files)
 }
 
 func Everyfile(settings *wiki.Settings, tidying Tidying) error {
@@ -69,3 +90,5 @@ type UrlRecorder interface {
 	RecordUrl(displaytext, url, filepath string)
 	RecordWikilink(displaytext, wikitext, filepath string)
 }
+
+var _ Tidying = (*listAllWikiFiles)(nil)

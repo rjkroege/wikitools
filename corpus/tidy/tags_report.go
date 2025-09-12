@@ -3,7 +3,9 @@ package tidy
 import (
 	"bufio"
 	"cmp"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -66,7 +68,7 @@ type tagreport struct {
 	count int
 }
 
-func (tr *tagsReport) Summary() error {
+func (tr *tagsReport) SummaryWrite(_ io.Writer) error {
 	ts := make([]tagreport, 0)
 
 	for k, v := range tr.tags {
@@ -85,6 +87,10 @@ func (tr *tagsReport) Summary() error {
 		log.Println(t.tag, t.count)
 	}
 
+	return nil
+}
+
+func (tr *tagsReport) SummaryEncode(_ *json.Encoder) error {
 	return nil
 }
 

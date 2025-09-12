@@ -2,7 +2,9 @@ package tidy
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -98,7 +100,7 @@ type MetadataSection struct {
 	Articles []*articleReportEntry
 }
 
-func (abc *metadataReport) Summary() error {
+func (abc *metadataReport) SummaryWrite(_ io.Writer) error {
 	path, err := abc.settings.MakeGenDir()
 	if err != nil {
 		return err
@@ -144,6 +146,12 @@ func (abc *metadataReport) Summary() error {
 	}
 	return nil
 }
+
+func (tr *metadataReport) SummaryEncode(_ *json.Encoder) error {
+	return nil
+}
+
+var _ corpus.Tidying = (*metadataReport)(nil)
 
 type ByDate []*articleReportEntry
 

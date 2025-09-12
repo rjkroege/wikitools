@@ -2,7 +2,9 @@ package tidy
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -117,7 +119,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
-func (fm *fileMover) Summary() error {
+func (fm *fileMover) SummaryWrite(_ io.Writer) error {
 	dirs := fm.removeddirectories
 
 	if fm.dryrun {
@@ -141,3 +143,9 @@ func (fm *fileMover) Summary() error {
 
 	return nil
 }
+
+func (tr *fileMover) SummaryEncode(_ *json.Encoder) error {
+	return nil
+}
+
+var _ corpus.Tidying = (*fileMover)(nil)

@@ -2,6 +2,7 @@ package tidy
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -120,7 +121,7 @@ type CompleteUrlReportDocument struct {
 // logic for writing a backing database of URLs with this code. I can
 // pull the walking out and just create a different Summary
 // implementation.
-func (abc *urlReport) Summary() error {
+func (abc *urlReport) SummaryWrite(_ io.Writer) error {
 	path, err := abc.settings.MakeGenDir()
 	if err != nil {
 		return err
@@ -171,3 +172,9 @@ func (abc *urlReport) Summary() error {
 	}
 	return nil
 }
+
+func (tr *urlReport) SummaryEncode(_ *json.Encoder) error {
+	return nil
+}
+
+var _ corpus.Tidying = (*urlReport)(nil)

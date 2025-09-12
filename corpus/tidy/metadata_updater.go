@@ -136,3 +136,5 @@ tags: {{.Tags}}{{end}}{{range $key, $value := .Extrakeys}}
 ---
 
 `
+
+var _ corpus.Tidying = (*metadataUpdater)(nil)

@@ -107,7 +107,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}
-		if err := tidying.Summary(); err != nil {
+		if err := tidying.SummaryWrite(nil); err != nil {
 			log.Fatal("report Summary: ", err)
 		}
 	case "tidy updatetaglist":
@@ -118,7 +118,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}
-		if err := tidying.Summary(); err != nil {
+		if err := tidying.SummaryWrite(nil); err != nil {
 			log.Fatal("report Summary: ", err)
 		}
 	case "tidy findersync":
@@ -130,7 +130,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}
-		if err := tidying.Summary(); err != nil {
+		if err := tidying.SummaryWrite(nil); err != nil {
 			log.Fatal("tidy backlinks summary: ", err)
 		}
 	case "tidy move":
@@ -138,7 +138,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}
-		if err := tidying.Summary(); err != nil {
+		if err := tidying.SummaryWrite(nil); err != nil {
 			log.Fatal("report Summary: ", err)
 		}
 	case "report metadata":
@@ -149,7 +149,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}
-		if err := tidying.Summary(); err != nil {
+		if err := tidying.SummaryWrite(nil); err != nil {
 			log.Fatal("report Summary: ", err)
 		}
 	case "report tags":
@@ -160,7 +160,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}
-		if err := tidying.Summary(); err != nil {
+		if err := tidying.SummaryWrite(nil); err != nil {
 			log.Fatal("report Summary: ", err)
 		}
 	case "report urls":
@@ -171,15 +171,18 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}
-		if err := tidying.Summary(); err != nil {
+		if err := tidying.SummaryWrite(nil); err != nil {
 			log.Fatal("report Summary: ", err)
 		}
 	case "report todos":
 		log.Println("report todos not implemented")
 	case "report articles":
-		tid := corpus.NewListAllWikiFilesTidying()
-		if err := corpus.Everyfile(settings, tid); err != nil {
+		tidying := corpus.NewListAllWikiFilesTidying()
+		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
+		}
+		if err := tidying.SummaryWrite(os.Stdout); err != nil {
+			log.Fatal("report Summary: ", err)
 		}
 	default:
 		log.Fatal("Missing command: ", ctx.Command())

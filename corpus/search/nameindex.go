@@ -41,21 +41,21 @@ func (_ *spotlightWikilinkIndexer) Allpaths(location, lsd, wikitext string) ([]s
 // not clear about that.
 // TODO(rjk): does it need an object?
 func (_ *spotlightWikilinkIndexer) pathsforwikitext(location, wikitextfile string) ([]string, error) {
-    matches :=  []string{}
-    err := filepath.WalkDir(location, func(path string, d os.DirEntry, err error) error {
-        if err != nil {
-            return nil
-        }
-        if filepath.Base(path) == wikitextfile {
-            abs, err := filepath.Abs(path)
-            if err != nil {
-                return err
-            }
-            matches = append(matches, abs)
-        }
-        return nil
-    })
-    return matches, err
+	matches := []string{}
+	err := filepath.WalkDir(location, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if filepath.Base(path) == wikitextfile {
+			abs, err := filepath.Abs(path)
+			if err != nil {
+				return err
+			}
+			matches = append(matches, abs)
+		}
+		return nil
+	})
+	return matches, err
 }
 
 func MakeWikilinkNameIndex(wikiroot string) *spotlightWikilinkIndexer {
