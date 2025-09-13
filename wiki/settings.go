@@ -13,16 +13,26 @@ import (
 	"time"
 )
 
+const (
+	OutputCLI = iota
+	OutputJSON
+	OutputHTML
+)
+
 // Toplevel settings.
 type Settings struct {
 	Wikidir        string            `json:"wikidir"`
 	TemplateForTag map[string]string `json:"templatefortag"`
 	// TODO(rjk): Consider making the extension configurable.
 	Debugmarkdownparsing bool
+	OutputType int
 }
 
 // Read opens a json format configuration file.
 func Read(path string) (*Settings, error) {
+	if path[0] == '~' {
+		path = os.ExpandEnv("$HOME" + path[1:])
+	}
 	fd, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("no config file %q: %v", path, err)

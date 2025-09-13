@@ -72,7 +72,7 @@ func main() {
 	settings, err := wiki.Read(CLI.ConfigFile)
 	if err != nil {
 		// TODO(rjk): This is not nice. Set things up sensibly.
-		log.Fatal("No configuration file. Fatai:", err)
+		log.Fatal("No configuration file. Fatal:", err)
 	}
 
 	_main(ctx, settings)

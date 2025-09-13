@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 // ---------- tiny helpers that pretend to do the real work --------------------
@@ -28,47 +30,47 @@ func newUrlReporter() any      { return map[string]string{"tidy": "NewUrlReporte
 // corpus helpers (invoked by tidy actions)
 func everyfile() any { return map[string]string{"corpus": "Everyfile"} }
 func summary() any   { return map[string]string{"tidying": "Summary"} }
+func tagsReport() any { return map[string]string{"tidy": "NewTagsReporter"} }
 
 // listAllWikiFilesTidying is a constructor, so we expose it too
 func listAllWikiFilesTidying() any { return map[string]string{"corpus": "NewListAllWikiFilesTidying"} }
 
-// TODO(rjk): First case to implement the new way.
-func tagsReport() any { return map[string]string{"tidy": "NewTagsReporter"} }
 
 // ---------- routing table -----------------------------------------------------
 
 type route struct {
 	pattern string
-	handler http.HandlerFunc
+	handler func() any
 }
 
 var routes = []route{
 	// cmd namespace
-	{"/cmd/wikinew", wrap(wikinew)},
-	{"/cmd/wikinew-autocomplete", wrap(wikinewAutocomplete)},
-	{"/cmd/preview", wrap(preview)},
-	{"/cmd/plumber-helper", wrap(plumberHelper)},
-	{"/cmd/bearimport", wrap(bearimport)},
+	{"/cmd/wikinew", wikinew},
+	{"/cmd/wikinew-autocomplete", wikinewAutocomplete},
+	{"/cmd/preview", preview},
+	{"/cmd/plumber-helper", plumberHelper},
+	{"/cmd/bearimport", bearimport},
 
 	// tidy namespace
-	{"/tidy/new-metadata-updater", wrap(newMetadataUpdater)},
-	{"/tidy/new-tags-dumper", wrap(newTagsDumper)},
-	{"/tidy/new-backlinkwriter", wrap(newBacklinkwriter)},
-	{"/tidy/new-filemover", wrap(newFilemover)},
-	{"/tidy/new-metadata-reporter", wrap(newMetadataReporter)},
-	{"/tidy/new-tags-reporter", wrap(tagsReport)},
-	{"/tidy/new-url-reporter", wrap(newUrlReporter)},
+	{"/tidy/new-metadata-updater", newMetadataUpdater},
+	{"/tidy/new-tags-dumper", newTagsDumper},
+	{"/tidy/new-backlinkwriter", newBacklinkwriter},
+	{"/tidy/new-filemover", newFilemover},
+	{"/tidy/new-metadata-reporter", newMetadataReporter},
+	{"/tidy/new-tags-reporter", tagsReport},
+	{"/tidy/new-url-reporter", newUrlReporter},
 
 	// corpus helpers used by tidy
-	{"/corpus/everyfile", wrap(everyfile)},
-	{"/tidying/summary", wrap(summary)},
-	{"/corpus/new-list-all-wiki-files-tidying", wrap(listAllWikiFilesTidying)},
+	{"/corpus/everyfile", everyfile},
+	{"/tidying/summary", summary},
+	{"/corpus/new-list-all-wiki-files-tidying", listAllWikiFilesTidying},
 }
 
 // ---------- generic JSON responder ------------------------------------------
 
-func wrap(f func() any) http.HandlerFunc {
+func wrap(settings *wiki.Settings,  f func() any) http.HandlerFunc {
 	return func(w http.ResponseWriter, _ *http.Request) {
+		log.Printf("settings %v", settings)
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(f()); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -80,20 +82,29 @@ func wrap(f func() any) http.HandlerFunc {
 
 func main() {
 	port := flag.String("port", "8080", "HTTP server port")
+	configfile := flag.String("path", "~/.wikinewrc", "Set alternate configuration file")
 	flag.Parse()
 	addr := ":" + *port
+
+	// TODO(rjk): wiki => config
+	settings, err := wiki.Read(*configfile)
+	if err != nil {
+		// TODO(rjk): This is not nice. Set things up sensibly and
+		// proceed with reasonable defaults.
+		log.Fatal("No configuration file. Fatal:", err)
+	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
 		}
-		fmt.Fprintln(w, "<h1>Hello, world</h1>")
+		fmt.Fprintln(w, "<h1>Wiki</h1>")
 	})
 
 	// register REST endpoints
 	for _, rt := range routes {
-		http.HandleFunc(rt.pattern, rt.handler)
+		http.HandleFunc(rt.pattern, wrap(settings, rt.handler))
 	}
 
 	log.Printf("Listening on %s …", addr)
