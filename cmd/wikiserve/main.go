@@ -103,7 +103,9 @@ func figureoutoutputformat(r *http.Request) int {
 		ua := _h[0]
 log.Printf("ua: %q", ua)
 		switch {
-		case !strings.HasPrefix("curl", ua):
+		case strings.HasPrefix(ua, "curl"):
+			return wiki.OutputCLI
+		default:
 			return wiki.OutputHTML
 		}
 	}

@@ -30,9 +30,14 @@ type Tidying interface {
 	SummaryEncode(e *json.Encoder) error
 }
 
+type FileRecord struct {
+    Path    string    `json:"path"`
+    ModTime time.Time `json:"modtime"`
+}
+
 // ListAllWikiFiles is a boring implementation of Tidying that lists all files.
 type listAllWikiFiles struct {
-	Files []string
+	Files []FileRecord
 }
 
 func NewListAllWikiFilesTidying(_ *wiki.Settings) (Tidying, error) {
@@ -45,7 +50,10 @@ func (tidy *listAllWikiFiles) EachFile(path string, info os.FileInfo, err error)
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
-	tidy.Files = append(tidy.Files, fmt.Sprintf("%s: %s\n", path, info.ModTime().Format(time.RFC822)))
+	tidy.Files = append(tidy.Files, FileRecord{
+		Path: path,
+		ModTime: info.ModTime(),
+	})
 	return nil
 }
 
@@ -54,7 +62,7 @@ log.Println("listAllWikiFiles", "SummaryWrite")
 	b := bufio.NewWriter(w)
 	defer b.Flush()
 	for _, s := range tidy.Files {
-		if _, err := b.WriteString(s); err != nil {
+		if _, err := fmt.Fprintf(b, "%s: %s\n", s.Path, s.ModTime.Format(time.RFC822)); err != nil {
 			return err
 		}
 	}
