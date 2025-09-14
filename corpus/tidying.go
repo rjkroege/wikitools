@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+	"strings"
 
 	"github.com/rjkroege/wikitools/wiki"
 )
@@ -32,16 +33,20 @@ type Tidying interface {
 
 type FileRecord struct {
     Path    string    `json:"path"`
+	RelPath string 
     ModTime time.Time `json:"modtime"`
 }
 
 // ListAllWikiFiles is a boring implementation of Tidying that lists all files.
 type listAllWikiFiles struct {
 	Files []FileRecord
+	settings *wiki.Settings
 }
 
-func NewListAllWikiFilesTidying(_ *wiki.Settings) (Tidying, error) {
-	return &listAllWikiFiles{}, nil
+func NewListAllWikiFilesTidying(settings *wiki.Settings) (Tidying, error) {
+	return &listAllWikiFiles{
+		settings: settings,
+	}, nil
 }
 
 func (tidy *listAllWikiFiles) EachFile(path string, info os.FileInfo, err error) error {
@@ -53,12 +58,16 @@ func (tidy *listAllWikiFiles) EachFile(path string, info os.FileInfo, err error)
 	tidy.Files = append(tidy.Files, FileRecord{
 		Path: path,
 		ModTime: info.ModTime(),
+		RelPath: strings.TrimPrefix(path, tidy.settings.Wikidir),
 	})
 	return nil
 }
 
 func (tidy *listAllWikiFiles) SummaryWrite(w io.Writer) error {
 log.Println("listAllWikiFiles", "SummaryWrite")
+	if tidy.settings.OutputType == wiki.OutputHTML {
+		return tidy._htmlSummaryWrite(w)
+	}
 	b := bufio.NewWriter(w)
 	defer b.Flush()
 	for _, s := range tidy.Files {
@@ -68,6 +77,7 @@ log.Println("listAllWikiFiles", "SummaryWrite")
 	}
 	return nil
 }
+
 
 func (tidy *listAllWikiFiles) SummaryEncode(e *json.Encoder) error {
 log.Println("listAllWikiFiles", "SummaryEncode", tidy.Files)
