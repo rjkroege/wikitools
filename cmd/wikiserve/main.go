@@ -71,8 +71,6 @@ var routes = []route{
  	{"/corpus/new-list-all-wiki-files-tidying", corpus.NewListAllWikiFilesTidying},
 }
 
-// ---------- generic JSON responder ------------------------------------------
-
 func wrap(settings *wiki.Settings,  f func() any) http.HandlerFunc {
 	return func(w http.ResponseWriter, _ *http.Request) {
 		log.Printf("settings %v", settings)
@@ -82,7 +80,6 @@ func wrap(settings *wiki.Settings,  f func() any) http.HandlerFunc {
 		}
 	}
 }
-
 
 func figureoutoutputformat(r *http.Request) int {
 	// Set by parameter.
@@ -109,7 +106,6 @@ log.Printf("ua: %q", ua)
 			return wiki.OutputHTML
 		}
 	}
-
 	return wiki.OutputCLI
 }
 
@@ -167,7 +163,15 @@ log.Printf("tidywrap running cli output OutputHTML")
 	}
 }
 
-// ---------- entry point -------------------------------------------------------
+const homepage = `<html>
+<body>
+<h1>Functions</h1>
+<ul>
+<li><a href="/corpus/new-list-all-wiki-files-tidying">List articles</a></li>
+</ull
+</body>
+</html>
+`
 
 func main() {
 	port := flag.String("port", "8080", "HTTP server port")
@@ -188,7 +192,7 @@ func main() {
 			http.NotFound(w, r)
 			return
 		}
-		fmt.Fprintln(w, "<h1>Wiki</h1>")
+		fmt.Fprintln(w, homepage)
 	})
 
 	// TODO(rjk): In the future 
