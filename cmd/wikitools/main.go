@@ -177,7 +177,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 	case "report todos":
 		log.Println("report todos not implemented")
 	case "report articles":
-		tidying := corpus.NewListAllWikiFilesTidying()
+		tidying := corpus.NewListAllWikiFilesTidying(settings)
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}

@@ -32,11 +32,11 @@ type Tidying interface {
 
 // ListAllWikiFiles is a boring implementation of Tidying that lists all files.
 type listAllWikiFiles struct {
-	files []string
+	Files []string
 }
 
-func NewListAllWikiFilesTidying() Tidying {
-	return &listAllWikiFiles{}
+func NewListAllWikiFilesTidying(_ *wiki.Settings) (Tidying, error) {
+	return &listAllWikiFiles{}, nil
 }
 
 func (tidy *listAllWikiFiles) EachFile(path string, info os.FileInfo, err error) error {
@@ -45,14 +45,15 @@ func (tidy *listAllWikiFiles) EachFile(path string, info os.FileInfo, err error)
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
-	tidy.files = append(tidy.files, fmt.Sprintf("%s: %s\n", path, info.ModTime().Format(time.RFC822)))
+	tidy.Files = append(tidy.Files, fmt.Sprintf("%s: %s\n", path, info.ModTime().Format(time.RFC822)))
 	return nil
 }
 
 func (tidy *listAllWikiFiles) SummaryWrite(w io.Writer) error {
+log.Println("listAllWikiFiles", "SummaryWrite")
 	b := bufio.NewWriter(w)
 	defer b.Flush()
-	for _, s := range tidy.files {
+	for _, s := range tidy.Files {
 		if _, err := b.WriteString(s); err != nil {
 			return err
 		}
@@ -61,7 +62,8 @@ func (tidy *listAllWikiFiles) SummaryWrite(w io.Writer) error {
 }
 
 func (tidy *listAllWikiFiles) SummaryEncode(e *json.Encoder) error {
-	return e.Encode(tidy.files)
+log.Println("listAllWikiFiles", "SummaryEncode", tidy.Files)
+	return e.Encode(tidy.Files)
 }
 
 func Everyfile(settings *wiki.Settings, tidying Tidying) error {
