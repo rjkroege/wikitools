@@ -10,7 +10,7 @@ const 	listallwikitmpl = `
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>CSS Columns Demo</title>
+  <title>Wiki Article List</title>
   <style>
     .auto-column-list {
       column-width: 45ch;

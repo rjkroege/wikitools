@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"slices"
+    "html/template"
 
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus"
@@ -63,35 +63,83 @@ func (tr *tagsReport) recordTags(md *article.MetaData) {
 	}
 }
 
-type tagreport struct {
-	tag   string
-	count int
+type Tagreport struct {
+	Tag   string
+	Count int
 }
 
-func (tr *tagsReport) SummaryWrite(_ io.Writer) error {
-	ts := make([]tagreport, 0)
+func (tr *tagsReport) prepReport()  []Tagreport {
+	ts := make([]Tagreport, 0)
 
 	for k, v := range tr.tags {
-		ts = append(ts, tagreport{k, v})
+		ts = append(ts, Tagreport{k, v})
 	}
 
-	slices.SortFunc(ts, func(a, b tagreport) int {
-		if n := cmp.Compare(a.count, b.count); n != 0 {
+	slices.SortFunc(ts, func(a, b Tagreport) int {
+		if n := cmp.Compare(a.Count, b.Count); n != 0 {
 			return -n
 		}
 		// If names are equal, order by tag
-		return cmp.Compare(a.tag, b.tag)
+		return cmp.Compare(a.Tag, b.Tag)
 	})
 
-	for _, t := range ts {
-		log.Println(t.tag, t.count)
+	return ts
+}
+
+func (tr *tagsReport) SummaryWrite(w io.Writer) error {
+	if tr.settings.OutputType == wiki.OutputHTML {
+		return _htmlTagsReport(w, tr.prepReport())
 	}
 
+	b := bufio.NewWriter(w)
+	defer b.Flush()
+
+	for _, t := range tr.prepReport() {
+		if _, err := fmt.Fprintf(b, "%s: %d\n", t.Tag, t.Count); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-func (tr *tagsReport) SummaryEncode(_ *json.Encoder) error {
-	return nil
+func (tr *tagsReport) SummaryEncode(e *json.Encoder) error {
+	return e.Encode(tr.prepReport())
 }
+
+const 	tagreporttmpl = `
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Wiki Tag Summary</title>
+  <style>
+    .auto-column-list {
+      column-width: 20ch;
+      column-gap: 4rem;
+    }
+    .auto-column-list li {
+      break-inside: avoid;
+    }
+  </style>
+</head>
+<body>
+
+<ul class="auto-column-list">
+{{range .}}
+    <li>{{.Tag}}: {{.Count}}</li>
+{{end}}
+</ul>
+  </ul>
+</body>
+</html>
+`
+
+func  _htmlTagsReport(w io.Writer, taglist []Tagreport ) error {
+	t := template.Must(template.New("list").Parse(tagreporttmpl))
+	 return   t.Execute(w, taglist)
+}
+
+
+
 
 var _ corpus.Tidying = (*tagsReport)(nil)

@@ -10,6 +10,7 @@ import (
 
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/wiki"
+	"github.com/rjkroege/wikitools/corpus/tidy"
 )
 
 // ---------- tiny helpers that pretend to do the real work --------------------
@@ -62,13 +63,14 @@ var routes = []route{
 // 	{"/tidy/new-backlinkwriter", newBacklinkwriter},
 // 	{"/tidy/new-filemover", newFilemover},
 // 	{"/tidy/new-metadata-reporter", newMetadataReporter},
-// 	{"/tidy/new-tags-reporter", tagsReport},
 // 	{"/tidy/new-url-reporter", newUrlReporter},
 // 
 // 	// corpus helpers used by tidy
 // 	{"/corpus/everyfile", everyfile},
 // 	{"/tidying/summary", summary},
- 	{"/corpus/new-list-all-wiki-files-tidying", corpus.NewListAllWikiFilesTidying},
+
+ 	{"/corpus/list", corpus.NewListAllWikiFilesTidying},
+ 	{"/corpus/tags",  tidy.NewTagsReporter},
 }
 
 func wrap(settings *wiki.Settings,  f func() any) http.HandlerFunc {
@@ -167,8 +169,9 @@ const homepage = `<html>
 <body>
 <h1>Functions</h1>
 <ul>
-<li><a href="/corpus/new-list-all-wiki-files-tidying">List articles</a></li>
-</ull
+<li><a href="/corpus/list">List articles</a></li>
+<li><a href="/corpus/tags">List tags</a></li>
+</ul>
 </body>
 </html>
 `
