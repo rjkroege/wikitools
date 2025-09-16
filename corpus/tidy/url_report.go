@@ -117,27 +117,7 @@ type CompleteUrlReportDocument struct {
 	Articles map[string][]string
 }
 
-// TODO(rjk): Above, I blithered about how to refactor this to share the
-// logic for writing a backing database of URLs with this code. I can
-// pull the walking out and just create a different Summary
-// implementation.
-func (abc *urlReport) SummaryWrite(_ io.Writer) error {
-	path, err := abc.settings.MakeGenDir()
-	if err != nil {
-		return err
-	}
-
-	if _, err := abc.tmpl.New("urlreport").Parse(urllistingreport); err != nil {
-		return fmt.Errorf("can't cleaningreport template%v", err)
-	}
-
-	tpath := filepath.Join(path, "urlreport"+wiki.Extension)
-	nfd, err := os.Create(tpath)
-	if err != nil {
-		return fmt.Errorf("can't urlReport Create %q: %v", tpath, err)
-	}
-	defer nfd.Close()
-
+func (abc *urlReport) _urlReportGen() map[string][]string {
 	// Zipper over the various outgoing links.
 	articles := make(map[string][]string)
 	for k, v := range abc.links.OutUrls {
@@ -155,6 +135,24 @@ func (abc *urlReport) SummaryWrite(_ io.Writer) error {
 			articles[k] = append(articles[k], "*damaged* "+u.Markdown())
 		}
 	}
+	return articles
+}
+
+
+// TODO(rjk): Above, I blithered about how to refactor this to share the
+// logic for writing a backing database of URLs with this code. I can
+// pull the walking out and just create a different Summary
+// implementation.
+func (abc *urlReport) SummaryWrite(w io.Writer) error {
+	articles := abc._urlReportGen()
+
+	if abc.settings.OutputType == wiki.OutputHTML {
+		return abc._htmlUrlsSummaryWrite(w, articles)
+	}
+
+	if _, err := abc.tmpl.New("urlreport").Parse(urllistingreport); err != nil {
+		return fmt.Errorf("can't cleaningreport template%v", err)
+	}
 
 	nmd := &IaWriterMetadataOutput{
 		Title: "Forward URL Report",
@@ -166,6 +164,9 @@ func (abc *urlReport) SummaryWrite(_ io.Writer) error {
 		Articles: articles,
 	}
 
+	nfd := bufio.NewWriter(w)
+	defer nfd.Flush()
+
 	if err := abc.tmpl.ExecuteTemplate(nfd, "urlreport", report); err != nil {
 		log.Println("oops, bad template write because", err)
 		return fmt.Errorf("can't urlReport Execute template: %v", err)
@@ -173,8 +174,45 @@ func (abc *urlReport) SummaryWrite(_ io.Writer) error {
 	return nil
 }
 
-func (tr *urlReport) SummaryEncode(_ *json.Encoder) error {
-	return nil
+const 	urlhtmlreport = `
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Wiki Tag Summary</title>
+  <style>
+    .auto-column-list {
+      column-width: 30ch;
+      column-gap: 4rem;
+    }
+    .auto-column-list li {
+      break-inside: avoid;
+    }
+  </style>
+</head>
+<body>
+<h1>URL Report</h1>
+<ul class="auto-column-list">
+{{range $index, $element :=  .}}<li>{{ $index }}
+	<ul>{{range . }}<li>{{.}}</li>{{end}}
+</ul></li>
+{{end}}
+</ul>
+
+</body>
+</html>
+`
+
+func (abc *urlReport) _htmlUrlsSummaryWrite(w io.Writer, articles map[string][]string ) error {
+	if _, err := abc.tmpl.New("urlhtmlreport").Parse(urlhtmlreport); err != nil {
+		return fmt.Errorf("can't urlhtmlreport template%v", err)
+	}
+
+	 return   abc.tmpl.ExecuteTemplate(w, "urlhtmlreport", articles)
+}
+
+func (abc *urlReport) SummaryEncode(e *json.Encoder) error {
+	return e.Encode(abc._urlReportGen())
 }
 
 var _ corpus.Tidying = (*urlReport)(nil)

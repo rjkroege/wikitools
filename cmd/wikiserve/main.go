@@ -71,6 +71,7 @@ var routes = []route{
 
  	{"/corpus/list", corpus.NewListAllWikiFilesTidying},
  	{"/corpus/tags",  tidy.NewTagsReporter},
+ 	{"/corpus/urls", tidy.NewUrlReporter},
 }
 
 func wrap(settings *wiki.Settings,  f func() any) http.HandlerFunc {
@@ -167,11 +168,15 @@ log.Printf("tidywrap running cli output OutputHTML")
 
 const homepage = `<html>
 <body>
-<h1>Functions</h1>
+<h1>Wiki</h1>
+<h2>Reports</h2>
 <ul>
 <li><a href="/corpus/list">List articles</a></li>
 <li><a href="/corpus/tags">List tags</a></li>
+<li><a href="/corpus/urls">List urls</a></li>
 </ul>
+<h2>Tidying Passes</h2>
+none yet!
 </body>
 </html>
 `
