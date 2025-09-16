@@ -72,6 +72,7 @@ var routes = []route{
  	{"/corpus/list", corpus.NewListAllWikiFilesTidying},
  	{"/corpus/tags",  tidy.NewTagsReporter},
  	{"/corpus/urls", tidy.NewUrlReporter},
+ 	{"/corpus/meta", tidy.NewMetadataReporter},
 }
 
 func wrap(settings *wiki.Settings,  f func() any) http.HandlerFunc {
@@ -126,13 +127,13 @@ log.Printf("settings %v", reqsettings)
 		
 		tidying, err := f(&reqsettings)
 		if err != nil {
-			log.Printf("Can't make a tidying object for this request because:", err)
+			log.Printf("Can't make a tidying object for this request because: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if err := corpus.Everyfile(settings, tidying); err != nil {
-			log.Printf("Can't Everyfile for this request because:", err)
+			log.Printf("Can't Everyfile for this request because: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -174,9 +175,12 @@ const homepage = `<html>
 <li><a href="/corpus/list">List articles</a></li>
 <li><a href="/corpus/tags">List tags</a></li>
 <li><a href="/corpus/urls">List urls</a></li>
+<li><a href="/corpus/meta">Metadata report</a></li>
 </ul>
 <h2>Tidying Passes</h2>
 none yet!
+<h2>Article of the Day</h2>
+not yet implemented
 </body>
 </html>
 `
@@ -200,7 +204,7 @@ func main() {
 			http.NotFound(w, r)
 			return
 		}
-		fmt.Fprintln(w, homepage)
+		fmt.Fprint(w, homepage)
 	})
 
 	// TODO(rjk): In the future 

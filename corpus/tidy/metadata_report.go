@@ -100,25 +100,7 @@ type MetadataSection struct {
 	Articles []*articleReportEntry
 }
 
-func (abc *metadataReport) SummaryWrite(_ io.Writer) error {
-	path, err := abc.settings.MakeGenDir()
-	if err != nil {
-		return err
-	}
-
-	if _, err := abc.tmpl.New("cleaningreport").Parse(cleaningreportformat); err != nil {
-		return fmt.Errorf("can't cleaningreport template%v", err)
-	}
-
-	// Sort the arrays by Date.
-
-	tpath := filepath.Join(path, "metadatareport"+wiki.Extension)
-	nfd, err := os.Create(tpath)
-	if err != nil {
-		return fmt.Errorf("can't writeMetadataUpdateReport Create %s: %v", tpath, err)
-	}
-	defer nfd.Close()
-
+func (abc *metadataReport) _genMetadataSections() []MetadataSection {
 	sections := make([]MetadataSection, len(abc.missingmd))
 	for i := range abc.missingmd {
 		v := ByDate(abc.missingmd[i])
@@ -127,8 +109,15 @@ func (abc *metadataReport) SummaryWrite(_ io.Writer) error {
 		m.Name = article.Metadatanametable[i]
 		m.Articles = abc.missingmd[i]
 	}
+	return sections
+}
 
-	// Build up giant structure here...
+func (abc *metadataReport) SummaryWrite(w io.Writer) error {
+	if abc.settings.OutputType == wiki.OutputHTML {
+		return abc._htmlMetaReport(w, abc._genMetadataSections())
+	}
+
+	// Build up report structure
 	nmd := &IaWriterMetadataOutput{
 		Title: "Metadata Report",
 		Date:  article.DetailedDateImpl(time.Now()),
@@ -137,19 +126,62 @@ func (abc *metadataReport) SummaryWrite(_ io.Writer) error {
 
 	report := CompleteDocument{
 		Metadata: nmd,
-		Sections: sections,
+		Sections: abc._genMetadataSections(),
 	}
 
-	if err := abc.tmpl.ExecuteTemplate(nfd, "cleaningreport", report); err != nil {
+	b := bufio.NewWriter(w)
+	defer b.Flush()
+
+	if _, err := abc.tmpl.New("cleaningreport").Parse(cleaningreportformat); err != nil {
+		return fmt.Errorf("can't cleaningreport template%v", err)
+	}
+
+	if err := abc.tmpl.ExecuteTemplate(b, "cleaningreport", report); err != nil {
 		log.Println("oops, bad template write because", err)
 		return fmt.Errorf("can't writeUpdatedMetadata Execute template: %v", err)
 	}
 	return nil
 }
 
-func (tr *metadataReport) SummaryEncode(_ *json.Encoder) error {
-	return nil
+func (tr *metadataReport) SummaryEncode(e *json.Encoder) error {
+	return e.Encode(tr._genMetadataSections())
 }
+
+func  (abc *metadataReport) _htmlMetaReport(w io.Writer, sections []MetadataSection ) error {
+	if _, err := abc.tmpl.New("meta_html_report").Parse(meta_html_report); err != nil {
+		return fmt.Errorf("can't meta_html_report template%v", err)
+	}
+	 return   abc.tmpl.ExecuteTemplate(w, "meta_html_report", sections)
+}
+
+const 	meta_html_report = `
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Wiki Tag Summary</title>
+  <style>
+    .auto-column-list {
+      column-width: 30ch;
+      column-gap: 4rem;
+    }
+    .auto-column-list li {
+      break-inside: avoid;
+    }
+  </style>
+</head>
+<body>
+<h1>Metadata Report</h1>
+
+{{range .}}<h2> {{ .Name }} </h2>
+<ul>{{range .Articles}}
+	<li><a href="plumb:/{{.Path}}">{{.Title}}</a>, {{.Date}}</li>
+{{end}}</ul>
+{{end}}
+
+</body>
+</html>
+`
 
 var _ corpus.Tidying = (*metadataReport)(nil)
 
