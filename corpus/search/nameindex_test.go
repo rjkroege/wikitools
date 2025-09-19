@@ -41,35 +41,6 @@ func TestPathsforwikitext(t *testing.T) {
 	}
 }
 
-func TestNeoPathsforwikitext(t *testing.T) {
-	tests := wikitests
-
-	bp, err := filepath.Abs("testdata")
-	if err != nil {
-		t.Fatalf("test can't run: %v", err)
-	}
-
-	t.Logf("bp: %q", bp)
-	spix := NeoMakeWikilinkNameIndex(bp)
-
-	for i, tc := range tests {
-		got, err := spix.neo_pathsforwikitext(filepath.Join(bp, tc.input_location), tc.input_wikitextfile)
-		t.Logf("got: %v", got)
-
-		want := []string{}
-		for _, s := range tc.want {
-			want = append(want, filepath.Join(bp, s))
-		}
-
-		if diff := cmp.Diff(want, got); diff != "" {
-			t.Errorf("internal_testvectors_test.go:%d mismatch (-want +got):\n%s", i+pathoffset, diff)
-		}
-		if diff := cmp.Diff(tc.want_err, err); diff != "" {
-			t.Errorf("error mismatch (-want +got):\n%s", diff)
-		}
-	}
-}
-
 func TestSplitPathParts(t *testing.T) {
 	tests := []struct {
 		input string

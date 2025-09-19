@@ -13,10 +13,6 @@ import (
 
 type spotlightWikilinkIndexer struct {
 	wikiroot string
-}
-
-type neo_spotlightWikilinkIndexer struct {
-	wikiroot string
 	index    map[string][][]unique.Handle[string]
 }
 
@@ -38,34 +34,6 @@ func (spix *spotlightWikilinkIndexer) Path(location, lsd, wikitext string) (stri
 
 func (_ *spotlightWikilinkIndexer) Allpaths(location, lsd, wikitext string) ([]string, error) {
 	return nil, fmt.Errorf("StubLinkToFile not implemented")
-}
-
-// pathsforwikitext returns all the absolute paths for resources in
-// directory tree specified by location with leaf path wikitextfile.
-// wikitextfile is the complete file path (i.e. includes the extension.)
-func (_ *spotlightWikilinkIndexer) pathsforwikitext(location, wikitextfile string) ([]string, error) {
-	matches := []string{}
-	err := filepath.WalkDir(location, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return nil
-		}
-		if filepath.Base(path) == wikitextfile {
-			abs, err := filepath.Abs(path)
-			if err != nil {
-				return err
-			}
-			matches = append(matches, abs)
-		}
-		return nil
-	})
-	return matches, err
-}
-
-func MakeWikilinkNameIndex(wikiroot string) *spotlightWikilinkIndexer {
-	spidx := &spotlightWikilinkIndexer{
-		wikiroot: wikiroot,
-	}
-	return spidx
 }
 
 // TODO(rjk): consider making suffix stripping configurable. For example,
@@ -102,7 +70,7 @@ func splitPathParts(dir string) []string {
 
 // TODO(rjk): Factor out the inner code as a separate entry point for
 // adding new files.
-func NeoMakeWikilinkNameIndex(wikiroot string) *neo_spotlightWikilinkIndexer {
+func MakeWikilinkNameIndex(wikiroot string) *spotlightWikilinkIndexer {
 	index := make(map[string][][]unique.Handle[string])
 
 	if err := filepath.WalkDir(wikiroot, func(path string, d os.DirEntry, err error) error {
@@ -122,7 +90,7 @@ func NeoMakeWikilinkNameIndex(wikiroot string) *neo_spotlightWikilinkIndexer {
 		log.Fatalf("can't continue without an index")
 	}
 
-	spidx := &neo_spotlightWikilinkIndexer{
+	spidx := &spotlightWikilinkIndexer{
 		wikiroot: wikiroot,
 		index:    index,
 	}
@@ -131,7 +99,8 @@ func NeoMakeWikilinkNameIndex(wikiroot string) *neo_spotlightWikilinkIndexer {
 
 // pathsforwikitext returns all the absolute paths for resources in
 // directory tree specified by location with leaf path wikitextfile.
-func (spix *neo_spotlightWikilinkIndexer) neo_pathsforwikitext(location, wikitextfile string) ([]string, error) {
+// wikitextfile is the complete file path (i.e. includes the extension.)
+func (spix *spotlightWikilinkIndexer) pathsforwikitext(location, wikitextfile string) ([]string, error) {
 	pls, ok := spix.index[wikitextfile]
 	if !ok {
 		return []string{}, nil
