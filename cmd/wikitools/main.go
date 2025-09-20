@@ -127,7 +127,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		// TODO(rjk): Write me.
 		// What is this even suppose to do? (Put the tags in the spotlight data?)
 	case "tidy backlinks":
-		tidying, _ := tidy.NewBacklinkwriter(settings, CLI.Dryrun)
+		tidying, _ := tidy.NewBacklinkwriter(settings)
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}

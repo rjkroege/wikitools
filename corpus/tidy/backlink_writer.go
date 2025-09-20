@@ -21,11 +21,9 @@ type backlinkWriter struct {
 	linkies *corpus.Links
 }
 
-func NewBacklinkwriter(settings *wiki.Settings, dryrun bool) (*backlinkWriter, error) {
+func NewBacklinkwriter(settings *wiki.Settings) (*backlinkWriter, error) {
 	return &backlinkWriter{
 		settings: settings,
-		dryrun:   dryrun,
-		// TODO(rjk): Cache this across different interfaces.
 		linkies: corpus.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
 	}, nil
 }
@@ -63,7 +61,7 @@ func (blw *backlinkWriter) SummaryWrite(_ io.Writer) error {
 			continue
 		}
 
-		if blw.dryrun {
+		if blw.settings.Dryrun {
 			continue
 		}
 
