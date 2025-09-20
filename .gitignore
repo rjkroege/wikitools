@@ -7,6 +7,8 @@ wikitools
 count.out
 scriptable/build
 /corpus/search/internal_testvectors_test.go
+/logging
+/wikiserve
 
 # From what bun generated.
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
