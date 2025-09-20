@@ -147,14 +147,14 @@ func (tr *metadataReport) SummaryEncode(e *json.Encoder) error {
 	return e.Encode(tr._genMetadataSections())
 }
 
-func  (abc *metadataReport) _htmlMetaReport(w io.Writer, sections []MetadataSection ) error {
+func (abc *metadataReport) _htmlMetaReport(w io.Writer, sections []MetadataSection) error {
 	if _, err := abc.tmpl.New("meta_html_report").Parse(meta_html_report); err != nil {
 		return fmt.Errorf("can't meta_html_report template%v", err)
 	}
-	 return   abc.tmpl.ExecuteTemplate(w, "meta_html_report", sections)
+	return abc.tmpl.ExecuteTemplate(w, "meta_html_report", sections)
 }
 
-const 	meta_html_report = `
+const meta_html_report = `
 <!doctype html>
 <html lang="en">
 <head>

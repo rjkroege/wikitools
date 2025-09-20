@@ -25,7 +25,8 @@ func NewBacklinkwriter(settings *wiki.Settings, dryrun bool) (*backlinkWriter, e
 	return &backlinkWriter{
 		settings: settings,
 		dryrun:   dryrun,
-		linkies:  corpus.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
+		// TODO(rjk): Cache this across different interfaces.
+		linkies: corpus.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
 	}, nil
 }
 
@@ -77,4 +78,4 @@ func (tr *backlinkWriter) SummaryEncode(_ *json.Encoder) error {
 	return nil
 }
 
-var _ corpus.Tidying = (*tagsReport)(nil)
+var _ corpus.Tidying = (*backlinkWriter)(nil)

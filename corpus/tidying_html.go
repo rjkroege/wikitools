@@ -1,11 +1,11 @@
 package corpus
 
 import (
+	"html/template"
 	"io"
-    "html/template"
 )
 
-const 	listallwikitmpl = `
+const listallwikitmpl = `
 <!doctype html>
 <html lang="en">
 <head>
@@ -35,6 +35,5 @@ const 	listallwikitmpl = `
 
 func (tidy *listAllWikiFiles) _htmlSummaryWrite(w io.Writer) error {
 	t := template.Must(template.New("list").Parse(listallwikitmpl))
-	 return   t.Execute(w, tidy.Files)
+	return t.Execute(w, tidy.Files)
 }
-

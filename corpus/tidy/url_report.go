@@ -138,7 +138,6 @@ func (abc *urlReport) _urlReportGen() map[string][]string {
 	return articles
 }
 
-
 // TODO(rjk): Above, I blithered about how to refactor this to share the
 // logic for writing a backing database of URLs with this code. I can
 // pull the walking out and just create a different Summary
@@ -174,7 +173,7 @@ func (abc *urlReport) SummaryWrite(w io.Writer) error {
 	return nil
 }
 
-const 	urlhtmlreport = `
+const urlhtmlreport = `
 <!doctype html>
 <html lang="en">
 <head>
@@ -203,12 +202,12 @@ const 	urlhtmlreport = `
 </html>
 `
 
-func (abc *urlReport) _htmlUrlsSummaryWrite(w io.Writer, articles map[string][]string ) error {
+func (abc *urlReport) _htmlUrlsSummaryWrite(w io.Writer, articles map[string][]string) error {
 	if _, err := abc.tmpl.New("urlhtmlreport").Parse(urlhtmlreport); err != nil {
 		return fmt.Errorf("can't urlhtmlreport template%v", err)
 	}
 
-	 return   abc.tmpl.ExecuteTemplate(w, "urlhtmlreport", articles)
+	return abc.tmpl.ExecuteTemplate(w, "urlhtmlreport", articles)
 }
 
 func (abc *urlReport) SummaryEncode(e *json.Encoder) error {

@@ -25,7 +25,7 @@ type Settings struct {
 	TemplateForTag map[string]string `json:"templatefortag"`
 	// TODO(rjk): Consider making the extension configurable.
 	Debugmarkdownparsing bool
-	OutputType int
+	OutputType           int
 }
 
 // Read opens a json format configuration file.

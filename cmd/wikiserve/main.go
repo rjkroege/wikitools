@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/rjkroege/wikitools/corpus"
-	"github.com/rjkroege/wikitools/wiki"
 	"github.com/rjkroege/wikitools/corpus/tidy"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 // ---------- tiny helpers that pretend to do the real work --------------------
@@ -31,18 +31,16 @@ func newMetadataReporter() any { return map[string]string{"tidy": "NewMetadataRe
 func newUrlReporter() any      { return map[string]string{"tidy": "NewUrlReporter"} }
 
 // corpus helpers (invoked by tidy actions)
-func everyfile() any { return map[string]string{"corpus": "Everyfile"} }
-func summary() any   { return map[string]string{"tidying": "Summary"} }
+func everyfile() any  { return map[string]string{"corpus": "Everyfile"} }
+func summary() any    { return map[string]string{"tidying": "Summary"} }
 func tagsReport() any { return map[string]string{"tidy": "NewTagsReporter"} }
 
 // listAllWikiFilesTidying is a constructor, so we expose it too
 func listAllWikiFilesTidying() any { return map[string]string{"corpus": "NewListAllWikiFilesTidying"} }
 
-
 // ---------- routing table -----------------------------------------------------
 
 type TidyingPassFactory func(*wiki.Settings) (corpus.Tidying, error)
-
 
 type route struct {
 	pattern string
@@ -51,31 +49,31 @@ type route struct {
 
 var routes = []route{
 	// cmd namespace
-// 	{"/cmd/wikinew", wikinew},
-// 	{"/cmd/wikinew-autocomplete", wikinewAutocomplete},
-// 	{"/cmd/preview", preview},
-// 	{"/cmd/plumber-helper", plumberHelper},
-// 	{"/cmd/bearimport", bearimport},
-// 
-// 	// tidy namespace
-// 	{"/tidy/new-metadata-updater", newMetadataUpdater},
-// 	{"/tidy/new-tags-dumper", newTagsDumper},
-// 	{"/tidy/new-backlinkwriter", newBacklinkwriter},
-// 	{"/tidy/new-filemover", newFilemover},
-// 	{"/tidy/new-metadata-reporter", newMetadataReporter},
-// 	{"/tidy/new-url-reporter", newUrlReporter},
-// 
-// 	// corpus helpers used by tidy
-// 	{"/corpus/everyfile", everyfile},
-// 	{"/tidying/summary", summary},
+	// 	{"/cmd/wikinew", wikinew},
+	// 	{"/cmd/wikinew-autocomplete", wikinewAutocomplete},
+	// 	{"/cmd/preview", preview},
+	// 	{"/cmd/plumber-helper", plumberHelper},
+	// 	{"/cmd/bearimport", bearimport},
+	//
+	// 	// tidy namespace
+	// 	{"/tidy/new-metadata-updater", newMetadataUpdater},
+	// 	{"/tidy/new-tags-dumper", newTagsDumper},
+	// 	{"/tidy/new-backlinkwriter", newBacklinkwriter},
+	// 	{"/tidy/new-filemover", newFilemover},
+	// 	{"/tidy/new-metadata-reporter", newMetadataReporter},
+	// 	{"/tidy/new-url-reporter", newUrlReporter},
+	//
+	// 	// corpus helpers used by tidy
+	// 	{"/corpus/everyfile", everyfile},
+	// 	{"/tidying/summary", summary},
 
- 	{"/corpus/list", corpus.NewListAllWikiFilesTidying},
- 	{"/corpus/tags",  tidy.NewTagsReporter},
- 	{"/corpus/urls", tidy.NewUrlReporter},
- 	{"/corpus/meta", tidy.NewMetadataReporter},
+	{"/corpus/list", corpus.NewListAllWikiFilesTidying},
+	{"/corpus/tags", tidy.NewTagsReporter},
+	{"/corpus/urls", tidy.NewUrlReporter},
+	{"/corpus/meta", tidy.NewMetadataReporter},
 }
 
-func wrap(settings *wiki.Settings,  f func() any) http.HandlerFunc {
+func wrap(settings *wiki.Settings, f func() any) http.HandlerFunc {
 	return func(w http.ResponseWriter, _ *http.Request) {
 		log.Printf("settings %v", settings)
 		w.Header().Set("Content-Type", "application/json")
@@ -88,7 +86,7 @@ func wrap(settings *wiki.Settings,  f func() any) http.HandlerFunc {
 func figureoutoutputformat(r *http.Request) int {
 	// Set by parameter.
 	queryParams := r.URL.Query()
-	if _f, ok  := queryParams["_f"]; ok {
+	if _f, ok := queryParams["_f"]; ok {
 		switch _f[0] {
 		case "json":
 			return wiki.OutputJSON
@@ -102,7 +100,7 @@ func figureoutoutputformat(r *http.Request) int {
 	// Don't know yet. Guess. If it's a browser, return HTML
 	if _h, ok := r.Header["User-Agent"]; ok {
 		ua := _h[0]
-log.Printf("ua: %q", ua)
+		log.Printf("ua: %q", ua)
 		switch {
 		case strings.HasPrefix(ua, "curl"):
 			return wiki.OutputCLI
@@ -113,18 +111,17 @@ log.Printf("ua: %q", ua)
 	return wiki.OutputCLI
 }
 
-
 // tidywrap returns an http.HandlerFunc corresponding to the specified tidying
 // structured pass.
-func tidywrap(settings *wiki.Settings,  f TidyingPassFactory) http.HandlerFunc {
+func tidywrap(settings *wiki.Settings, f TidyingPassFactory) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-log.Println("tidywrap", r)
+		log.Println("tidywrap", r)
 		// Every request gets a private settings.
 		reqsettings := *settings
 		reqsettings.OutputType = figureoutoutputformat(r)
-log.Printf("settings %v", reqsettings)
-		
+		log.Printf("settings %v", reqsettings)
+
 		tidying, err := f(&reqsettings)
 		if err != nil {
 			log.Printf("Can't make a tidying object for this request because: %v", err)
@@ -138,17 +135,17 @@ log.Printf("settings %v", reqsettings)
 			return
 		}
 
-log.Printf("tidywrap switch")
-		switch 		reqsettings.OutputType {
+		log.Printf("tidywrap switch")
+		switch reqsettings.OutputType {
 		case wiki.OutputCLI:
 			w.Header().Set("Content-Type", "text/plain")
-log.Printf("tidywrap running cli output OutputCLI")
+			log.Printf("tidywrap running cli output OutputCLI")
 			if err := tidying.SummaryWrite(w); err != nil {
 				log.Printf("tidywrap %s %v", "OutputCLI", err)
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 		case wiki.OutputJSON:
-log.Printf("tidywrap running cli output OutputJSON")
+			log.Printf("tidywrap running cli output OutputJSON")
 			w.Header().Set("Content-Type", "application/json")
 			encoder := json.NewEncoder(w)
 			if err := tidying.SummaryEncode(encoder); err != nil {
@@ -156,13 +153,13 @@ log.Printf("tidywrap running cli output OutputJSON")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 		case wiki.OutputHTML:
-log.Printf("tidywrap running cli output OutputHTML")
+			log.Printf("tidywrap running cli output OutputHTML")
 			w.Header().Set("Content-Type", "text/html")
 			if err := tidying.SummaryWrite(w); err != nil {
 				log.Printf("tidywrap %s %v", "OutputHTML", err)
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
-			
+
 		}
 	}
 }
@@ -207,7 +204,7 @@ func main() {
 		fmt.Fprint(w, homepage)
 	})
 
-	// TODO(rjk): In the future 
+	// TODO(rjk): In the future
 	// register REST endpoints
 	for _, rt := range routes {
 		http.HandleFunc(rt.pattern, tidywrap(settings, rt.handler))

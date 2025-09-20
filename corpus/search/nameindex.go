@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"unique"
 
 	"github.com/rjkroege/wikitools/corpus"
@@ -68,9 +69,23 @@ func splitPathParts(dir string) []string {
 	return strings.Split(cpp, "/")
 }
 
-// TODO(rjk): Factor out the inner code as a separate entry point for
-// adding new files.
+// Only have one index.
+var (
+	instance *spotlightWikilinkIndexer
+	once     sync.Once
+)
+
 func MakeWikilinkNameIndex(wikiroot string) *spotlightWikilinkIndexer {
+	once.Do(func() {
+		instance = implMakeWikilinkNameIndex(wikiroot)
+	})
+	return instance
+}
+
+// TODO(rjk): Factor out the inner code as a separate entry point for
+// adding new files. In particular, there will be a larger design document
+// for updating the index cache.
+func implMakeWikilinkNameIndex(wikiroot string) *spotlightWikilinkIndexer {
 	index := make(map[string][][]unique.Handle[string])
 
 	if err := filepath.WalkDir(wikiroot, func(path string, d os.DirEntry, err error) error {

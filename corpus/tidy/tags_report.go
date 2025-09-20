@@ -5,11 +5,11 @@ import (
 	"cmp"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"os"
 	"path/filepath"
 	"slices"
-    "html/template"
 
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus"
@@ -68,7 +68,7 @@ type Tagreport struct {
 	Count int
 }
 
-func (tr *tagsReport) prepReport()  []Tagreport {
+func (tr *tagsReport) prepReport() []Tagreport {
 	ts := make([]Tagreport, 0)
 
 	for k, v := range tr.tags {
@@ -106,7 +106,7 @@ func (tr *tagsReport) SummaryEncode(e *json.Encoder) error {
 	return e.Encode(tr.prepReport())
 }
 
-const 	tagreporttmpl = `
+const tagreporttmpl = `
 <!doctype html>
 <html lang="en">
 <head>
@@ -134,12 +134,9 @@ const 	tagreporttmpl = `
 </html>
 `
 
-func  _htmlTagsReport(w io.Writer, taglist []Tagreport ) error {
+func _htmlTagsReport(w io.Writer, taglist []Tagreport) error {
 	t := template.Must(template.New("list").Parse(tagreporttmpl))
-	 return   t.Execute(w, taglist)
+	return t.Execute(w, taglist)
 }
-
-
-
 
 var _ corpus.Tidying = (*tagsReport)(nil)
