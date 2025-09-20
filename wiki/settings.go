@@ -26,6 +26,7 @@ type Settings struct {
 	// TODO(rjk): Consider making the extension configurable.
 	Debugmarkdownparsing bool
 	OutputType           int
+	Dryrun bool
 }
 
 // Read opens a json format configuration file.

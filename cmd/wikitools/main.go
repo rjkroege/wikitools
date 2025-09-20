@@ -70,6 +70,7 @@ func main() {
 
 	// TODO(rjk): wiki => config
 	settings, err := wiki.Read(CLI.ConfigFile)
+	settings.Dryrun = CLI.Dryrun
 	if err != nil {
 		// TODO(rjk): This is not nice. Set things up sensibly.
 		log.Fatal("No configuration file. Fatal:", err)

@@ -71,6 +71,7 @@ var routes = []route{
 	{"/corpus/tags", tidy.NewTagsReporter},
 	{"/corpus/urls", tidy.NewUrlReporter},
 	{"/corpus/meta", tidy.NewMetadataReporter},
+	// {"/tidy/backlinks", tidy.NewBacklinkwriter},
 }
 
 func wrap(settings *wiki.Settings, f func() any) http.HandlerFunc {
@@ -111,6 +112,11 @@ func figureoutoutputformat(r *http.Request) int {
 	return wiki.OutputCLI
 }
 
+
+func figureoutdryrun(r *http.Request) bool {
+	return r.URL.Query().Has("_dry")
+}
+
 // tidywrap returns an http.HandlerFunc corresponding to the specified tidying
 // structured pass.
 func tidywrap(settings *wiki.Settings, f TidyingPassFactory) http.HandlerFunc {
@@ -120,7 +126,9 @@ func tidywrap(settings *wiki.Settings, f TidyingPassFactory) http.HandlerFunc {
 		// Every request gets a private settings.
 		reqsettings := *settings
 		reqsettings.OutputType = figureoutoutputformat(r)
+		reqsettings.Dryrun = figureoutdryrun(r)
 		log.Printf("settings %v", reqsettings)
+		
 
 		tidying, err := f(&reqsettings)
 		if err != nil {
