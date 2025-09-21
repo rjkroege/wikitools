@@ -172,6 +172,7 @@ func (links *Links) AddWikilink(displaytext, wikitext, fpath string) {
 	}
 
 	backtext, err := links.mapper.Wikitext(destpath, fpath)
+// Why this error? 
 	if err != nil {
 		log.Printf("links.mapper.Wikitext from %q to %q failed: %v", fpath, destpath, err)
 		return

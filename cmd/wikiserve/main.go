@@ -71,7 +71,7 @@ var routes = []route{
 	{"/corpus/tags", tidy.NewTagsReporter},
 	{"/corpus/urls", tidy.NewUrlReporter},
 	{"/corpus/meta", tidy.NewMetadataReporter},
-	// {"/tidy/backlinks", tidy.NewBacklinkwriter},
+	{"/tidy/backlinks", tidy.NewBacklinkwriter},
 }
 
 func wrap(settings *wiki.Settings, f func() any) http.HandlerFunc {
@@ -172,6 +172,7 @@ func tidywrap(settings *wiki.Settings, f TidyingPassFactory) http.HandlerFunc {
 	}
 }
 
+// TODO(rjk): Move this into a separate file.
 const homepage = `<html>
 <body>
 <h1>Wiki</h1>
@@ -183,7 +184,9 @@ const homepage = `<html>
 <li><a href="/corpus/meta">Metadata report</a></li>
 </ul>
 <h2>Tidying Passes</h2>
-none yet!
+<ul>
+<li><a href="/tidy/backlinks?_dry=1">Preview backlinks update</a><a href="/tidy/backlinks">Do it!</a></li>
+</ul>
 <h2>Article of the Day</h2>
 not yet implemented
 </body>

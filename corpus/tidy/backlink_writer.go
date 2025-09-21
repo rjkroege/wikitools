@@ -21,7 +21,7 @@ type backlinkWriter struct {
 	linkies *corpus.Links
 }
 
-func NewBacklinkwriter(settings *wiki.Settings) (*backlinkWriter, error) {
+func NewBacklinkwriter(settings *wiki.Settings) (corpus.Tidying, error) {
 	return &backlinkWriter{
 		settings: settings,
 		linkies: corpus.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
@@ -41,6 +41,7 @@ func (blw *backlinkWriter) EachFile(path string, info os.FileInfo, err error) er
 // TODO(rjk): I will need to pull out the merging process into a helper function
 // TODO(rjk): The merging process needs to happen for all the paths that have
 // backlink additions.
+// TODO(rjk): Generates nothing useful?
 func (blw *backlinkWriter) SummaryWrite(_ io.Writer) error {
 	allerrors := make([]error, 0)
 	for path, nbl := range blw.linkies.BackLinks {
@@ -72,8 +73,9 @@ func (blw *backlinkWriter) SummaryWrite(_ io.Writer) error {
 	return errors.Join(allerrors...)
 }
 
-func (tr *backlinkWriter) SummaryEncode(_ *json.Encoder) error {
-	return nil
+func (tr *backlinkWriter) SummaryEncode(e *json.Encoder) error {
+	return e.Encode(tr.linkies)
+
 }
 
 var _ corpus.Tidying = (*backlinkWriter)(nil)
