@@ -19,9 +19,9 @@ type spotlightWikilinkIndexer struct {
 
 var _ corpus.LinkToFile = (*spotlightWikilinkIndexer)(nil)
 
-// Returns a single unique path corresponding to the wikitext found in
-// file lsd limiting the search for target paths to files in location or
-// error if this is impossible.
+// Returns a single unique path corresponding to the wikitext found in a
+// file in directory lsd, limiting search to files found recursively in location or
+// error when impossible.
 func (spix *spotlightWikilinkIndexer) Path(location, lsd, wikitext string) (string, error) {
 	basepart := filepath.Base(wikitext)
 	if basepart == "" {
