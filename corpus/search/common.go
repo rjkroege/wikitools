@@ -105,3 +105,55 @@ func commonPrefixSplit(a, b string) (prefix, suffixA, suffixB string) {
 
 	return prefix, suffixA, suffixB
 }
+
+// The auto-complete functionality (i.e. dismbiguating) string needs to
+// find the shortest set of paths needed to unique the name either w.r.t.
+// the root of the tree (i.e. ~/Documents/wiki) or the directory
+// containing the link origin. (Call this the origin file.)
+//
+// NB: Having found the correct prefix, it is sufficient to glue together
+// the prefix with the file name and see if there is a file in the match
+// list where that string is a suffix.
+//
+// What about the generating the prefix + filename? That's a separate
+// problem. But: I don't have to be as smart as iaWriter? i.e. My
+// auto-completes don't have to be minimal? Correct. The minimal prefix
+// is not necessary. So just auto-complete with either no prefix for
+// it's a unique name or in directory or the prefix w.r.t. origin or the
+// prefix w.r.t. root.
+
+// location is the root of the wiki
+// topath is the absolute path of the desired destination article.
+// allpaths is the result of running pathsforwikitext: a list of wikipaths.
+// One of allpaths should be topath.
+func buildshortestwikitext(root, topath string, allpaths []string) (string, error) {
+	// 2. split the topath into a bundle (たば), chopping the separator.
+	束 := strings.Split(strings.Trim(topath, string(filepath.Separator)), string(filepath.Separator))
+
+	// 3. Find the shortest unique prefix
+	// TODO(rjk): it conceivably is possible to use dynamic programming here to reduce the work.
+	b束 := len(
+		strings.Split(
+			strings.Trim(root, string(filepath.Separator)),
+			string(filepath.Separator)))
+	c := 0
+	for j := len(束) - 1; j > b束; j-- {
+		s束 := filepath.Join(束[j:]...)
+		c = counter(allpaths, s束)
+		if c == 1 {
+			return s束, nil
+		}
+	}
+
+	return "", NoValidMatch
+}
+
+func counter(束 []string, s string) int {
+	c := 0
+	for _, k := range 束 {
+		if strings.HasSuffix(k, s) {
+			c++
+		}
+	}
+	return c
+}

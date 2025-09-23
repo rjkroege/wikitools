@@ -55,8 +55,7 @@ func (spix *spotlightWikilinkIndexer) Wikitext(frompath, topath string) (string,
 		return base, nil
 	}
 
-	_, _, suffixB := commonPrefixSplit(frompath, topath)
-	return suffixB, nil
+	return buildshortestwikitext(spix.wikiroot, topath, allpaths)
 }
 
 func splitPathPartsHandle(dir string) []unique.Handle[string] {
