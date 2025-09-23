@@ -73,54 +73,35 @@ func disambiguatewikipaths(location, lsd, wikitext string, allpaths []string) (s
 	}
 }
 
-// The auto-complete functionality (i.e. dismbiguating) string needs to
-// find the shortest set of paths needed to unique the name either w.r.t.
-// the root of the tree (i.e. ~/Documents/wiki) or the directory
-// containing the link origin. (Call this the origin file.)
-//
-// NB: Having found the correct prefix, it is sufficient to glue together
-// the prefix with the file name and see if there is a file in the match
-// list where that string is a suffix.
-//
-// What about the generating the prefix + filename? That's a separate
-// problem. But: I don't have to be as smart as iaWriter? i.e. My
-// auto-completes don't have to be minimal? Correct. The minimal prefix
-// is not necessary. So just auto-complete with either no prefix for
-// it's a unique name or in directory or the prefix w.r.t. origin or the
-// prefix w.r.t. root.
+// commonPrefixSplit returns the longest common directory prefix of two
+// absolute paths together with the two differing suffixes.
+// TODO(rjk): I had wanted: Path(root, a, commonPrefixSplit(a,b).suffixB) == b
+// but it is not clear if this is the case.
+func commonPrefixSplit(a, b string) (prefix, suffixA, suffixB string) {
+	a = filepath.Clean(a)
+	b = filepath.Clean(b)
 
-// location is the root of the wiki
-// topath is the absolute path of the desired destination article.
-// allpaths is the result of running pathsforwikitext: a list of wikipaths.
-// One of allpaths should be lsd.
-func buildshortestwikitext(root, topath string, allpaths []string) (string, error) {
-	// 2. split the topath into a bundle (たば), chopping the separator.
-	束 := strings.Split(strings.Trim(topath, string(filepath.Separator)), string(filepath.Separator))
+	aParts := strings.Split(a, string(filepath.Separator))
+	bParts := strings.Split(b, string(filepath.Separator))
 
-	// 3. Find the shortest unique prefix
-	// TODO(rjk): it conceivably is possible to use dynamic programming here to reduce the work.
-	b束 := len(
-		strings.Split(
-			strings.Trim(root, string(filepath.Separator)),
-			string(filepath.Separator)))
-	c := 0
-	for j := len(束) - 1; j > b束; j-- {
-		s束 := filepath.Join(束[j:]...)
-		c = counter(allpaths, s束)
-		if c == 1 {
-			return s束, nil
+	// Find the split point.
+	split := 0
+	for ; split < len(aParts) && split < len(bParts); split++ {
+		if aParts[split] != bParts[split] {
+			break
 		}
 	}
 
-	return "", NoValidMatch
-}
+	common := aParts[:split]
+	suffixAParts := aParts[split:]
+	suffixBParts := bParts[split:]
 
-func counter(束 []string, s string) int {
-	c := 0
-	for _, k := range 束 {
-		if strings.HasSuffix(k, s) {
-			c++
-		}
+	prefix = filepath.Join(common...)
+	if !filepath.IsAbs(prefix) {
+		prefix = string(filepath.Separator) + prefix
 	}
-	return c
+	suffixA = filepath.Join(suffixAParts...)
+	suffixB = filepath.Join(suffixBParts...)
+
+	return prefix, suffixA, suffixB
 }

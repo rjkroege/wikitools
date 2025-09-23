@@ -106,66 +106,45 @@ func TestDisambiguateWikiPaths(t *testing.T) {
 
 }
 
-func TestBuildshortestwikitext(t *testing.T) {
+func TestCommonPrefixSplit(t *testing.T) {
 	// Can use the same teststim.
 	testtab := []teststim{
 		{
-			location: "/wiki",
-			lsd:      "/wiki/bar",
-			allpaths: []string{},
-			want:     "",
-			wanterr:  NoValidMatch,
-		},
-		{
-			location: "/wiki/",
+			location: "/wiki/2013/07-Jul/14/Sunday.md",
 			lsd:      "/wiki/2013/06-Jun/13/Sunday.md",
-			allpaths: []string{
-				"/wiki/2013/07-Jul/14/Sunday.md",
-				"/wiki/2013/07-Jul/13/Sunday.md",
-				"/wiki/2013/06-Jun/13/Sunday.md",
-				"/wiki/2013/06-Jun/13/puddle/Sunday.md",
-			},
 			want: "06-Jun/13/Sunday.md",
 		},
 		{
-			location: "/wiki/",
-			lsd:      "/wiki/2013/06-Jun/13/Bombast.md",
-			allpaths: []string{
-				"/wiki/2013/06-Jun/13/Bombast.md",
-			},
-			want: "Bombast.md",
+			location: "/wiki/2013/07-Jul/14/Sunday.md",
+			lsd:      "/wiki/2013/07-Jul/13/Sunday.md",
+			want: "13/Sunday.md",
 		},
 		{
-			location: "/wiki/",
+			location: "/wiki/2013/06-Jun/13/Sunday.md",
 			lsd:      "/wiki/2013/06-Jun/13/puddle/Sunday.md",
-			allpaths: []string{
-				"/wiki/2013/07-Jul/14/Sunday.md",
-				"/wiki/2013/07-Jul/13/Sunday.md",
-				"/wiki/2013/06-Jun/13/Sunday.md",
-				"/wiki/2013/06-Jun/13/puddle/Sunday.md",
-			},
 			want: "puddle/Sunday.md",
 		},
 		{
-			location: "/wiki/",
+			location:      "/wiki/2013/06-Jun/13/puddle/Sunday.md",
+			lsd: "/wiki/2013/06-Jun/13/Sunday.md",
+			// What I really want
+			// "13/Sunday.md",
+			// But what I get:
+			want: "Sunday.md",
+// This result is "correct" in that the code under test is doing the
+// right thing. It however is not likely to be the correct wikitext.
+		},
+		{
+			location: "/wiki/2013/07-Jul/14/Evening.md",
 			lsd:      "/wiki/2013/07-Jul/14/Sunday.md",
-			allpaths: []string{
-				"/wiki/2013/07-Jul/14/Sunday.md",
-				"/wiki/2013/07-Jul/13/Sunday.md",
-				"/wiki/2013/06-Jun/13/Sunday.md",
-				"/wiki/2013/06-Jun/13/puddle/Sunday.md",
-			},
-			want: "14/Sunday.md",
+			want: "Sunday.md",
 		},
 	}
 
 	for i, tv := range testtab {
-		got, goterr := buildshortestwikitext(tv.location, tv.lsd, tv.allpaths)
+		_, _, got := commonPrefixSplit(tv.location, tv.lsd)
 		if diff := cmp.Diff(tv.want, got); diff != "" {
 			t.Errorf("[%d] dump mismatch (-want +got):\n%s", i, diff)
-		}
-		if diff := cmp.Diff(tv.wanterr, goterr, cmpopts.EquateErrors()); diff != "" {
-			t.Errorf("[%d] error dump mismatch (-want +got):\n%s", i, diff)
 		}
 	}
 

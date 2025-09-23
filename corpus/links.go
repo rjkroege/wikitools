@@ -16,14 +16,13 @@ import (
 // such that `wikilink` can find a unique wiki article.
 //
 // There is no need to deal with links that aren't wikilinks. They can be
-// added to the report but they don't need need to be persisted. However
+// added to the report but they don't need need to be persisted.
 //
 // The database must also support guidance for moving files.
 //
 // Full paths are the unambiguous name of items in the wiki. Note that
 // this means that the wiki location (prefix) is perhaps redundantly
-// encoded. But absolute paths are cannonically absolute and completely
-// unambiguous.
+// encoded. But absolute paths are unambiguous.
 //
 // Note that a link is not just a `string` path. Additional attributes
 // are necessary for reporting and content generation such as the
@@ -61,15 +60,19 @@ func (wl *Wikilink) Markdown() string {
 // LinkToFile is implemented by objects that can return a unique or all file paths corresponding
 // to a given wikilink.
 type LinkToFile interface {
-	// Returns a single unique path corresponding to the wikitext with
-	// location (i.e. root) and found in file lsd.
+// Returns a single unique path corresponding to the wikitext found in
+// file lsd limiting the search for target paths to files in location or
+// error if this is impossible.
 	Path(location, lsd, wikitext string) (string, error)
 
 	// Returns all (absolute) paths in the wiki that would match wikitext.
+	// TODO(rjk): Why is lsd here?
 	Allpaths(location, lsd, wikitext string) ([]string, error)
 
-	// Wikitext returns a wikitext such that clicking on it in frompath will
-	// open topath or an error if it was impossible to do so.
+// Wikitext returns a wikitext such that clicking on it in file frompath
+// will open file topath or an error if it was impossible to do so. In
+// particular: Path(wikiroot, frompath, Wikitext(frompath, topath)) ==
+// topath
 	Wikitext(frompath, topath string) (string, error)
 }
 
@@ -140,11 +143,14 @@ func MakeLinks(mapper LinkToFile, location string) *Links {
 	}
 }
 
-// AddWikilink adds a URLs leaving the node. There is no node for them
-// to point to so the destination URL is nil.
+// AddWikilink updates the two-way linking data for a wikitext found in
+// fpath with (optional) displaytext so that fpath points to
+// Path(wikitext) and Path(wikitext) points to Wikilink(fpath)
 func (links *Links) AddWikilink(displaytext, wikitext, fpath string) {
 	urlref := MakeWikilink(wikitext, displaytext)
 
+	// Here I fix the links to have the correct extension. Consider
+	// making this smarter?
 	if filepath.Ext(wikitext) == "" {
 		wikitext = wikitext + ".md"
 	}

@@ -19,6 +19,9 @@ type spotlightWikilinkIndexer struct {
 
 var _ corpus.LinkToFile = (*spotlightWikilinkIndexer)(nil)
 
+// Returns a single unique path corresponding to the wikitext found in
+// file lsd limiting the search for target paths to files in location or
+// error if this is impossible.
 func (spix *spotlightWikilinkIndexer) Path(location, lsd, wikitext string) (string, error) {
 	basepart := filepath.Base(wikitext)
 	if basepart == "" {
@@ -37,15 +40,23 @@ func (_ *spotlightWikilinkIndexer) Allpaths(location, lsd, wikitext string) ([]s
 	return nil, fmt.Errorf("StubLinkToFile not implemented")
 }
 
+// Wikitext returns a wikitext such that clicking on it in file frompath will
+// open file topath or an error if it was impossible to do so.
 // TODO(rjk): consider making suffix stripping configurable. For example,
 // I expect that I'd want svg etc to keep its suffix?
 func (spix *spotlightWikilinkIndexer) Wikitext(frompath, topath string) (string, error) {
-	// Find allz of the paths
-	allpaths, err := spix.pathsforwikitext(filepath.Dir(frompath), filepath.Base(topath))
+	base := filepath.Base(topath)
+	allpaths, err := spix.pathsforwikitext(spix.wikiroot, base)
 	if err != nil {
 		return "", fmt.Errorf("Wikitext pathsforwikitext %w", err)
 	}
-	return buildshortestwikitext(spix.wikiroot, topath, allpaths)
+
+	if len(allpaths) == 1 {
+		return base, nil
+	}
+
+	_, _, suffixB := commonPrefixSplit(frompath, topath)
+	return suffixB, nil
 }
 
 func splitPathPartsHandle(dir string) []unique.Handle[string] {
