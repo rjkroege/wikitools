@@ -75,8 +75,8 @@ func disambiguatewikipaths(location, lsd, wikitext string, allpaths []string) (s
 
 // commonPrefixSplit returns the longest common directory prefix of two
 // absolute paths together with the two differing suffixes.
-// TODO(rjk): I had wanted: Path(root, a, commonPrefixSplit(a,b).suffixB) == b
-// but it is not clear if this is the case.
+// Historical note: written while on an unhelpful sidequest to fix a bug
+// in Wikitext.
 func commonPrefixSplit(a, b string) (prefix, suffixA, suffixB string) {
 	a = filepath.Clean(a)
 	b = filepath.Clean(b)
@@ -122,16 +122,16 @@ func commonPrefixSplit(a, b string) (prefix, suffixA, suffixB string) {
 // it's a unique name or in directory or the prefix w.r.t. origin or the
 // prefix w.r.t. root.
 
-// location is the root of the wiki
-// topath is the absolute path of the desired destination article.
-// allpaths is the result of running pathsforwikitext: a list of wikipaths.
-// One of allpaths should be topath.
+// buildshortestwikitext generates the shortest wikitext that can
+// reference topath (absolute path of the desired destination) given
+// allpaths in the wiki that share the same basename with the given wiki
+// root.
 func buildshortestwikitext(root, topath string, allpaths []string) (string, error) {
 	// 2. split the topath into a bundle (たば), chopping the separator.
 	束 := strings.Split(strings.Trim(topath, string(filepath.Separator)), string(filepath.Separator))
 
 	// 3. Find the shortest unique prefix
-	// TODO(rjk): it conceivably is possible to use dynamic programming here to reduce the work.
+	// TODO(rjk): Could improve with dynamic programming but len(allpaths) typically small.
 	b束 := len(
 		strings.Split(
 			strings.Trim(root, string(filepath.Separator)),

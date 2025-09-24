@@ -145,12 +145,15 @@ func MakeLinks(mapper LinkToFile, location string) *Links {
 
 // AddWikilink updates the two-way linking data for a wikitext found in
 // fpath with (optional) displaytext so that fpath points to
-// Path(wikitext) and Path(wikitext) points to Wikilink(fpath)
+// Path(wikitext) and Path(wikitext) points to fpath in the link table.
+// This function is called for each link found in fpath by the Markdown
+// parser.
 func (links *Links) AddWikilink(displaytext, wikitext, fpath string) {
 	urlref := MakeWikilink(wikitext, displaytext)
 
-	// Here I fix the links to have the correct extension. Consider
-	// making this smarter?
+	// Here I fix the links to have the correct extension.
+// TODO(rjk): Adjust in the future as needed to support different
+// extensions.
 	if filepath.Ext(wikitext) == "" {
 		wikitext = wikitext + ".md"
 	}
