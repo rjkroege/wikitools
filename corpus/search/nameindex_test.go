@@ -83,6 +83,7 @@ type WikitextTestCase struct {
 	topath string
 	want string
 	wanterr error
+	nexterr error
 }
 
 func TestWikitext(t *testing.T) {
@@ -90,6 +91,7 @@ func TestWikitext(t *testing.T) {
 	if err != nil {
 		t.Fatalf("test can't run: %v", err)
 	}
+	wikiroot := filepath.Join(bp, "wiki")
 
 	spix := MakeWikilinkNameIndex(bp)
 
@@ -107,8 +109,8 @@ func TestWikitext(t *testing.T) {
 			wanterr: nil,
 		},
 		{
-			frompath: "wiki/04-Apr/20/Thursday.md",
-			topath: "wiki/04-Apr/24/Monday.md",
+			frompath: "wiki/2023/04-Apr/20/Thursday.md",
+			topath: "wiki/2023/04-Apr/24/Monday.md",
 			want: "24/Monday.md",
 			wanterr: nil,
 		},
@@ -145,10 +147,29 @@ func TestWikitext(t *testing.T) {
 
 		want := tc.want
 		if diff := cmp.Diff(want, got); diff != "" {
-			t.Errorf("path mismatch (-want +got):\n%s", diff)
+			t.Errorf("Wikitext mismatch (-want +got):\n%s", diff)
+			continue
 		}
 		if diff := cmp.Diff(tc.wanterr, err, cmpopts.EquateErrors()); diff != "" {
-			t.Errorf("error mismatch (-want +got):\n%s", diff)
+			t.Errorf("Wikitext error mismatch (-want +got):\n%s", diff)
+			continue
+		}
+
+		// Verify invertability
+		igot, ierr := spix.Path(
+			wikiroot,
+			filepath.Dir(filepath.Join(bp, tc.frompath)),
+			got)
+		
+		want = filepath.Join(bp, tc.topath)
+		if diff := cmp.Diff(want, igot); diff != "" {
+			t.Logf("want: %q igot: %q, (wikitext) got: %q, frompath: %q topath: %q", want, igot, got, tc.frompath, tc.topath)
+			t.Errorf("Path mismatch (-want +got):\n%s", diff)
+			continue
+		}
+		if diff := cmp.Diff(tc.nexterr, ierr, cmpopts.EquateErrors()); diff != "" {
+			t.Errorf("Path error mismatch (-want +got):\n%s", diff)
+			continue
 		}
 	}
 }

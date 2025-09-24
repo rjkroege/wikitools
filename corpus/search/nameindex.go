@@ -40,8 +40,10 @@ func (_ *spotlightWikilinkIndexer) Allpaths(location, lsd, wikitext string) ([]s
 	return nil, fmt.Errorf("StubLinkToFile not implemented")
 }
 
-// Wikitext returns a wikitext such that clicking on it in file frompath will
-// open file topath or an error if it was impossible to do so.
+// Wikitext returns a wikitext such that clicking on it in file frompath
+// will open file topath or an error if it was impossible to do so.
+// Wikitext and its dependencies assume that both frompath and topath
+// exist.
 // TODO(rjk): consider making suffix stripping configurable. For example,
 // I expect that I'd want svg etc to keep its suffix?
 func (spix *spotlightWikilinkIndexer) Wikitext(frompath, topath string) (string, error) {
