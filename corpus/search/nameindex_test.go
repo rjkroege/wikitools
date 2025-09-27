@@ -18,7 +18,7 @@ type nameIndexTestVector struct {
 func TestPathsforwikitext(t *testing.T) {
 	tests := wikitests
 
-	bp, err := filepath.Abs("testdata")
+	bp, err := filepath.Abs("../testdata")
 	if err != nil {
 		t.Fatalf("test can't run: %v", err)
 	}
@@ -87,7 +87,7 @@ type WikitextTestCase struct {
 }
 
 func TestWikitext(t *testing.T) {
-	bp, err := filepath.Abs("testdata")
+	bp, err := filepath.Abs("../testdata")
 	if err != nil {
 		t.Fatalf("test can't run: %v", err)
 	}

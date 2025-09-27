@@ -11,7 +11,7 @@ import (
 // getMapper returns a mapper instance for testing.
 func getMapper(t *testing.T) corpus.LinkToFile {
 	
-	bp, err := filepath.Abs("testdata")
+	bp, err := filepath.Abs("../testdata")
 	if err != nil {
 		t.Fatalf("test can't run: %v", err)
 	}
@@ -73,7 +73,7 @@ func TestAddForwardUrl(t *testing.T) {
 /*
 // TestAddWikilink tests the AddWikilink function.
 func TestAddWikilink(t *testing.T) {
-	mapper := getMapper()
+	mapper := getMapper(t)
 	links := &Links{
 		mapper: mapper,
 		ForwardLinks: make(map[string]map[Wikilink]Empty),
