@@ -70,63 +70,74 @@ func TestAddForwardUrl(t *testing.T) {
 	}
 }
 
-/*
 // TestAddWikilink tests the AddWikilink function.
+// TODO(Actually exercise the description part of the wikitext)
 func TestAddWikilink(t *testing.T) {
-	mapper := getMapper(t)
-	links := &Links{
-		mapper: mapper,
-		ForwardLinks: make(map[string]map[Wikilink]Empty),
-		BackLinks:    make(map[string]map[Wikilink]Empty),
-		DamagedLinks: make(map[string]map[Wikilink]Empty),
-		location:     "/test/location",
+	wikiroot, err := filepath.Abs("../testdata")
+	if err != nil {
+		t.Fatalf("test can't run: %v", err)
 	}
+	mapper := getMapper(t)
+	links := MakeLinks(mapper, wikiroot)
 
 	tests := []struct {
 		name        string
 		displaytext string
 		wikitext    string
+		rwikitext    string
 		fpath       string
+		bpath	string
 	}{
 		{
 			name:        "Add new wikilink",
-			displaytext: "Page1",
-			wikitext:    "page1.md",
-			fpath:       "test.md",
+			displaytext: "",
+			wikitext:    "16/Decisions.md",
+			rwikitext:	"unsorted/Saturday.md",
+			fpath:       "../testdata/wiki/unsorted/Saturday.md",
+			bpath:	"../testdata/wiki/2023/08-Aug/16/Decisions.md",
 		},
 		{
-			name:        "Add another wikilink to the same file",
-			displaytext: "Page2",
-			wikitext:    "page2.md",
-			fpath:       "test.md",
-		},
-		{
-			name:        "Add wikilink to a different file",
-			displaytext: "Page3",
-			wikitext:    "page3.md",
-			fpath:       "different.md",
+			name:        "Add another wikilink",
+			displaytext: "",
+			wikitext:    "16/Decisions.md",
+			rwikitext:	"6/Saturday.md",
+			fpath:       "../testdata/wiki/2023/05-May/6/Saturday.md",
+			bpath:	"../testdata/wiki/2023/08-Aug/16/Decisions.md",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			links.AddWikilink(tt.displaytext, tt.wikitext, tt.fpath)
+			fpath, err := filepath.Abs( tt.fpath)
+			if err != nil {
+				t.Fatalf("can't abs %q: %v", tt.fpath, err)
+			}
+			bpath, err := filepath.Abs( tt.bpath)
+			if err != nil {
+				t.Fatalf("can't abs %q: %v", tt.bpath, err)
+			}
+		
+			links.AddWikilink(tt.displaytext,tt.wikitext, fpath)
 
 			// Check if the wikilink was added to the correct file's ForwardLinks
-			if _, ok := links.ForwardLinks[tt.fpath]; !ok {
+			if _, ok := links.ForwardLinks[fpath]; !ok {
 				t.Errorf("Expected ForwardLinks to contain file %s", tt.fpath)
 			}
 
 			// Check if the specific wikilink was added
-			urlref := MakeWikilink(tt.wikitext, tt.displaytext)
-			if _, ok := links.ForwardLinks[tt.fpath][urlref]; !ok {
-				t.Errorf("Expected ForwardLinks[%s] to contain wikilink %v", tt.fpath, urlref)
+			furlref := corpus.MakeWikilink(tt.wikitext, tt.displaytext)
+			if _, ok := links.ForwardLinks[fpath][furlref]; !ok {
+				t.Errorf("Expected ForwardLinks[%s] to contain wikilink %v", tt.fpath, furlref)
 			}
 
-			// Note: Testing BackLinks and DamagedLinks would require a more complex setup
+			// Check if the specific backlink was added.
+			burlref := corpus.MakeWikilink(tt.rwikitext, "")
+			if _, ok := links.BackLinks[bpath][burlref]; !ok {
+				t.Errorf("Expected BackLinks[%s] to contain wikilink %v", tt.bpath, burlref)
+			}
+
+			// Note: Testing DamagedLinks would require a more complex setup
 			// with a functional mapper that can resolve paths and generate backreferences.
-			// This basic test focuses on the ForwardLinks addition.
 		})
 	}
 }
-*/
