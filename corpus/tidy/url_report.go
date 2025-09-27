@@ -20,6 +20,7 @@ import (
 	//	mathjax "github.com/litao91/goldmark-mathjax"
 	"github.com/rjkroege/wikitools/article/wikiextension"
 	"github.com/rjkroege/wikitools/corpus/search"
+	"github.com/rjkroege/wikitools/corpus/links"
 	"go.abhg.dev/goldmark/wikilink"
 )
 
@@ -27,7 +28,7 @@ type urlReport struct {
 	settings *wiki.Settings
 
 	// The store of links both forward and backwards.
-	links *corpus.Links
+	links *links.Links
 
 	tmpl *template.Template
 }
@@ -44,12 +45,12 @@ func NewUrlReporter(settings *wiki.Settings) (corpus.Tidying, error) {
 	}
 	return &urlReport{
 		settings: settings,
-		links:    corpus.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
+		links:    links.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
 		tmpl:     tmpl,
 	}, nil
 }
 
-func onefileimpl(settings *wiki.Settings, links *corpus.Links, path string, info os.FileInfo, err error) error {
+func onefileimpl(settings *wiki.Settings, links *links.Links, path string, info os.FileInfo, err error) error {
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)
 		return fmt.Errorf("couldn't read %s: %v", path, err)

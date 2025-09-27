@@ -9,10 +9,12 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+type empty = struct{}
+
 // remember xattr to dump the extended attributes
 const backlinkkey = "org.liqui.wikitoolsback"
 
-func WriteBacklinks(fname string, backmap map[corpus.Wikilink]corpus.Empty) error {
+func WriteBacklinks(fname string, backmap corpus.WikilinkMap) error {
 	links := make([]corpus.Wikilink, 0, len(backmap))
 	for k := range backmap {
 		links = append(links, k)
@@ -32,7 +34,7 @@ func WriteBacklinks(fname string, backmap map[corpus.Wikilink]corpus.Empty) erro
 
 // It's arguable that a list is all that's necessary? No. I need the original map back
 // to update the links.
-func ReadBacklinks(fname string) (map[corpus.Wikilink]corpus.Empty, error) {
+func ReadBacklinks(fname string) (corpus.WikilinkMap, error) {
 	by := make([]byte, 1<<16)
 	sz, err := unix.Getxattr(fname, backlinkkey, by)
 	if err != nil {
@@ -48,9 +50,9 @@ func ReadBacklinks(fname string) (map[corpus.Wikilink]corpus.Empty, error) {
 		return nil, fmt.Errorf("Can't ReadBacklinks to %q because %w", fname, err)
 	}
 
-	backmap := make(map[corpus.Wikilink]corpus.Empty)
+	backmap := make(corpus.WikilinkMap)
 	for _, v := range links {
-		backmap[v] = corpus.Empty{}
+		backmap[v] = empty{}
 	}
 
 	return backmap, nil

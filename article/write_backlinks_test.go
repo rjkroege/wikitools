@@ -16,8 +16,10 @@ func TestWriteBacklinks(t *testing.T) {
 	fpath := filepath.Join(td, "testfile")
 
 	wikilink := corpus.MakeWikilink("jiminy", "cricket")
-	backmap := make(map[corpus.Wikilink]corpus.Empty)
-	backmap[wikilink] = corpus.Empty{}
+	t.Logf("wikilink: %v", wikilink)
+	
+	backmap := make(corpus.WikilinkMap)
+	backmap[wikilink] = empty{}
 
 	if err := os.WriteFile(fpath, []byte("hi there"), 0600); err != nil {
 		t.Fatalf("can't write to %q: %v", fpath, err)
@@ -32,12 +34,13 @@ func TestWriteBacklinks(t *testing.T) {
 		t.Fatalf("can't read xattr from %q: %v", fpath, err)
 	}
 
+	t.Logf("backmap: %#v gotmap: %#v", backmap, gotmap)
 	if diff := cmp.Diff(backmap, gotmap); diff != "" {
 		t.Errorf("[%d] dump mismatch (-want +got):\n%s", 0, diff)
 	}
 
 	wikilink2 := corpus.MakeWikilink("hello", "xx/foo/bar")
-	backmap[wikilink2] = corpus.Empty{}
+	backmap[wikilink2] = empty{}
 
 	if err := WriteBacklinks(fpath, backmap); err != nil {
 		t.Fatalf("can't second write xattr to %q: %v", fpath, err)
@@ -48,6 +51,7 @@ func TestWriteBacklinks(t *testing.T) {
 		t.Fatalf("can't read xattr from %q: %v", fpath, err)
 	}
 
+	t.Logf("backmap: %v gotmap: %v", backmap, gotmap)
 	if diff := cmp.Diff(backmap, gotmap); diff != "" {
 		t.Errorf("[%d] dump mismatch (-want +got):\n%s", 1, diff)
 	}

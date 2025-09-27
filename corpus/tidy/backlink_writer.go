@@ -9,22 +9,25 @@ import (
 
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus"
+	"github.com/rjkroege/wikitools/corpus/links"
 	"github.com/rjkroege/wikitools/corpus/search"
 	"github.com/rjkroege/wikitools/wiki"
 )
+
+type empty = struct{}
 
 type backlinkWriter struct {
 	settings *wiki.Settings
 	dryrun   bool
 
 	// The store of links both forward and backwards.
-	linkies *corpus.Links
+	linkies *links.Links
 }
 
 func NewBacklinkwriter(settings *wiki.Settings) (corpus.Tidying, error) {
 	return &backlinkWriter{
 		settings: settings,
-		linkies: corpus.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
+		linkies: links.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
 	}, nil
 }
 
@@ -53,7 +56,7 @@ func (blw *backlinkWriter) SummaryWrite(_ io.Writer) error {
 
 		if err == nil {
 			for k := range obl {
-				nbl[k] = corpus.Empty{}
+				nbl[k] = empty{}
 			}
 		}
 
