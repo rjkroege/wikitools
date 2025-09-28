@@ -3,6 +3,8 @@ package links
 import (
 	"log"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/rjkroege/wikitools/corpus"
 )
@@ -42,6 +44,23 @@ func MakeLinks(mapper corpus.LinkToFile, location string) *Links {
 		mapper:       mapper,
 		location:     location,
 	}
+}
+
+func lstring(links map[string]corpus.WikilinkMap) string {
+	keys := make([]string, 0, len(links))
+	for k := range links {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	var b strings.Builder
+	for _, k := range keys {
+		b.WriteString(k)
+		b.WriteString(": ")
+		b.WriteString(links[k].String())
+		b.WriteString("\n")
+	}
+	return b.String()
 }
 
 // AddWikilink updates the two-way linking data for a wikitext found in

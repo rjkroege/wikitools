@@ -40,7 +40,7 @@ func (md *ExpandedArticle) Plumb(settings *wiki.Settings) {
 
 	fullpathname := filepath.Join(settings.Wikidir, reldir, settings.ExtensionedFileName(filename+ufn))
 
-	err = win.Name(fullpathname)
+	err = win.Name("%s", fullpathname)
 	if err != nil {
 		log.Fatal(err)
 	}

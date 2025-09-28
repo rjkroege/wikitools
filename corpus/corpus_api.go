@@ -2,6 +2,10 @@ package corpus
 
 import (
 	"fmt"
+	"sort"
+	"strings"
+
+	"golang.org/x/exp/maps"
 )
 
 // TODO(rjk): overview I am working towards a system where I get
@@ -49,6 +53,28 @@ func MakeWikilink(id, title string) Wikilink {
 		Id:    id,
 		Title: title,
 	}
+}
+
+type ById []Wikilink
+
+func (a ById) Len() int           { return len(a) }
+func (a ById) Swap(i, j int)    { a[i], a[j] = a[j], a[i] }
+func (a ById) Less(i, j int) bool { return a[i].Id < a[j].Id }
+
+// SortWikilinks sorts a slice of Wikilink structures by their Id field.
+func SortWikilinks(links []Wikilink) {
+	sort.Sort(ById(links))
+}
+
+func (wm WikilinkMap) String() string {
+	keys := maps.Keys(wm)
+	SortWikilinks(keys)
+
+	var b strings.Builder
+	for _, k := range keys {
+		b.WriteString(k.Markdown())
+	}
+	return b.String()
 }
 
 func (wl *Wikilink) Markdown() string {

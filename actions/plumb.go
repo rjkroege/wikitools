@@ -98,7 +98,7 @@ func writewikierror(settings *wiki.Settings, text []byte) error {
 			return fmt.Errorf("writewikierror win.Ctl nomark: %v", err)
 		}
 
-		if err := win.Name(fn); err != nil {
+		if err := win.Name("%s", fn); err != nil {
 			return fmt.Errorf("writewikierror win.Name: %v", err)
 		}
 
