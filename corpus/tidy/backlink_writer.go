@@ -18,7 +18,6 @@ type empty = struct{}
 
 type backlinkWriter struct {
 	settings *wiki.Settings
-	dryrun   bool
 
 	// The store of links both forward and backwards.
 	linkies *links.Links
@@ -37,7 +36,6 @@ func (blw *backlinkWriter) EachFile(path string, info os.FileInfo, err error) er
 	}
 	return nil
 }
-
 
 
 // Summary writes the backlinks to the effected files. Run this at the end
