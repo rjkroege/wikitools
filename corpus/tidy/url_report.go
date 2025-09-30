@@ -121,6 +121,11 @@ type CompleteUrlReportDocument struct {
 func (abc *urlReport) _urlReportGen() map[string][]string {
 	// Zipper over the various outgoing links.
 	articles := make(map[string][]string)
+	for k, v := range abc.links.DamagedLinks {
+		for u := range v {
+			articles[k] = append(articles[k], "*damaged* "+u.Markdown())
+		}
+	}
 	for k, v := range abc.links.OutUrls {
 		for u := range v {
 			articles[k] = append(articles[k], u.Markdown())
@@ -129,11 +134,6 @@ func (abc *urlReport) _urlReportGen() map[string][]string {
 	for k, v := range abc.links.ForwardLinks {
 		for u := range v {
 			articles[k] = append(articles[k], u.Markdown())
-		}
-	}
-	for k, v := range abc.links.DamagedLinks {
-		for u := range v {
-			articles[k] = append(articles[k], "*damaged* "+u.Markdown())
 		}
 	}
 	return articles
