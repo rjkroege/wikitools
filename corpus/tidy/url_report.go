@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"text/template"
 	"time"
+	"strings"
 
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus"
@@ -196,7 +197,7 @@ const urlhtmlreport = `
 <body>
 <h1>URL Report</h1>
 <ul class="auto-column-list">
-{{range $index, $element :=  .}}<li>{{ $index }}
+{{range $index, $element :=  .}}<li>{{ filetourl $index }}
 	<ul>{{range . }}<li>{{.}}</li>{{end}}
 </ul></li>
 {{end}}
@@ -206,8 +207,17 @@ const urlhtmlreport = `
 </html>
 `
 
+func filetourl(prefix, path string) string {
+	short := strings.TrimPrefix(path, prefix)
+	return fmt.Sprintf("<a href=\"plumb:/%s\">%s</a>", path, short)
+}
+
 func (abc *urlReport) _htmlUrlsSummaryWrite(w io.Writer, articles map[string][]string) error {
-	if _, err := abc.tmpl.New("urlhtmlreport").Parse(urlhtmlreport); err != nil {
+	if _, err := abc.tmpl.New("urlhtmlreport").Funcs(template.FuncMap{
+			"filetourl": func(path string) string {
+				return filetourl(abc.settings.Wikidir, path)
+			},
+		}).Parse(urlhtmlreport); err != nil {
 		return fmt.Errorf("can't urlhtmlreport template%v", err)
 	}
 
