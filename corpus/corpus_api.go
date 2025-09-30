@@ -84,6 +84,14 @@ func (wl *Wikilink) Markdown() string {
 	return fmt.Sprintf("[[%s]]", wl.Id)
 }
 
+func (wl *Wikilink) Html() string {
+	if wl.Title != "" {
+		return fmt.Sprintf("<a href=\"plumb://w/%s\">%s</a>",  wl.Id, wl.Title)
+	}
+	return fmt.Sprintf("<a href=\"plumb://w/%s\">%s</a>",  wl.Id, wl.Id)
+}
+
+
 // LinkToFile is implemented by objects that can return a unique or all file paths corresponding
 // to a given wikilink.
 type LinkToFile interface {
@@ -129,9 +137,21 @@ func (ul *Urllink) Markdown() string {
 	return fmt.Sprintf("[%s](%s)", ul.Title, ul.Url)
 }
 
+func (ul *Urllink) Html() string {
+	return fmt.Sprintf("<a href=\"%s\">%s</a>",  ul.Url, ul.Title)
+}
+
 // Markdownable requires the Markdown function to produce a Markdown
 // representation of the object.
 type Markdownable interface {
 	Markdown() string
 }
 
+type Htmlable interface {
+	Html() string
+}
+
+var _ Markdownable = (*Urllink)(nil)
+var _ Markdownable = (*Wikilink)(nil)
+var _ Htmlable = (*Urllink)(nil)
+var _ Htmlable = (*Wikilink)(nil)

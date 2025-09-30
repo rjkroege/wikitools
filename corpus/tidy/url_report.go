@@ -143,17 +143,41 @@ func (abc *urlReport) _urlReportGen(errorsonly bool) map[string][]string {
 	return articles
 }
 
+func (abc *urlReport) _urlHtmlReportGen(errorsonly bool) map[string][]string {
+	// Zipper over the various outgoing links.
+	articles := make(map[string][]string)
+	for k, v := range abc.links.DamagedLinks {
+		for u := range v {
+			articles[k] = append(articles[k], "*damaged* "+u.Html())
+		}
+	}
+	if errorsonly {
+		return articles
+	}
+	for k, v := range abc.links.OutUrls {
+		for u := range v {
+			articles[k] = append(articles[k], u.Html())
+		}
+	}
+	for k, v := range abc.links.ForwardLinks {
+		for u := range v {
+			articles[k] = append(articles[k], u.Html())
+		}
+	}
+	return articles
+}
+
 // TODO(rjk): Above, I blithered about how to refactor this to share the
 // logic for writing a backing database of URLs with this code. I can
 // pull the walking out and just create a different Summary
 // implementation.
 func (abc *urlReport) SummaryWrite(w io.Writer) error {
-	articles := abc._urlReportGen(false)
-
 	if abc.settings.OutputType == wiki.OutputHTML {
+		articles := abc._urlHtmlReportGen(false)
 		return abc._htmlUrlsSummaryWrite(w, articles)
 	}
 
+	articles := abc._urlReportGen(false)
 	if _, err := abc.tmpl.New("urlreport").Parse(urllistingreport); err != nil {
 		return fmt.Errorf("can't cleaningreport template%v", err)
 	}
