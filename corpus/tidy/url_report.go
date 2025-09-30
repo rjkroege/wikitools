@@ -118,13 +118,16 @@ type CompleteUrlReportDocument struct {
 	Articles map[string][]string
 }
 
-func (abc *urlReport) _urlReportGen() map[string][]string {
+func (abc *urlReport) _urlReportGen(errorsonly bool) map[string][]string {
 	// Zipper over the various outgoing links.
 	articles := make(map[string][]string)
 	for k, v := range abc.links.DamagedLinks {
 		for u := range v {
 			articles[k] = append(articles[k], "*damaged* "+u.Markdown())
 		}
+	}
+	if errorsonly {
+		return articles
 	}
 	for k, v := range abc.links.OutUrls {
 		for u := range v {
@@ -144,7 +147,7 @@ func (abc *urlReport) _urlReportGen() map[string][]string {
 // pull the walking out and just create a different Summary
 // implementation.
 func (abc *urlReport) SummaryWrite(w io.Writer) error {
-	articles := abc._urlReportGen()
+	articles := abc._urlReportGen(false)
 
 	if abc.settings.OutputType == wiki.OutputHTML {
 		return abc._htmlUrlsSummaryWrite(w, articles)
@@ -212,7 +215,7 @@ func (abc *urlReport) _htmlUrlsSummaryWrite(w io.Writer, articles map[string][]s
 }
 
 func (abc *urlReport) SummaryEncode(e *json.Encoder) error {
-	return e.Encode(abc._urlReportGen())
+	return e.Encode(abc._urlReportGen(false))
 }
 
 var _ corpus.Tidying = (*urlReport)(nil)

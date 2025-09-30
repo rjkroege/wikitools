@@ -38,6 +38,8 @@ func (blw *backlinkWriter) EachFile(path string, info os.FileInfo, err error) er
 	return nil
 }
 
+
+
 // Summary writes the backlinks to the effected files. Run this at the end
 // so that I don't have an O(n^2) fan out of disk writes for each merge of the
 // backlink attributes.
