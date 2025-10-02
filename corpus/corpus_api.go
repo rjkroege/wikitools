@@ -2,8 +2,9 @@ package corpus
 
 import (
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
+	"log"
 
 	"golang.org/x/exp/maps"
 )
@@ -44,9 +45,14 @@ type Wikilink struct {
 	Title string
 }
 
-type WikilinkMap map[Wikilink]empty
+type Link interface {
+	Wikilink | Urllink
+	Sortid() string
+	Markdown() string
+	Html() string
+}
 
-type UrlMap map[Urllink]empty
+type LinkMap[T Link] map[T]empty
 
 func MakeWikilink(id, title string) Wikilink {
 	return Wikilink{
@@ -55,41 +61,54 @@ func MakeWikilink(id, title string) Wikilink {
 	}
 }
 
-type ById []Wikilink
+func foo[E Link](t E) {
+	log.Println(t.Sortid())
+}
 
-func (a ById) Len() int           { return len(a) }
-func (a ById) Swap(i, j int)    { a[i], a[j] = a[j], a[i] }
-func (a ById) Less(i, j int) bool { return a[i].Id < a[j].Id }
 
 // SortWikilinks sorts a slice of Wikilink structures by their Id field.
-func SortWikilinks(links []Wikilink) {
-	sort.Sort(ById(links))
+func SortWikilinks[S ~[]E, E Link](links S) {
+	slices.SortFunc(links, func(a,b E) int {
+		sa, sb := a.Sortid(), b.Sortid()
+		if sa < sb {
+			return -1
+		} else if sa > sb {
+			return 1
+		} 
+		return 0
+	})
 }
 
-func (wm WikilinkMap) String() string {
-	keys := maps.Keys(wm)
-	SortWikilinks(keys)
+// Helpful definitions to not need to change code
+type WikilinkMap = LinkMap[Wikilink]
+type UrlMap = LinkMap[Urllink]
+
+func Stringify[T Link](links LinkMap[T]) string {
+ 	keys := maps.Keys(links)
+ 	SortWikilinks(keys)
 
 	var b strings.Builder
-	for _, k := range keys {
-		b.WriteString(k.Markdown())
-	}
-	return b.String()
+ 	for _, k := range keys {
+ 		b.WriteString(k.Markdown())
+ 	}
+ 	return b.String()
 }
 
-func (wl *Wikilink) Markdown() string {
+func (wl Wikilink) Markdown() string {
 	if wl.Title != "" {
 		return fmt.Sprintf("[[%s | %s]]", wl.Id, wl.Title)
 	}
 	return fmt.Sprintf("[[%s]]", wl.Id)
 }
 
-func (wl *Wikilink) Html() string {
+func (wl Wikilink) Html() string {
 	if wl.Title != "" {
 		return fmt.Sprintf("<a href=\"plumb://w/%s\">%s</a>",  wl.Id, wl.Title)
 	}
 	return fmt.Sprintf("<a href=\"plumb://w/%s\">%s</a>",  wl.Id, wl.Id)
 }
+
+
 
 
 // LinkToFile is implemented by objects that can return a unique or all file paths corresponding
@@ -114,7 +133,7 @@ type LinkToFile interface {
 // Allpaths returns all (absolute) paths of files in the wiki that could
 // be referred to by [[wl.Id]] by using a provided index.
 // TODO(rjk): Check if this is working.
-func (wl *Wikilink) Allpaths(index LinkToFile) ([]string, error) {
+func (wl Wikilink) Allpaths(index LinkToFile) ([]string, error) {
 	return index.Allpaths("", "", wl.Id)
 }
 
@@ -133,25 +152,14 @@ func MakeUrllink(url, title string) Urllink {
 	}
 }
 
-func (ul *Urllink) Markdown() string {
+func (ul Urllink) Markdown() string {
 	return fmt.Sprintf("[%s](%s)", ul.Title, ul.Url)
 }
 
-func (ul *Urllink) Html() string {
+func (ul Urllink) Html() string {
 	return fmt.Sprintf("<a href=\"%s\">%s</a>",  ul.Url, ul.Title)
 }
 
-// Markdownable requires the Markdown function to produce a Markdown
-// representation of the object.
-type Markdownable interface {
-	Markdown() string
-}
+func (wl Wikilink) Sortid() string { return wl.Id }
+func (ul Urllink) Sortid() string  { return ul.Url }
 
-type Htmlable interface {
-	Html() string
-}
-
-var _ Markdownable = (*Urllink)(nil)
-var _ Markdownable = (*Wikilink)(nil)
-var _ Htmlable = (*Urllink)(nil)
-var _ Htmlable = (*Wikilink)(nil)

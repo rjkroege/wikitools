@@ -121,8 +121,6 @@ func figureoutdryrun(r *http.Request) bool {
 // structured pass.
 func tidywrap(settings *wiki.Settings, f TidyingPassFactory) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		log.Println("tidywrap", r)
 		// Every request gets a private settings.
 		reqsettings := *settings
 		reqsettings.OutputType = figureoutoutputformat(r)
@@ -143,7 +141,6 @@ func tidywrap(settings *wiki.Settings, f TidyingPassFactory) http.HandlerFunc {
 			return
 		}
 
-		log.Printf("tidywrap switch")
 		switch reqsettings.OutputType {
 		case wiki.OutputCLI:
 			w.Header().Set("Content-Type", "text/plain")
@@ -167,13 +164,34 @@ func tidywrap(settings *wiki.Settings, f TidyingPassFactory) http.HandlerFunc {
 				log.Printf("tidywrap %s %v", "OutputHTML", err)
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
-
 		}
 	}
 }
 
 // TODO(rjk): Move this into a separate file.
 const homepage = `<html>
+<style>
+/* Pretty button-style link */
+a.pretty-button {
+  display: inline-block;
+  margin: 4px 2px;
+  padding: 10px 22px;
+  font: 600 14px/1.2 system-ui, sans-serif;
+  color: #fff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 6px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, .35);
+  transition: all .25s ease;
+}
+
+/* Hover highlight */
+a.pretty-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, .55);
+  background: linear-gradient(135deg, #7c8ff0 0%, #865fca 100%);
+}
+</style>
 <body>
 <h1>Wiki</h1>
 <h2>Reports</h2>
@@ -185,7 +203,7 @@ const homepage = `<html>
 </ul>
 <h2>Tidying Passes</h2>
 <ul>
-<li><a href="/tidy/backlinks?_dry=1">Preview backlinks update</a><a href="/tidy/backlinks">Do it!</a></li>
+<li><a class="pretty-button" href="/tidy/backlinks?_dry=1">Preview backlinks update</a> <a  class="pretty-button" href="/tidy/backlinks">Do it!</a></li>
 </ul>
 <h2>Article of the Day</h2>
 not yet implemented

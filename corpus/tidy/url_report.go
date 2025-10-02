@@ -34,12 +34,8 @@ type urlReport struct {
 	tmpl *template.Template
 }
 
-// TODO(rjk): Consider how I will refactor this to make it easier to structure
-// the dumping of the URLs to some kind of backing storage.
-// I should be able to compose the reporting vs logging functionality into
-// this in some way.
-func NewUrlReporter(settings *wiki.Settings) (corpus.Tidying, error) {
-	// TODO(rjk): The metadata
+func newUrlReporterImpl(settings *wiki.Settings) (*urlReport, error) {
+	// TODO(rjk): Centralize the report parsing. Do it only once.
 	tmpl, err := template.New("newstylemetadata").Parse(iawritermetadataformat)
 	if err != nil {
 		return nil, fmt.Errorf("can't NewUrlReporter template %v", err)
@@ -49,6 +45,14 @@ func NewUrlReporter(settings *wiki.Settings) (corpus.Tidying, error) {
 		links:    links.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
 		tmpl:     tmpl,
 	}, nil
+}
+
+// TODO(rjk): Consider how I will refactor this to make it easier to structure
+// the dumping of the URLs to some kind of backing storage.
+// I should be able to compose the reporting vs logging functionality into
+// this in some way.
+func NewUrlReporter(settings *wiki.Settings) (corpus.Tidying, error) {
+	return newUrlReporterImpl(settings)
 }
 
 func onefileimpl(settings *wiki.Settings, links *links.Links, path string, info os.FileInfo, err error) error {
@@ -119,52 +123,30 @@ type CompleteUrlReportDocument struct {
 	Articles map[string][]string
 }
 
-func (abc *urlReport) _urlReportGen(errorsonly bool) map[string][]string {
-	// Zipper over the various outgoing links.
+// TODO(rjk): These parameters should use the Pike optional parameter pattern.
+func (abc *urlReport) _urlReportGen(damagedonly bool, html bool) map[string][]string {
 	articles := make(map[string][]string)
-	for k, v := range abc.links.DamagedLinks {
-		for u := range v {
-			articles[k] = append(articles[k], "*damaged* "+u.Markdown())
-		}
-	}
-	if errorsonly {
+
+	zipperLinks(html, abc.links.DamagedLinks, articles)
+	if damagedonly {
 		return articles
 	}
-	for k, v := range abc.links.OutUrls {
-		for u := range v {
-			articles[k] = append(articles[k], u.Markdown())
-		}
-	}
-	for k, v := range abc.links.ForwardLinks {
-		for u := range v {
-			articles[k] = append(articles[k], u.Markdown())
-		}
-	}
+	zipperLinks(html, abc.links.OutUrls, articles)
+	zipperLinks(html, abc.links.ForwardLinks, articles)
+
 	return articles
 }
 
-func (abc *urlReport) _urlHtmlReportGen(errorsonly bool) map[string][]string {
-	// Zipper over the various outgoing links.
-	articles := make(map[string][]string)
-	for k, v := range abc.links.DamagedLinks {
+func zipperLinks[T corpus.Link](html bool, linkies map[string]corpus.LinkMap[T], articles map[string][]string) {
+	for k, v := range linkies {
 		for u := range v {
-			articles[k] = append(articles[k], "*damaged* "+u.Html())
+			if html {
+				articles[k] = append(articles[k], u.Html())
+			} else {
+				articles[k] = append(articles[k], u.Markdown())
+			}
 		}
 	}
-	if errorsonly {
-		return articles
-	}
-	for k, v := range abc.links.OutUrls {
-		for u := range v {
-			articles[k] = append(articles[k], u.Html())
-		}
-	}
-	for k, v := range abc.links.ForwardLinks {
-		for u := range v {
-			articles[k] = append(articles[k], u.Html())
-		}
-	}
-	return articles
 }
 
 // TODO(rjk): Above, I blithered about how to refactor this to share the
@@ -173,11 +155,11 @@ func (abc *urlReport) _urlHtmlReportGen(errorsonly bool) map[string][]string {
 // implementation.
 func (abc *urlReport) SummaryWrite(w io.Writer) error {
 	if abc.settings.OutputType == wiki.OutputHTML {
-		articles := abc._urlHtmlReportGen(false)
+		articles := abc._urlReportGen(false, true)
 		return abc._htmlUrlsSummaryWrite(w, articles)
 	}
 
-	articles := abc._urlReportGen(false)
+	articles := abc._urlReportGen(false, false)
 	if _, err := abc.tmpl.New("urlreport").Parse(urllistingreport); err != nil {
 		return fmt.Errorf("can't cleaningreport template%v", err)
 	}
@@ -249,7 +231,7 @@ func (abc *urlReport) _htmlUrlsSummaryWrite(w io.Writer, articles map[string][]s
 }
 
 func (abc *urlReport) SummaryEncode(e *json.Encoder) error {
-	return e.Encode(abc._urlReportGen(false))
+	return e.Encode(abc._urlReportGen(false, false))
 }
 
 var _ corpus.Tidying = (*urlReport)(nil)

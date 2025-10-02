@@ -13,17 +13,17 @@ type empty = struct{}
 
 type Links struct {
 	// A set of outgoing wikitext links from each fullpath-specified article.
-	ForwardLinks map[string]corpus.WikilinkMap
+	ForwardLinks map[string]corpus.LinkMap[corpus.Wikilink]
 
 	// A set of incoming (i.e. back) links for each fullpath-specified article.
-	BackLinks map[string]corpus.WikilinkMap
+	BackLinks map[string]corpus.LinkMap[corpus.Wikilink]
 
 	// A set of outgoing URLs from each fullpath-specified article.
-	OutUrls map[string]corpus.UrlMap
+	OutUrls map[string]corpus.LinkMap[corpus.Urllink]
 
 	// Forward wikitext links that do not unambiguously refer to a specific target.
 	// TODO(rjk): I should track *why* they're damaged.
-	DamagedLinks map[string]corpus.WikilinkMap
+	DamagedLinks map[string]corpus.LinkMap[corpus.Wikilink]
 
 	// mapper instance takes a wikitext link to its corresponding filename.
 	mapper corpus.LinkToFile
@@ -39,7 +39,7 @@ func MakeLinks(mapper corpus.LinkToFile, location string) *Links {
 	return &Links{
 		ForwardLinks: make(map[string]corpus.WikilinkMap),
 		BackLinks:    make(map[string]corpus.WikilinkMap),
-		OutUrls:      make(map[string]corpus.UrlMap),
+		OutUrls:      make(map[string]corpus.LinkMap[corpus.Urllink]),
 		DamagedLinks: make(map[string]corpus.WikilinkMap),
 		mapper:       mapper,
 		location:     location,
@@ -57,7 +57,7 @@ func lstring(links map[string]corpus.WikilinkMap) string {
 	for _, k := range keys {
 		b.WriteString(k)
 		b.WriteString(": ")
-		b.WriteString(links[k].String())
+		b.WriteString(corpus.Stringify(links[k]))
 		b.WriteString("\n")
 	}
 	return b.String()
