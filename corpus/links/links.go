@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/rjkroege/wikitools/corpus"
 )
@@ -35,7 +36,13 @@ type Links struct {
 // Show that Linkminer is a UrlRecorder
 var _ corpus.UrlRecorder = (*Links)(nil)
 
-func MakeLinks(mapper corpus.LinkToFile, location string) *Links {
+// Only have one index.
+var (
+	instance *Links
+	once     sync.Once
+)
+
+func implMakeLinks(mapper corpus.LinkToFile, location string)  *Links {
 	return &Links{
 		ForwardLinks: make(map[string]corpus.WikilinkMap),
 		BackLinks:    make(map[string]corpus.WikilinkMap),
@@ -44,6 +51,13 @@ func MakeLinks(mapper corpus.LinkToFile, location string) *Links {
 		mapper:       mapper,
 		location:     location,
 	}
+}
+
+func MakeLinks(mapper corpus.LinkToFile, location string) *Links {
+	once.Do(func() {
+		instance = implMakeLinks(mapper, location)
+	})
+	return instance
 }
 
 func lstring(links map[string]corpus.WikilinkMap) string {
