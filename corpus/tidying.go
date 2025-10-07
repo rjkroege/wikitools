@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"html/template"
 
 	"github.com/rjkroege/wikitools/wiki"
 )
@@ -41,6 +42,7 @@ type FileRecord struct {
 type listAllWikiFiles struct {
 	Files    []FileRecord
 	settings *wiki.Settings
+	tmpl *template.Template
 }
 
 func NewListAllWikiFilesTidying(settings *wiki.Settings) (Tidying, error) {

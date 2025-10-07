@@ -3,6 +3,8 @@ package corpus
 import (
 	"html/template"
 	"io"
+	"fmt"
+	"strings"
 )
 
 const listallwikitmpl = `
@@ -42,7 +44,7 @@ const listallwikitmpl = `
  <div class="list-wrapper">
     <ul class="fill-across">
 {{range .}}
-    <li>{{.RelPath}} ({{.ModTime.Format "2006-01-02 15:04:05"}})</li>
+    <li>{{ filetourl .Path }} ({{.ModTime.Format "2006-01-02"}})</li>
 {{end}}
     </ul>
   </div>
@@ -51,6 +53,28 @@ const listallwikitmpl = `
 `
 
 func (tidy *listAllWikiFiles) _htmlSummaryWrite(w io.Writer) error {
-	t := template.Must(template.New("list").Parse(listallwikitmpl))
-	return t.Execute(w, tidy.Files)
+	// TODO(rjk): Stash all the templates in a central place where
+	// the HTML can be refactored for rapid development.
+	// Note that I need to mark filetourl as being safe to include.
+
+	if tidy.tmpl == nil { 
+		tmpl, err := template.New("articlelist").Funcs(template.FuncMap{
+				"filetourl": func(path string) template.HTML {
+					return template.HTML(filetourl(tidy.settings.Wikidir, path))
+				},
+			}).Parse(listallwikitmpl)
+		if  err != nil {
+			return fmt.Errorf("can't listallwikitmpl template%v", err)
+		}
+		tidy.tmpl = tmpl
+	}
+	return tidy.tmpl.ExecuteTemplate(w, "articlelist", tidy.Files)
+}
+
+// TODO(rjk): Remove this code. I just cut&pasted it because I want to
+// progress now and worry about the "right" way to organize the new style
+// of managing templates and such later.
+func filetourl(prefix, path string) string {
+	short := strings.TrimPrefix(path, prefix)
+	return fmt.Sprintf("<a href=\"plumb:/%s\">%s</a>", path, short)
 }

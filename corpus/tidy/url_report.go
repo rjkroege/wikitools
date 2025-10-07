@@ -36,6 +36,7 @@ type urlReport struct {
 
 func newUrlReporterImpl(settings *wiki.Settings) (*urlReport, error) {
 	// TODO(rjk): Centralize the report parsing. Do it only once.
+	// I am doing this wrongs?
 	tmpl, err := template.New("newstylemetadata").Parse(iawritermetadataformat)
 	if err != nil {
 		return nil, fmt.Errorf("can't NewUrlReporter template %v", err)
