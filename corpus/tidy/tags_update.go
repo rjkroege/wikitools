@@ -27,7 +27,7 @@ func NewTagsDumper(settings *wiki.Settings) (corpus.Tidying, error) {
 }
 
 // TODO(rjk): This functionality needs to done correctly.
-func (tr *tagsDump) Summary() error {
+func (tr *tagsDump) writeTagList() error {
 	genpath, err := tr.tagrp.settings.MakeGenDir()
 	if err != nil {
 		return err
@@ -58,9 +58,23 @@ func (tagu *tagsDump) EachFile(path string, info os.FileInfo, err error) error {
 	return tagu.tagrp.EachFile(path , info , err )
 }
 func (tagu *tagsDump) SummaryWrite(w io.Writer) error {
+	dryrun := tagu.tagrp.settings.Dryrun
+	if !dryrun {
+		if err := tagu.writeTagList(); err != nil {
+			return err
+		}
+	}
+	// TODO(rjk): Handle errors more nicely.
 	return tagu.tagrp.SummaryWrite(w)
 }
 func (tagu *tagsDump) SummaryEncode(e *json.Encoder) error {
+	dryrun := tagu.tagrp.settings.Dryrun
+	if !dryrun {
+		if err := tagu.writeTagList(); err != nil {
+			return err
+		}
+	}
+	// TODO(rjk): Handle errors more nicely.
 	return tagu.tagrp.SummaryEncode(e)
 }
 
