@@ -5,26 +5,30 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"io"
+	"encoding/json"
 
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/wiki"
 )
 
 type tagsDump struct {
-	tagsReport
+	tagrp *tagsReport
 }
 
 func NewTagsDumper(settings *wiki.Settings) (corpus.Tidying, error) {
+	tagrp , err := newTagsReporterImpl(settings)
+	if err != nil {
+		return nil, err
+	}
 	return &tagsDump{
-		tagsReport{
-			tags:     make(map[string]int),
-			settings: settings,
-		},
+		tagrp: tagrp,
 	}, nil
 }
 
+// TODO(rjk): This functionality needs to done correctly.
 func (tr *tagsDump) Summary() error {
-	genpath, err := tr.tagsReport.settings.MakeGenDir()
+	genpath, err := tr.tagrp.settings.MakeGenDir()
 	if err != nil {
 		return err
 	}
@@ -39,7 +43,7 @@ func (tr *tagsDump) Summary() error {
 	fd := bufio.NewWriter(nfd)
 	defer fd.Flush()
 
-	for k := range tr.tags {
+	for k := range tr.tagrp.tags {
 		if _, err := fd.WriteString(k); err != nil {
 			return fmt.Errorf("writing %#v failed: %v", path, err)
 		}
@@ -49,3 +53,15 @@ func (tr *tagsDump) Summary() error {
 	}
 	return nil
 }
+
+func (tagu *tagsDump) EachFile(path string, info os.FileInfo, err error) error {
+	return tagu.tagrp.EachFile(path , info , err )
+}
+func (tagu *tagsDump) SummaryWrite(w io.Writer) error {
+	return tagu.tagrp.SummaryWrite(w)
+}
+func (tagu *tagsDump) SummaryEncode(e *json.Encoder) error {
+	return tagu.tagrp.SummaryEncode(e)
+}
+
+var _ corpus.Tidying = (*tagsDump)(nil)

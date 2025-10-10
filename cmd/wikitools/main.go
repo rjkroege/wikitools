@@ -119,6 +119,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}
+		// TODO(rjk): This doesn't actually do the correct thing.
 		if err := tidying.SummaryWrite(nil); err != nil {
 			log.Fatal("report Summary: ", err)
 		}

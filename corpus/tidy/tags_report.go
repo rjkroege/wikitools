@@ -22,6 +22,10 @@ type tagsReport struct {
 }
 
 func NewTagsReporter(settings *wiki.Settings) (corpus.Tidying, error) {
+	return newTagsReporterImpl(settings)
+}
+
+func newTagsReporterImpl(settings *wiki.Settings) (*tagsReport, error) {
 	return &tagsReport{
 		tags:     make(map[string]int),
 		settings: settings,
