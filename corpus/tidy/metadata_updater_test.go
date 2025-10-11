@@ -2,12 +2,12 @@ package tidy
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/rjkroege/wikitools/testhelpers"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 func TestUpdateMetadata(t *testing.T) {
@@ -17,9 +17,13 @@ func TestUpdateMetadata(t *testing.T) {
 	}
 	// defer os.RemoveAll(tmpd)
 	// I'll want to go read them for sure.
-	log.Println(tmpd)
+	t.Log(tmpd)
 
-	abc, err := makeMetadataUpdaterImpl()
+	settings := &wiki.Settings{
+		Wikidir: tmpd,
+	}
+
+	abc, err := makeMetadataUpdaterImpl(settings)
 	if err != nil {
 		t.Fatal("no makeMetadataUpdaterImpl:", err)
 	}

@@ -40,6 +40,10 @@ func (abc *metadataReport) recordMetadataState(md *article.MetaData, path string
 }
 
 func NewMetadataReporter(settings *wiki.Settings) (corpus.Tidying, error) {
+	return newMetadataReporterImpl(settings)
+}
+
+func newMetadataReporterImpl(settings *wiki.Settings) (*metadataReport, error) {
 	// TODO(rjk): These should be configurable?
 	tmpl, err := template.New("newstylemetadata").Parse(iawritermetadataformat)
 	if err != nil {
@@ -51,6 +55,7 @@ func NewMetadataReporter(settings *wiki.Settings) (corpus.Tidying, error) {
 		settings:  settings,
 	}, nil
 }
+
 
 func (abc *metadataReport) EachFile(path string, info os.FileInfo, err error) error {
 	if err != nil {

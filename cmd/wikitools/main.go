@@ -101,7 +101,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		// TODO(rjk): Union the other operations.
 	case "tidy deepclean":
 		// TODO(rjk): Highly likely that this needs some kind of settings.
-		tidying, err := tidy.NewMetadataUpdater()
+		tidying, err := tidy.NewMetadataUpdater(settings)
 		if err != nil {
 			log.Fatal("Can't make a MetadataUpdater( because:", err)
 		}

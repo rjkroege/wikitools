@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"text/template"
+	"encoding/json"
 
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus"
@@ -15,35 +15,44 @@ import (
 )
 
 type metadataUpdater struct {
-	metadataReport
+	mdrp *metadataReport
 }
 
 // NewMetadataUpdater creates a new Tidying implementation to update
 // metadata.
-func NewMetadataUpdater() (corpus.Tidying, error) {
-	return makeMetadataUpdaterImpl()
+func NewMetadataUpdater(settings *wiki.Settings) (corpus.Tidying, error) {
+	return makeMetadataUpdaterImpl(settings)
 }
 
-func makeMetadataUpdaterImpl() (*metadataUpdater, error) {
-	tmpl, err := template.New("newstylemetadata").Parse(iawritermetadataformat)
+func makeMetadataUpdaterImpl(settings *wiki.Settings) (*metadataUpdater, error) {
+	mdrp, err := newMetadataReporterImpl(settings)
 	if err != nil {
-		return nil, fmt.Errorf("can't MakeMetadataUpdater %v", err)
+		// TODO(rjk): Maybe wrap this?
+		return nil, err
 	}
+
 	return &metadataUpdater{
-		metadataReport{
-			missingmd: make([][]*articleReportEntry, article.MdModern+1),
-			tmpl:      tmpl,
-		},
+		mdrp: mdrp,
 	}, nil
 }
 
-func (abc *metadataUpdater) EachFile(path string, info os.FileInfo, err error) error {
+// TODO(rjk): The current implementation of this code likely leaves the
+// database in an invalid state. Test this carefully.
+// TODO(rjk): Rename, relocate and purge empty directory hierarchies and
+// update the various indexes.
+func (mup *metadataUpdater) EachFile(path string, info os.FileInfo, err error) error {
+	// I should apply all the changes once for greater re-use with the report.
+	dryrun := mup.mdrp.settings.Dryrun
+	if dryrun {
+		return mup.mdrp.EachFile(path, info, err)
+	}
+
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
-	updatedpth, err := abc.updateMetadata(path)
+	updatedpth, err := mup.updateMetadata(path)
 	if err != nil {
 		return err
 	}
@@ -56,6 +65,7 @@ func (abc *metadataUpdater) EachFile(path string, info os.FileInfo, err error) e
 	return nil
 }
 
+// TODO(rjk): This needs to have some unit tests yes?
 func (abc *metadataUpdater) updateMetadata(path string) (string, error) {
 	d, err := os.Stat(path)
 	if err != nil {
@@ -75,7 +85,7 @@ func (abc *metadataUpdater) updateMetadata(path string) (string, error) {
 	md := article.MakeMetaData(filepath.Base(path), d.ModTime())
 	md.RootThroughFileForMetadata(fd)
 
-	abc.recordMetadataState(md, path)
+	abc.mdrp.recordMetadataState(md, path)
 
 	if md.Type() != article.MdLegacy {
 		// Nothing to do.
@@ -111,7 +121,7 @@ func (abc *metadataUpdater) writeUpdatedMetadata(path string, ofd io.Reader, nfd
 
 	//	log.Printf("nmd: %#v\n", nmd)
 
-	if err := abc.tmpl.Execute(nfd, nmd); err != nil {
+	if err := abc.mdrp.tmpl.Execute(nfd, nmd); err != nil {
 		log.Println("oops, bad template write because", err)
 		return fmt.Errorf("can't writeUpdatedMetadata Execute template: %v", err)
 	}
@@ -136,5 +146,8 @@ tags: {{.Tags}}{{end}}{{range $key, $value := .Extrakeys}}
 ---
 
 `
+
+func (abc *metadataUpdater) SummaryEncode(e *json.Encoder) error { return abc.mdrp.SummaryEncode(e) }
+func (abc *metadataUpdater) SummaryWrite(w io.Writer) error { return abc.mdrp.SummaryWrite(w) }
 
 var _ corpus.Tidying = (*metadataUpdater)(nil)
