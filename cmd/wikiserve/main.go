@@ -73,6 +73,7 @@ var routes = []route{
 	{"/corpus/meta", tidy.NewMetadataReporter},
 	{"/tidy/backlinks", tidy.NewBacklinkwriter},
 	{"/tidy/tags", tidy.NewTagsDumper},
+	{"/tidy/meta", tidy.NewMetadataUpdater},
 }
 
 func wrap(settings *wiki.Settings, f func() any) http.HandlerFunc {
@@ -206,6 +207,7 @@ a.pretty-button:hover {
 <ul>
 <li><a class="pretty-button" href="/tidy/backlinks?_dry=1">Preview backlinks update</a> <a  class="pretty-button" href="/tidy/backlinks">Do it!</a></li>
 <li><a class="pretty-button" href="/tidy/tags?_dry=1">Preview tag writing</a> <a  class="pretty-button" href="/tidy/tags">Do it!</a></li>
+<li><a class="pretty-button" href="/tidy/meta?_dry=1">Preview meta writing</a> <a  class="pretty-button" href="/tidy/meta">Do it!</a></li>
 </ul>
 <h2>Article of the Day</h2>
 not yet implemented
