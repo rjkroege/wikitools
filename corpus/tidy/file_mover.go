@@ -14,8 +14,14 @@ import (
 	"github.com/rjkroege/wikitools/wiki"
 )
 
+
+type FileMove struct {
+	From string
+	To string
+}
+
 type fileMover struct {
-	removeddirectories map[string]struct{}
+	moves []FileMove
 	settings           *wiki.Settings
 }
 
@@ -23,7 +29,7 @@ type fileMover struct {
 // the right wiki directories
 func NewFilemover(settings *wiki.Settings) (corpus.Tidying, error) {
 	return &fileMover{
-		removeddirectories: make(map[string]struct{}),
+		moves: make([]FileMove, 0),
 		settings:           settings,
 	}, nil
 }
@@ -85,18 +91,19 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 	}
 
 	if !mustrename() {
-		// nothing to do
+		// nothing to do for this file.
 		return nil
 	}
 
 	destarticle := filepath.Join(fm.settings.Wikidir, destreldir, destname+destuniquing+destext)
+	fm.moves = append(fm.moves, FileMove{ From: abspath, To: destarticle})
 
 	if fm.settings.Dryrun {
-		log.Printf("mv %s -> %s\n", abspath, destarticle)
-		fm.removeddirectories[filepath.Dir(abspath)] = struct{}{}
 		return nil
 	}
 
+
+// -- excise this block ---
 	if err := os.MkdirAll(filepath.Dir(destarticle), 0700); err != nil {
 		return fmt.Errorf("can't mkdir %s because: %v", filepath.Dir(destarticle), err)
 	}
@@ -108,22 +115,22 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 	if err := os.Remove(abspath); err != nil {
 		return fmt.Errorf("can't remove %s because %v", abspath, err)
 	}
-
-	// Walk does a pre-order traversal. So we might have removed all of the
-	// files in a given directory but we don't know if this directory is
-	// empty. But we can record the fact that we've removed something from
-	// the directory and clean the directories in the Summary
-	fm.removeddirectories[filepath.Dir(abspath)] = struct{}{}
+// ----
 
 	return nil
 }
 
+
+
 func (fm *fileMover) SummaryWrite(_ io.Writer) error {
-	dirs := fm.removeddirectories
 
 	if fm.settings.Dryrun {
-		log.Println("not removing non-empty directories in dryrun mode")
 		return nil
+	}
+
+	dirs := make(map[string]struct{}, len(fm.moves))
+	for _, v := range fm.moves {
+		dirs[filepath.Dir(v.From)] = struct{}{}
 	}
 
 	for workremains := true; workremains; {
