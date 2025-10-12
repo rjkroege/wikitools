@@ -5,6 +5,8 @@ import (
 	"os"
 )
 
+// SafeReplaceFile safely replaces oldpath with the previously written
+// content of newpath.
 func SafeReplaceFile(newpath, oldpath string) error {
 	backup := oldpath + ".back"
 	if err := os.Link(oldpath, backup); err != nil {
