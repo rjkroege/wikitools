@@ -58,7 +58,7 @@ func TestEachFile(t *testing.T) {
 	writeFile(t, s, rightplacefilename, rightplacecontents)
 	writeFile(t, s, unnecessaryuniquingfilename, unnecessaryuniquingcontents)
 
-	fm, err := NewFilemover(s, false)
+	fm, err := NewFilemover(s)
 	if err != nil {
 		t.Errorf("unexpected error %v", err)
 	}

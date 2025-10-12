@@ -136,7 +136,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 			log.Fatal("tidy backlinks summary: ", err)
 		}
 	case "tidy move":
-		tidying, _ := tidy.NewFilemover(settings, CLI.Dryrun)
+		tidying, _ := tidy.NewFilemover(settings)
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}

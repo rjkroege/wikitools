@@ -16,16 +16,14 @@ import (
 
 type fileMover struct {
 	removeddirectories map[string]struct{}
-	dryrun             bool
 	settings           *wiki.Settings
 }
 
 // NewFilemover creates a Tidying implementation that positions files in
 // the right wiki directories
-func NewFilemover(settings *wiki.Settings, dryrun bool) (corpus.Tidying, error) {
+func NewFilemover(settings *wiki.Settings) (corpus.Tidying, error) {
 	return &fileMover{
 		removeddirectories: make(map[string]struct{}),
-		dryrun:             dryrun,
 		settings:           settings,
 	}, nil
 }
@@ -93,7 +91,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 
 	destarticle := filepath.Join(fm.settings.Wikidir, destreldir, destname+destuniquing+destext)
 
-	if fm.dryrun {
+	if fm.settings.Dryrun {
 		log.Printf("mv %s -> %s\n", abspath, destarticle)
 		fm.removeddirectories[filepath.Dir(abspath)] = struct{}{}
 		return nil
@@ -123,7 +121,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 func (fm *fileMover) SummaryWrite(_ io.Writer) error {
 	dirs := fm.removeddirectories
 
-	if fm.dryrun {
+	if fm.settings.Dryrun {
 		log.Println("not removing non-empty directories in dryrun mode")
 		return nil
 	}
