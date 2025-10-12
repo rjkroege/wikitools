@@ -33,6 +33,7 @@ func NewFilemover(settings *wiki.Settings, dryrun bool) (corpus.Tidying, error) 
 // TODO(rjk): Need to move dependent files (i.e. images)
 // fixing is not as good as I'd like
 // TODO(rjk): rename source links too
+// TODO(rjk): Update the index correctly
 func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)
