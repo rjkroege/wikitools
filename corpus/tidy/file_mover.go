@@ -102,20 +102,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
-
-// -- excise this block ---
-	if err := os.MkdirAll(filepath.Dir(destarticle), 0700); err != nil {
-		return fmt.Errorf("can't mkdir %s because: %v", filepath.Dir(destarticle), err)
-	}
-
-	if err := os.Link(abspath, destarticle); err != nil {
-		return fmt.Errorf("can't link %s to %s because %v", abspath, destarticle, err)
-	}
-
-	if err := os.Remove(abspath); err != nil {
-		return fmt.Errorf("can't remove %s because %v", abspath, err)
-	}
-// ----
+	wiki.SafeMoveFile(abspath, destarticle)
 
 	return nil
 }
