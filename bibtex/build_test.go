@@ -169,6 +169,8 @@ func Test_ExploreTemplating(t *testing.T) {
 		if got, want := s, ""; got != want {
 			t.Errorf("got %s, want %s", got, want)
 		}
-		testhelpers.AssertString(t, "Missing required fields: author journal for entry type article", e.Error())
+		if got, want := e.Error(), "Missing required fields: author journal for entry type article"; got != want {
+			t.Errorf("got %s, want %s", got, want)
+		}
 	}
 }
