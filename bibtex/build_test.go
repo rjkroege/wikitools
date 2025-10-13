@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/rjkroege/wikitools/testhelpers"
+	"github.com/google/go-cmp/cmp"
 )
 
 func Test_FilterExtrakeys_Empty(t *testing.T) {
@@ -12,7 +12,9 @@ func Test_FilterExtrakeys_Empty(t *testing.T) {
 	if got, want := v, []string{}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	testhelpers.AssertStringMap(t, map[string]string{}, m)
+	if diff := cmp.Diff(map[string]string{}, m); diff != "" {
+		t.Errorf("mismatch in map comparison (-want +got):\n%s", diff)
+	}
 }
 
 func Test_FilterExtrakeys_Removing(t *testing.T) {
@@ -20,7 +22,9 @@ func Test_FilterExtrakeys_Removing(t *testing.T) {
 	if got, want := v, []string{}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	testhelpers.AssertStringMap(t, map[string]string{}, m)
+	if diff := cmp.Diff(map[string]string{}, m); diff != "" {
+		t.Errorf("mismatch in map comparison (-want +got):\n%s", diff)
+	}
 }
 
 func Test_FilterExtrakeys_Keeping(t *testing.T) {
@@ -28,7 +32,9 @@ func Test_FilterExtrakeys_Keeping(t *testing.T) {
 	if got, want := []string{"bar"}, v; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	testhelpers.AssertStringMap(t, map[string]string{"bar": "bye"}, m)
+	if diff := cmp.Diff(map[string]string{"bar": "bye"}, m); diff != "" {
+		t.Errorf("mismatch in map comparison (-want +got):\n%s", diff)
+	}
 }
 
 func Test_ExtractBibTeXEntryType(t *testing.T) {
