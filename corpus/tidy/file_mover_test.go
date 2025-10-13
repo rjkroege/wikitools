@@ -7,6 +7,7 @@ import (
 
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/wiki"
+	"github.com/google/go-cmp/cmp"
 )
 
 // Cover the following additional cases
@@ -29,26 +30,6 @@ func writeFile(t *testing.T, settings *wiki.Settings, path, contents string) {
 	}
 }
 
-func readFile(t *testing.T, settings *wiki.Settings, oldpath, newpath, want string) {
-	t.Helper()
-
-	if oldpath != newpath {
-		if _, err := os.ReadFile(filepath.Join(settings.Wikidir, oldpath)); err == nil {
-			t.Errorf("oldpath %s still exists", oldpath)
-		}
-	}
-
-	gotbytes, err := os.ReadFile(filepath.Join(settings.Wikidir, newpath))
-	if err != nil {
-		t.Errorf("nothing at newpath %s: %v", newpath, err)
-	}
-
-	if string(gotbytes) != want {
-		// TODO(rjk): I should probably diff them as I expand test coverage.
-		t.Errorf("wrong contents of newpath %s", newpath)
-	}
-}
-
 func TestEachFile(t *testing.T) {
 	s := &wiki.Settings{
 		Wikidir: t.TempDir(),
@@ -58,19 +39,27 @@ func TestEachFile(t *testing.T) {
 	writeFile(t, s, rightplacefilename, rightplacecontents)
 	writeFile(t, s, unnecessaryuniquingfilename, unnecessaryuniquingcontents)
 
-	fm, err := NewFilemover(s)
-	if err != nil {
-		t.Errorf("unexpected error %v", err)
-	}
+	fm := newFilemoverImpl(s)
 
 	if err := corpus.Everyfile(s, fm); err != nil {
 		t.Errorf("Everyfile didn't succeed: %v", err)
 	}
 
-	readFile(t, s, wrongplacefilename, "2020/11-Nov/06/Session.md", wrongplacecontents)
-	readFile(t, s, rightplacefilename, rightplacefilename, rightplacecontents)
-	readFile(t, s, unnecessaryuniquingfilename, "2022/11-Nov/29/Inversion-of-Control.md", unnecessaryuniquingcontents)
+	got := fm.moves
+	want := []FileMove{
+		{
+			From: filepath.Join(s.Wikidir, unnecessaryuniquingfilename),
+			To:  filepath.Join(s.Wikidir, "2022/11-Nov/29/Inversion-of-Control.md"),
+		},
+		{
+			From: filepath.Join(s.Wikidir, wrongplacefilename),
+			To:  filepath.Join(s.Wikidir, "2020/11-Nov/06/Session.md"),
+		},
+	}
 
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("[%d] dump mismatch (-want +got):\n%s", 0, diff)
+	}
 }
 
 // Some data

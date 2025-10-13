@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"html/template"
+	"strings"
 
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus"
@@ -25,13 +27,17 @@ type fileMover struct {
 	settings           *wiki.Settings
 }
 
-// NewFilemover creates a Tidying implementation that positions files in
-// the right wiki directories
-func NewFilemover(settings *wiki.Settings) (corpus.Tidying, error) {
+func newFilemoverImpl(settings *wiki.Settings) *fileMover {
 	return &fileMover{
 		moves: make([]FileMove, 0),
 		settings:           settings,
-	}, nil
+	}
+}
+
+// NewFilemover creates a Tidying implementation that positions files in
+// the right wiki directories
+func NewFilemover(settings *wiki.Settings) (corpus.Tidying, error) {
+	return newFilemoverImpl(settings), nil
 }
 
 // TODO(rjk): Need to move dependent files (i.e. images)
@@ -96,28 +102,21 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 	}
 
 	destarticle := filepath.Join(fm.settings.Wikidir, destreldir, destname+destuniquing+destext)
-	fm.moves = append(fm.moves, FileMove{ From: abspath, To: destarticle})
-
-	if fm.settings.Dryrun {
-		return nil
+	if destarticle != abspath {
+		fm.moves = append(fm.moves, FileMove{ From: abspath, To: destarticle})
 	}
-
-	wiki.SafeMoveFile(abspath, destarticle)
-
 	return nil
 }
 
-
-
-func (fm *fileMover) SummaryWrite(_ io.Writer) error {
-
-	if fm.settings.Dryrun {
-		return nil
-	}
-
+// TODO(rjk): Don't forget to update the index data here.
+func (fm *fileMover) moveFiles() []string {
 	dirs := make(map[string]struct{}, len(fm.moves))
+	errors := make([]string,0)
 	for _, v := range fm.moves {
 		dirs[filepath.Dir(v.From)] = struct{}{}
+		if err := wiki.SafeMoveFile(v.From, v.To); err != nil {
+			errors = append(errors, fmt.Sprintf("move %q to %q failed: %v", v.From, v.To, err))
+		}
 	}
 
 	for workremains := true; workremains; {
@@ -133,12 +132,149 @@ func (fm *fileMover) SummaryWrite(_ io.Writer) error {
 		}
 		dirs = parentdirs
 	}
-
-	return nil
+	return errors
 }
 
-func (tr *fileMover) SummaryEncode(_ *json.Encoder) error {
-	return nil
+
+const movewikihtml = `
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>File Motion Report</title>
+ <style>
+    /* --- Container --- */
+    .list-wrapper {
+      width:  90%;             /* whatever width you need */
+      margin: 2rem auto;    /* center the block */
+      border: 1px solid #ccc;
+      padding: 1rem;
+    }
+
+    /* --- List reset --- */
+    ul.fill-across {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;        /* put items in a row */
+      flex-wrap: wrap;        /* allow wrapping to next line */
+      gap: 1rem;              /* space between items */
+    }
+
+    /* --- List items --- */
+    ul.fill-across li {
+      flex: 1 1 200px;        /* grow, shrink, base width 200px */
+     padding: 1rem;
+    }
+  </style>
+</head>
+<body>
+{{if .Dryrun}}
+<h1>Article Candidates for Relocation</h1>
+ <div class="list-wrapper">
+    <ul class="fill-across">
+{{range .Actions}}
+    <li>{{ filetourl .From }} → {{ trim .To }}</li>
+{{end}}
+    </ul>
+  </div>
+{{else}}
+<h1>Articles actually Relocated</h1>
+ <div class="list-wrapper">
+    <ul class="fill-across">
+{{range .Actions}}
+    <li>{{ trim .From }} → {{ filetourl .To }}</li>
+{{end}}
+    </ul>
+  </div>
+{{if .Errors}}
+<h1>Errors</h1>
+<ul>
+{{range .Errors}}
+	<li>{{.}}</li>
+{{end}}
+</ul>
+{{end}}
+{{end}}
+</body>
+</html>
+`
+
+func (fm *fileMover) _htmlFileMotionReport(w io.Writer, results *Results) error {
+	// TODO(rjk): This needs to be cached for reuse.
+	// Central state tracking needs to happen.
+		tmpl, err := template.New("movewikihtml").Funcs(template.FuncMap{
+				"filetourl": func(path string) template.HTML {
+					return template.HTML(filetourl(fm.settings.Wikidir, path))
+				},
+				"trim":  func(path string) string {
+					return strings.TrimPrefix(path, fm.settings.Wikidir)
+				},
+			}).Parse(movewikihtml)
+		if  err != nil {
+			return fmt.Errorf("can't movewikihtml template%v", err)
+		}
+
+	return tmpl.ExecuteTemplate(w, "movewikihtml", results)
+}
+
+const movementtmpl = `{{if .Dryrun}}will move{{else}}moved{{end}}
+{{range .Actions}}
+{{.From}} → {{.To}}
+{{end}}
+{{if .Errors}}
+Errors:
+{{range .Errors}}
+{{.}}
+{{end}}
+{{end}}
+`
+
+
+func (fm *fileMover) SummaryWrite(w io.Writer) error {
+	// TODO(rjk): Dump the content here.
+	errors := []string{}
+	if !fm.settings.Dryrun {
+		errors = fm.moveFiles()
+	}
+
+	results := &Results{
+		Dryrun: fm.settings.Dryrun,
+		Actions: fm.moves,
+		Errors: errors,
+	}
+
+	// TODO(rjk): need to plumb this nicely.
+	if fm.settings.OutputType == wiki.OutputHTML {
+		// TODO(rjk): Wire me up
+		return fm._htmlFileMotionReport(w, results)
+	}
+
+
+	// TODO(rjk): Cache this properly.
+	t := template.Must(template.New("movementtmpl").Parse(movementtmpl))
+	return t.Execute(w, results)
+}
+
+type Results struct {
+	Dryrun bool
+	Actions  []FileMove
+	Errors []string
+}
+
+func (fm *fileMover) SummaryEncode(e *json.Encoder) error {
+	errors := []string{}
+	if !fm.settings.Dryrun {
+		errors = fm.moveFiles()
+	}
+
+	results := &Results{
+		Dryrun: fm.settings.Dryrun,
+		Actions: fm.moves,
+		Errors: errors,
+	}
+
+	return e.Encode(results)
 }
 
 var _ corpus.Tidying = (*fileMover)(nil)
