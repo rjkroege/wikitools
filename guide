@@ -32,4 +32,4 @@ go install
 
 ./wikitools plumb /Users/rjkroege/Documents/wiki/2024/05-May/20 08-Aug/16/Decisions
 
-
+gopatch -p patch1 ./...

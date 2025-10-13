@@ -1,6 +1,7 @@
 package bibtex
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/rjkroege/wikitools/testhelpers"
@@ -8,19 +9,25 @@ import (
 
 func Test_FilterExtrakeys_Empty(t *testing.T) {
 	m, v := FilterExtrakeys(map[string]string{})
-	testhelpers.AssertStringArray(t, []string{}, v)
+	if got, want := v, []string{}; !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
 	testhelpers.AssertStringMap(t, map[string]string{}, m)
 }
 
 func Test_FilterExtrakeys_Removing(t *testing.T) {
 	m, v := FilterExtrakeys(map[string]string{"foo": "hello"})
-	testhelpers.AssertStringArray(t, []string{}, v)
+	if got, want := v, []string{}; !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
 	testhelpers.AssertStringMap(t, map[string]string{}, m)
 }
 
 func Test_FilterExtrakeys_Keeping(t *testing.T) {
 	m, v := FilterExtrakeys(map[string]string{"foo": "hello", "bib-bar": "bye"})
-	testhelpers.AssertStringArray(t, v, []string{"bar"})
+	if got, want := []string{"bar"}, v; !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
 	testhelpers.AssertStringMap(t, map[string]string{"bar": "bye"}, m)
 }
 
@@ -60,7 +67,9 @@ func Test_ExtractBibTeXEntryType(t *testing.T) {
 
 func Test_Intersectsorted_empty(t *testing.T) {
 	m := intersectsorted([]string{}, []string{})
-	testhelpers.AssertStringArray(t, []string{}, m)
+	if got, want := m, []string{}; !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
 }
 
 func Test_VerifyRequiredFields(t *testing.T) {
