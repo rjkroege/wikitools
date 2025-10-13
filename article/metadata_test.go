@@ -30,13 +30,19 @@ func Test_UrlForName(t *testing.T) {
 
 func Test_ExtraKeysString(t *testing.T) {
 	m := MetaData{"", never, never, "", "", MdInvalid, []string{}, map[string]string{"a": "b"}, ""}
-	testhelpers.AssertString(t, "a:b", m.ExtraKeysString())
+	if got, want := m.ExtraKeysString(), "a:b"; got != want {
+		t.Errorf("got %s, want %s", got, want)
+	}
 
 	m = MetaData{"", never, never, "", "", MdInvalid, []string{}, map[string]string{"a": "b", "c": "d"}, ""}
-	testhelpers.AssertString(t, "a:b, c:d", m.ExtraKeysString())
+	if got, want := m.ExtraKeysString(), "a:b, c:d"; got != want {
+		t.Errorf("got %s, want %s", got, want)
+	}
 
 	m = MetaData{"", never, never, "", "", MdInvalid, []string{}, map[string]string{"c": "d", "a": "b"}, ""}
-	testhelpers.AssertString(t, "a:b, c:d", m.ExtraKeysString())
+	if got, want := m.ExtraKeysString(), "a:b, c:d" ; got != want {
+		t.Errorf("got %s, want %s", got, want)
+	}
 }
 
 type rtfSR struct {
@@ -110,10 +116,14 @@ func Test_PrettyDate(t *testing.T) {
 	tagdate, _ := wiki.ParseDateUnix("2012/03/19 06:51:15")
 
 	md := MetaData{"", statdate, never, "What I want 0", "", MdInvalid, []string{}, map[string]string{}, ""}
-	testhelpers.AssertString(t, "Sunday, Mar 21, 1999", md.PrettyDate())
+	if got, want := md.PrettyDate(), "Sunday, Mar 21, 1999"; got != want {
+		t.Errorf("got %s, want %s", got, want)
+	}
 
 	md = MetaData{"", statdate, tagdate, "What I want 0", "", MdInvalid, []string{}, map[string]string{}, ""}
-	testhelpers.AssertString(t, "Monday, Mar 19, 2012", md.PrettyDate())
+	if got, want := md.PrettyDate(), "Monday, Mar 19, 2012"; got != want {
+		t.Errorf("got %s, want %s", got, want)
+	}
 }
 
 type tEdMd struct {
@@ -139,7 +149,9 @@ func Test_JsonDate(t *testing.T) {
 		if m.err != e {
 			t.Errorf("error value wrong")
 		}
-		testhelpers.AssertString(t, m.result, string(b))
+		if got, want := string(b), m.result; got != want {
+			t.Errorf("got %s, want %s", got, want)
+		}
 	}
 }
 
