@@ -33,3 +33,13 @@ go install
 ./wikitools plumb /Users/rjkroege/Documents/wiki/2024/05-May/20 08-Aug/16/Decisions
 
 gopatch -p patch1 ./...
+
+# example
+@@
+var a expression
+var b expression
+@@
+-       testhelpers.AssertStringMap(t, a, b)
++       if diff := cmp.Diff(a, b); diff != "" {
++               t.Errorf("mismatch in map comparison (-want +got):\n%s", diff)
++       }
