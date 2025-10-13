@@ -1,12 +1,11 @@
 package article
 
 import (
-	"io"
-	"strings"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
-	"github.com/rjkroege/wikitools/testhelpers"
 	"github.com/rjkroege/wikitools/wiki"
 )
 
@@ -58,38 +57,38 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 	realisticdate, _ := wiki.ParseDateUnix("1999/03/21 17:00:00")
 	date, _ := wiki.ParseDateUnix("2012/03/19 06:51:15")
 	testfiles := []rtfSR{
-		{"Test_header_1", testhelpers.Test_header_1, nil,
+		{"Test_header_1", "Test_header_1", nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{}, map[string]string{}, ""}},
-		{"Test_header_1_dash", testhelpers.Test_header_1_dash, nil,
+		{"Test_header_1_dash", "Test_header_1_dash", nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdIaWriter, []string{}, map[string]string{}, ""}},
-		{"Test_header_2", testhelpers.Test_header_2, nil,
+		{"Test_header_2", "Test_header_2", nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"}, map[string]string{}, ""}},
-		{"Test_header_3", testhelpers.Test_header_3, nil,
+		{"Test_header_3", "Test_header_3", nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"}, map[string]string{}, ""}},
-		{"Test_header_4", testhelpers.Test_header_4, nil,
+		{"Test_header_4", "Test_header_4", nil,
 			MetaData{"", realisticdate, never, "I need", "", MdInvalid, []string{}, map[string]string{}, ""}},
-		{"Test_header_5", testhelpers.Test_header_5, nil,
+		{"Test_header_5", "Test_header_5", nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"}, map[string]string{}, ""}},
-		{"Test_header_6", testhelpers.Test_header_6, nil,
+		{"Test_header_6", "Test_header_6", nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"},
 				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
-		{"Test_header_6_dash", testhelpers.Test_header_6_dash, nil,
+		{"Test_header_6_dash", "Test_header_6_dash", nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdIaWriter, []string{"journal"},
 				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
-		{"Test_header_7", testhelpers.Test_header_7, nil,
+		{"Test_header_7", "Test_header_7", nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy,
 				[]string{"journal", "fiddle"},
 				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
-		{"Test_header_8", testhelpers.Test_header_8, nil,
+		{"Test_header_8", "Test_header_8", nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy,
 				[]string{"journal", "hello", "bye"}, map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
-		{"Test_header_9", testhelpers.Test_header_9, nil,
+		{"Test_header_9", "Test_header_9", nil,
 			MetaData{"", realisticdate, date, "Business Korea", "", MdLegacy,
 				[]string{"book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
-		{"Test_header_9_dash", testhelpers.Test_header_9_dash, nil,
+		{"Test_header_9_dash", "Test_header_9_dash", nil,
 			MetaData{"", realisticdate, date, "Business Korea", "", MdIaWriter,
 				[]string{"book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
-		{"Test_header_10_dash", testhelpers.Test_header_10_dash, nil,
+		{"Test_header_10_dash", "Test_header_10_dash", nil,
 			MetaData{"", realisticdate, date, "Business Korea", "", MdIaWriter,
 				[]string{"book", "business", "korea"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
 	}
@@ -100,8 +99,13 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 		}
 
 		md := &MetaData{"", realisticdate, never, "", "", MdInvalid, []string{}, map[string]string{}, ""}
-		rd := strings.NewReader(tu.in)
-		md.RootThroughFileForMetadata(io.Reader(rd))
+
+
+		rd, err := os.Open(filepath.Join("../testdata", tu.in))
+		if err != nil {
+			t.Errorf("%q can't open %v", tu.in, err)
+		}
+		md.RootThroughFileForMetadata(rd)
 
 		// TODO(rjkroege): Add nicer String() on Metadata?
 		if !md.equals(&tu.ex) {

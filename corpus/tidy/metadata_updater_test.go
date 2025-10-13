@@ -1,12 +1,12 @@
 package tidy
 
 import (
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/rjkroege/wikitools/testhelpers"
 	"github.com/rjkroege/wikitools/wiki"
 )
 
@@ -36,38 +36,38 @@ func TestUpdateMetadata(t *testing.T) {
 		skipped      bool
 	}{
 		{
-			inputfile:    testhelpers.Test_header_1,
+			inputfile:    "Test_header_1",
 			fname:        "test_header_1.md",
 			errordetails: "",
 			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\n---\n\nI need to figure out what I want. \n",
 		},
 		{
-			inputfile:    testhelpers.Test_header_3,
+			inputfile:    "Test_header_3",
 			fname:        "test_header_3.md",
 			errordetails: "",
 			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #journal\n---\n\nI need to figure out what I want. \n",
 		},
 		{
-			inputfile:    testhelpers.Test_header_6,
+			inputfile:    "Test_header_6",
 			fname:        "test_header_6.md",
 			errordetails: "",
 			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #journal\nplastic: yes\ntag: empty\n---\n\nI need to figure out what to code\n",
 		},
 		{
-			inputfile:    testhelpers.Test_header_9,
+			inputfile:    "Test_header_9",
 			fname:        "test_header_9.md",
 			errordetails: "",
 			expected:     "---\ntitle: Business Korea\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #book\nbib-author: Peggy Kenna and Sondra Lacy\nbib-bibkey: kenna97\nbib-publisher: Passport Books\nbib-title: Business Korea\nbib-year: 1997\n---\n\nBusiness book.\n",
 		},
 		{
-			inputfile:    testhelpers.Test_header_6_dash,
+			inputfile:    "Test_header_6_dash",
 			fname:        "test_header_6_dash.md",
 			errordetails: "",
 			expected:     "",
 			skipped:      true,
 		},
 		{
-			inputfile:    testhelpers.Test_header_10,
+			inputfile:    "Test_header_10",
 			fname:        "test_header_10.md",
 			errordetails: "",
 			expected:     "---\ntitle: Business Korea\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #book #business #korea\nbib-author: Peggy Kenna and Sondra Lacy\nbib-bibkey: kenna97\nbib-publisher: Passport Books\nbib-title: Business Korea\nbib-year: 1997\n---\n\nBusiness book.\n",
@@ -79,9 +79,15 @@ func TestUpdateMetadata(t *testing.T) {
 		if err != nil {
 			t.Fatal("can't make", path, err)
 		}
-		if length, err := fd.WriteString(tc.inputfile); err != nil || length != len(tc.inputfile) {
-			t.Fatal("can't write input", err)
+		inpath := filepath.Join("../../testdata", tc.inputfile)
+		rd, err := os.Open(inpath)
+		if err != nil {
+			t.Fatalf("can't open %q: %v", inpath, err)
 		}
+		if _, err := io.Copy(fd, rd); err != nil {
+			t.Fatal("can't write input write tmp file", err)
+		}
+		rd.Close()
 		fd.Close()
 
 		npath, err := abc.updateMetadata(path)
