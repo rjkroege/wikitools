@@ -1,8 +1,9 @@
 package bibtex
 
 import (
-	"github.com/rjkroege/wikitools/testhelpers"
 	"testing"
+
+	"github.com/rjkroege/wikitools/testhelpers"
 )
 
 func Test_FilterExtrakeys_Empty(t *testing.T) {
@@ -79,7 +80,9 @@ func Test_VerifyRequiredFields(t *testing.T) {
 	if err == nil {
 		t.Error("missing fields should have a non-nil error")
 	} else {
-		testhelpers.AssertString(t, "Missing required fields: author bibkey journal title year for entry type article", err.Error())
+		if got, want := err.Error(), "Missing required fields: author bibkey journal title year for entry type article"; got != want {
+			t.Errorf("got %s, want %s", got, want)
+		}
 	}
 }
 
@@ -125,14 +128,18 @@ func Test_VerifyRequiredFields_inbook_editor(t *testing.T) {
 	if err == nil {
 		t.Error("for editor inbook, wrongly claim missing both pages and chapter is correct")
 	} else {
-		testhelpers.AssertString(t, "Missing required fields: chapter pages for entry type inbook", err.Error())
+		if got, want := err.Error(), "Missing required fields: chapter pages for entry type inbook"; got != want {
+			t.Errorf("got %s, want %s", got, want)
+		}
 	}
 
 	err = VerifyRequiredFields("inbook", []string{"bibkey", "author", "title", "publisher", "year"})
 	if err == nil {
 		t.Error("for author inbook, wrongly claim missing both pages and chapter is correct")
 	} else {
-		testhelpers.AssertString(t, "Missing required fields: chapter pages for entry type inbook", err.Error())
+		if got, want := err.Error(), "Missing required fields: chapter pages for entry type inbook"; got != want {
+			t.Errorf("got %s, want %s", got, want)
+		}
 	}
 }
 
@@ -151,13 +158,17 @@ func Test_ExploreTemplating(t *testing.T) {
 	if e != nil {
 		t.Error("CreateBibTexEntry wrongly failed with: " + e.Error())
 	}
-	testhelpers.AssertString(t, output1, s)
+	if got, want := s, output1; got != want {
+		t.Errorf("got %s, want %s", got, want)
+	}
 
 	s, e = CreateBibTexEntry([]string{"@book", "@bibtex-article"}, map[string]string{"bib-bibkey": "jones2013", "bib-editor": "Peyton Jones", "bib-title": "Collected Angst", "bib-publisher": "Penguin", "bib-year": "2013"})
 	if e == nil {
 		t.Error("CreateBibTexEntry wrongly succeeded")
 	} else {
-		testhelpers.AssertString(t, "", s)
+		if got, want := s, ""; got != want {
+			t.Errorf("got %s, want %s", got, want)
+		}
 		testhelpers.AssertString(t, "Missing required fields: author journal for entry type article", e.Error())
 	}
 }
