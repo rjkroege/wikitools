@@ -17,7 +17,7 @@ func TestWriteBacklinks(t *testing.T) {
 
 	wikilink := corpus.MakeWikilink("jiminy", "cricket")
 	t.Logf("wikilink: %v", wikilink)
-	
+
 	backmap := make(corpus.WikilinkMap)
 	backmap[wikilink] = empty{}
 
