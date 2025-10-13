@@ -1,14 +1,16 @@
 Edit X:wikitools/\+Errors: 1,$d
 X:wikitools/.*\.go: w
 
-go test -covermode=count -coverprofile=count.out ./...
+go test -covermode=count -coverprofile=count.out  ./...
 go tool cover -html=count.out
-go test ./wiki 
+go test ./corpus/tidy 
 
-go test ./article
+go test ./...
 
 
-go build
+go build ./cmd/wikitools
+go build ./cmd/wikiserve
+killall wikiserve && ./wikiserve -port 8081
 
 GOOS=linux GOARCH=arm go build
 
@@ -23,4 +25,11 @@ gofmt -w -s .
 ./wikitools plumb /Users/rjkroege/Documents/wiki/2024/05-May/20 02-Feb/9/Sunday.md
 
 go install
+
+
+./wikitools plumb  /Users/rjkroege/Documents/wiki MiningRemindersHabitFormations
+
+
+./wikitools plumb /Users/rjkroege/Documents/wiki/2024/05-May/20 08-Aug/16/Decisions
+
 

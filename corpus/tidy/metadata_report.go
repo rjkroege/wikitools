@@ -159,29 +159,50 @@ func (abc *metadataReport) _htmlMetaReport(w io.Writer, sections []MetadataSecti
 	return abc.tmpl.ExecuteTemplate(w, "meta_html_report", sections)
 }
 
+// TODO(rjk): Configure the date format in the template?
 const meta_html_report = `
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Wiki Tag Summary</title>
-  <style>
-    .auto-column-list {
-      column-width: 30ch;
-      column-gap: 4rem;
+ <style>
+    /* --- Container --- */
+    .list-wrapper {
+      width:  90%;             /* whatever width you need */
+      margin: 2rem auto;    /* center the block */
+      border: 1px solid #ccc;
+      padding: 1rem;
     }
-    .auto-column-list li {
-      break-inside: avoid;
+
+    /* --- List reset --- */
+    ul.fill-across {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;        /* put items in a row */
+      flex-wrap: wrap;        /* allow wrapping to next line */
+      gap: 1rem;              /* space between items */
+    }
+
+    /* --- List items --- */
+    ul.fill-across li {
+      flex: 1 1 200px;        /* grow, shrink, base width 200px */
+     padding: 1rem;
     }
   </style>
 </head>
 <body>
 <h1>Metadata Report</h1>
-
-{{range .}}<h2> {{ .Name }} </h2>
-<ul>{{range .Articles}}
-	<li><a href="plumb:/{{.Path}}">{{.Title}}</a>, {{.Date}}</li>
-{{end}}</ul>
+{{range .}}
+	<h2> {{ .Name }} </h2>
+	 <div class="list-wrapper">
+		<ul class="fill-across">
+			{{range .Articles}}
+				<li><a href="plumb:/{{.Path}}">{{.Title}}</a>, {{.Date}}</li>
+			{{end}}
+		</ul>
+	</div>
 {{end}}
 
 </body>
