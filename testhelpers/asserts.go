@@ -4,12 +4,6 @@ import (
 	"testing"
 )
 
-func AssertInt(t *testing.T, expected int, actual int) {
-	if expected != actual {
-		t.Errorf("expected %v != actual %v", expected, actual)
-	}
-}
-
 func AssertStringArray(t *testing.T, expected []string, actual []string) {
 	if len(expected) != len(actual) {
 		t.Errorf("expected and actual not the same length")
