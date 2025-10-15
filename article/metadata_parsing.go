@@ -6,13 +6,11 @@ import (
 	"io"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/rjkroege/wikitools/wiki"
 )
 
 var metadataMatcher = regexp.MustCompile("^([-A-Za-z]*):[ \t]*(.*)$")
-var commentDataMatcher = regexp.MustCompile("<!-- *([0-9]*) *-->")
 
 func trim(line string) string {
 	if len(line) > 0 {
@@ -25,69 +23,136 @@ func (md *MetaData) rootThroughFileForMetadataImpl(rd *bufio.Reader) error {
 	lc := 0
 	md.mdtype = MdInvalid
 
-	var date time.Time
-	var de error
-
+	keys := make(map[string]string)
 	for lc < 5 || md.mdtype != MdInvalid {
 		line, err := rd.ReadString('\n')
 		if err != nil && err != io.EOF {
 			return fmt.Errorf("rootThroughFileForMetadataImpl can't ReadString: %v", err)
 		}
-		if err != nil || md.mdtype != MdInvalid && line == "\n" {
-			md.DateFromMetadata = date
-			return nil
-		}
 		line = trim(line)
 
-		if lc == 0 && line == "---" {
+		switch {
+		case lc == 0 && line == "---":
 			// We're one of the modern metadata formats MdIaWriter, MdModern
 			// MdModern is reserved for the situation where the title and tags have been
 			// modernized.
-			md.mdtype = MdIaWriter
-		} else if lc == 0 {
+			md.mdtype = MdUnterminatedIaWriterOrModern
+		case  lc == 0 && line != "---":
 			// We don't know yet what kind of metadata is present. But assume that
 			// the first line is the title if we don't have metadata.
+			// We might replace this below.
 			md.Title = line
-		}
-
-		// fmt.Print("running regexp matcher...\n")
-		m1 := metadataMatcher.FindStringSubmatch(line)
-		m2 := commentDataMatcher.FindStringSubmatch(line)
-		if len(m1) > 0 {
-			s := strings.ToLower(m1[1])
-			if s == "title" {
-				md.Title = m1[2]
-			} else if s == "date" {
-				date, de = wiki.ParseDateUnix(strings.TrimSpace(m1[2]))
-			} else if s == "tags" {
-				for _, u := range strings.Split(strings.TrimSpace(m1[2]), " ") {
-					if u != "" && len(u) > 1 && (u[0] == '#' || u[0] == '@') {
-						md.Tags = append(md.Tags, u[1:])
-					}
-				}
-			} else {
-				md.extraKeys[s] = strings.TrimSpace(m1[2])
-			}
-			// If we have some combination of structured data but not MdIaWriter
-			// metadata, then, we're MdLegacy
-			if md.mdtype == MdInvalid {
-				md.mdtype = MdLegacy
-			}
-		} else if len(m2) > 0 {
-			// fmt.Print("matched for  <" + m2[1] + ">\n");
-			date, de = wiki.ParseDateUnix(m2[1])
-		}
-
-		// I have no test that actually enforces that this is valid.
-		// push to a helper
-		if de != nil || date.IsZero() {
-			//fmt.Print("date is zero, trying whole resultLine: <" + resultLine + ">\n");
-			date, de = wiki.ParseDateUnix(md.Title)
+			md.mdtype = MdUnterminatedLegacy
+			handleLine(line, md, keys)
+		case lc > 0 && md.mdtype == MdUnterminatedIaWriterOrModern && line == "---":
+			md.mdtype = MdUnterminatedIaWriterOrModernBlank
+		case lc > 0 && md.mdtype == MdUnterminatedLegacy && line == "":
+			md.mdtype = MdLegacy
+			processKeys(keys, md)
+			return nil
+		case lc > 0 && md.mdtype == MdUnterminatedIaWriterOrModernBlank && line == "":
+			md.mdtype = MdModern
+			processKeys(keys, md)
+			return nil
+		default:	
+			handleLine(line, md, keys)
 		}
 		lc++
 	}
-	md.DateFromMetadata = date
+
+	md.mdtype = MdInvalid
 	return nil
+}
+
+func handleLine(line string, md *MetaData, keys map[string]string ) {
+			m1 := metadataMatcher.FindStringSubmatch(line)
+			if len(m1) > 0 {
+				k := strings.ToLower(m1[1])
+				v := strings.TrimSpace(m1[2])
+			
+				if _, ok := keys[k]; ok {
+					// Having duplicate keys is an error.
+					md.mdtype = MdInvalid
+				}
+				keys[k] = v
+			} else {
+				md.mdtype = MdInvalid
+			}
+}
+
+func processKeys(kvpairs map[string]string, md *MetaData) {
+	// Valid metadata must include a title and date.
+	hastitle := false
+	hasdate := false
+	for k, v := range kvpairs {
+		switch k {
+		case "title":
+			md.Title = v
+			hastitle = true
+			delete(kvpairs, k)
+		case "date":
+			delete(kvpairs, k)
+			date, de := wiki.ParseDateUnix(strings.TrimSpace(v))
+			if de == nil {
+				hasdate = true
+				md.DateFromMetadata = date
+			}
+		case "tags":
+			// carve out the correct values here?
+			delete(kvpairs, k)
+			processTags(v, md)
+		}
+	}
+	md.extraKeys = kvpairs
+	if !hastitle || !hasdate {
+		md.mdtype = MdInvalid
+	}
+}
+
+func processTags(tagstring string, md *MetaData) {
+	moderntag := false
+	legacytag := false
+	badtag := false
+
+	tags := make([]string,0)
+
+	// A tag must start with # or @ and be at least 1 character long.
+	for _, u := range strings.Fields(tagstring) {
+		switch {
+		case len(u) > 1 && u[0] == '#':
+			tags = append(tags, u[1:])
+			moderntag = true
+		case len(u) > 1 && u[0] == '@':
+			tags = append(tags, u[1:])
+			legacytag = true
+		default:
+			badtag = true
+		}
+	}
+	md.Tags = tags
+
+	switch {
+	case md.mdtype == MdModern &&
+			moderntag == false &&
+			legacytag == false &&
+			badtag == false:
+		md.mdtype = MdModern
+	case md.mdtype == MdModern &&
+			moderntag == true &&
+			legacytag == false &&
+			badtag == false:
+		md.mdtype = MdModern
+	case md.mdtype == MdModern &&
+			legacytag == true &&
+			badtag == false:
+		md.mdtype = MdIaWriter
+	case md.mdtype == MdModern &&
+			badtag == true:
+		md.mdtype = MdInvalid
+	case md.mdtype == MdLegacy &&
+			badtag == true:
+		md.mdtype = MdInvalid
+	}
 }
 
 // RootThroughFileForMetadata opens a specified file and attempts to

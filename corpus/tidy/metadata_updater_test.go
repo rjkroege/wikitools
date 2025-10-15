@@ -118,7 +118,7 @@ func TestUpdateMetadata(t *testing.T) {
 		// validate that the generated is correct
 		fd, err = os.Open(npath)
 		if err != nil {
-			t.Errorf("[%d] can't open ouput %s: %v", i, npath, err)
+			t.Errorf("[%s] can't open ouput %q: %v", tc.inputfile, npath, err)
 		}
 		nval, err := ioutil.ReadAll(fd)
 		if err != nil {

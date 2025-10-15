@@ -31,6 +31,7 @@ const MDFOtemplate = `MetaData:
 	Datepath: {{.Datepath}}
 `
 
+// TODO(rjk): Remove this.
 var MdtypeNames = [...]string{
 	"MdInvalid ",
 	"MdLegacy",
@@ -51,7 +52,7 @@ func (md *MetaData) Dump() string {
 		DateFromMetadata: md.DateFromMetadata,
 		Title:            md.Title,
 		Dynamicstring:    md.Dynamicstring,
-		Mdtype:           MdtypeNames[md.mdtype],
+		Mdtype:           Metadatanametable[md.mdtype],
 		Tags:             md.Tags,
 		ExtraKeys:        md.extraKeys,
 		Datepath:         md.datepath,

@@ -20,10 +20,16 @@ func SetPathForContent(p string) {
 }
 
 const (
-	MdInvalid = iota
-	MdLegacy
-	MdIaWriter
-	MdModern
+	MdInvalid = iota	// No valid metadata in the file.
+	MdLegacy		// The original format: keys, terminal blank line
+	MdIaWriter		// The block at the top bracketed in --- lines with terminal blank
+	MdModern		// Block at the top, tags are empty or #jkjk
+	MdUnterminatedLegacy
+	MdUnterminatedIaWriterOrModern
+	MdUnterminatedModern
+	MdUnterminatedModernBlank
+	MdUnterminatedIaWriter
+	MdUnterminatedIaWriterOrModernBlank
 )
 
 var Metadatanametable = [...]string{
@@ -31,6 +37,12 @@ var Metadatanametable = [...]string{
 	"MdLegacy",
 	"MdIaWriter",
 	"MdModern",
+	"MdUnterminatedLegacy",
+	"MdUnterminatedIaWriterOrModern",
+	"MdUnterminatedModern",
+	"MdUnterminatedModernBlank",
+	"MdUnterminatedIaWriter",
+	"MdUnterminatedIaWriterOrModernBlank",
 }
 
 type MetadataType int
@@ -170,6 +182,7 @@ func (md *MetaData) ExtraKeys() map[string]string {
 	return md.extraKeys
 }
 
+// TODO(rjk): Replace with cmp.Diff at some point iff it's only used for tests.
 func (a *MetaData) equals(b *MetaData) bool {
 	return a.filename == b.filename && a.DateFromStat == b.DateFromStat && a.DateFromMetadata == b.DateFromMetadata && a.Title == b.Title && a.mdtype == b.mdtype && a.Tagstring() == b.Tagstring() && a.ExtraKeysString() == b.ExtraKeysString()
 }
