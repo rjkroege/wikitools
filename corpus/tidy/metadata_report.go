@@ -50,7 +50,7 @@ func newMetadataReporterImpl(settings *wiki.Settings) (*metadataReport, error) {
 		return nil, fmt.Errorf("can't NewMetadataReporter %v", err)
 	}
 	return &metadataReport{
-		missingmd: make([][]*articleReportEntry, article.MdModern+1),
+		missingmd: make([][]*articleReportEntry, len(article.Metadatanametable)),
 		tmpl:      tmpl,
 		settings:  settings,
 	}, nil
@@ -63,6 +63,8 @@ func (abc *metadataReport) EachFile(path string, info os.FileInfo, err error) er
 		return fmt.Errorf("couldn't read %s: %v", path, err)
 	}
 
+	// TODO(rjk): Isn't this unnecessary? The file walker has already done this?
+	// Further, I just go and open the file below.
 	d, err := os.Stat(path)
 	if err != nil {
 		log.Println("metadataReport Stat error", err)
@@ -72,12 +74,13 @@ func (abc *metadataReport) EachFile(path string, info os.FileInfo, err error) er
 	ifd, err := os.Open(path)
 	if err != nil {
 		log.Println("metadataReport Open error", err)
-		return fmt.Errorf("can't metadataReport Open %s: %v", path, err)
+		return fmt.Errorf("can't metadataReport Open %q: %v", path, err)
 	}
 	defer ifd.Close()
 	fd := bufio.NewReader(ifd)
 
 	// TODO(rjk): RootThroughFileForMetadata needs to return an error when it fails
+	// TODO(rjk): Consider making this pattern more idiomatic?
 	md := article.MakeMetaData(filepath.Base(path), d.ModTime())
 	md.RootThroughFileForMetadata(fd)
 

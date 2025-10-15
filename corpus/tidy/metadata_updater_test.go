@@ -63,8 +63,7 @@ func TestUpdateMetadata(t *testing.T) {
 			inputfile:    "Test_header_6_dash",
 			fname:        "test_header_6_dash.md",
 			errordetails: "",
-			expected:     "",
-			skipped:      true,
+			expected:     "---\ntitle: What I want\ndate: Mon 19 Mar 2012, 06:51:15 EDT\ntags: #journal\nplastic: yes\ntag: empty\n---\n\nI need to figure out what to code\n",
 		},
 		{
 			inputfile:    "Test_header_10",

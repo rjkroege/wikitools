@@ -41,31 +41,32 @@ func makeMetadataUpdaterImpl(settings *wiki.Settings) (*metadataUpdater, error) 
 // TODO(rjk): Rename, relocate and purge empty directory hierarchies and
 // update the various indexes.
 func (mup *metadataUpdater) EachFile(path string, info os.FileInfo, err error) error {
-	// I should apply all the changes once for greater re-use with the report.
-	dryrun := mup.mdrp.settings.Dryrun
-	if dryrun {
-		return mup.mdrp.EachFile(path, info, err)
-	}
-
-	if err != nil {
-		log.Println("couldn't read ", path, ": ", err)
-		return fmt.Errorf("couldn't read %s: %v", path, err)
-	}
-
-	updatedpth, err := mup.updateMetadata(path)
-	if err != nil {
-		return err
-	}
-
-	if updatedpth != "" {
-		if err := wiki.SafeReplaceFile(updatedpth, path); err != nil {
-			return fmt.Errorf("swapFile can't: %v", err)
-		}
-	}
-	return nil
+	return mup.mdrp.EachFile(path, info, err)
 }
 
-// TODO(rjk): This needs to have some unit tests yes?
+// Concurrency note: there is no need for the mup state to be shared
+// between different http requests. However: only one update pass should
+// be running at a time.
+func (mup *metadataUpdater) updateAllMetadata() []string {
+	allerrors := make([]string, 0)
+
+	for _, v := range mup.mdrp.missingmd[article.MdLegacy] {
+		npth, err := mup.updateMetadata(v.Path)
+		if err != nil {
+// TODO(rjk): Be sure to record the faulting file to make sure that this is useful.
+			allerrors = append(allerrors, fmt.Sprintf("updateMetadata %q: %v", npth, err))
+			continue
+		}
+		if err := wiki.SafeReplaceFile(npth, npth); err != nil {
+			allerrors = append(allerrors, fmt.Sprintf("metadata SafeReplaceFile %q: %v", npth, err))
+		}
+	}
+	return allerrors
+}
+
+// updateMetadata updates the format of the metadata from legacy to
+// modern. It does not rename the file. It will standardize the date
+// format iff the underlying date format can be parsed.
 func (abc *metadataUpdater) updateMetadata(path string) (string, error) {
 	d, err := os.Stat(path)
 	if err != nil {
@@ -81,16 +82,9 @@ func (abc *metadataUpdater) updateMetadata(path string) (string, error) {
 	defer ifd.Close()
 	fd := bufio.NewReader(ifd)
 
-	// TODO(rjk): RootThroughFileForMetadata needs to return an error when it fails
+	// TODO(rjk): RootThroughFileForMetadata needs to return an error when it fails.
 	md := article.MakeMetaData(filepath.Base(path), d.ModTime())
 	md.RootThroughFileForMetadata(fd)
-
-	abc.mdrp.recordMetadataState(md, path)
-
-	if md.Type() != article.MdLegacy {
-		// Nothing to do.
-		return "", nil
-	}
 
 	tpath := path + "-updating"
 	nfd, err := os.Create(tpath)
@@ -100,16 +94,17 @@ func (abc *metadataUpdater) updateMetadata(path string) (string, error) {
 	}
 	defer nfd.Close()
 
+	// TODO(rjk): Could do buffered output.
 	if err := abc.writeUpdatedMetadata(path, fd, nfd, md); err != nil {
 		log.Println("DoMetadataUpdate", err)
 		return "", fmt.Errorf("can't updateMetadata: %v", err)
 	}
-
 	return tpath, nil
 }
 
-// There are other transformations that I'll want to implement. Refactor when
-// I need to. Assumes that ofd's read point is at the end of the metadata in original file.
+// TODO(rjk): There are other transformations that I'll want to
+// implement. Refactor when I need to. Assumes that ofd's read point is
+// at the end of the metadata in original file.
 func (abc *metadataUpdater) writeUpdatedMetadata(path string, ofd io.Reader, nfd io.Writer, md *article.MetaData) error {
 	// write new metadata to nfd
 	nmd := &IaWriterMetadataOutput{
@@ -147,7 +142,112 @@ tags: {{.Tags}}{{end}}{{range $key, $value := .Extrakeys}}
 
 `
 
-func (abc *metadataUpdater) SummaryEncode(e *json.Encoder) error { return abc.mdrp.SummaryEncode(e) }
-func (abc *metadataUpdater) SummaryWrite(w io.Writer) error { return abc.mdrp.SummaryWrite(w) }
+func (mup *metadataUpdater) SummaryEncode(e *json.Encoder) error {
+	mubu := &MetadataUpdaterOutputBundle{
+		Articles: mup.mdrp.missingmd[article.MdLegacy],
+	}
+
+	dryrun := mup.mdrp.settings.Dryrun
+	if !dryrun {
+		 mubu.Errors = mup.updateAllMetadata()
+	}
+	 return e.Encode(mubu)
+}
+
+type MetadataUpdaterOutputBundle struct {
+	Errors []string
+	Articles []*articleReportEntry
+}
+
+const meta_updater_report = `{{range .Articles}}{{.Path}}
+{{end}}
+{{if .Errors}}Errors:
+{{range .Errors}}
+{{end}}{{end}}
+`
+
+func (mup *metadataUpdater) SummaryWrite(w io.Writer) error {
+	mubu := &MetadataUpdaterOutputBundle{
+		Articles: mup.mdrp.missingmd[article.MdLegacy],
+	}
+
+	dryrun := mup.mdrp.settings.Dryrun
+	if !dryrun {
+		 mubu.Errors = mup.updateAllMetadata()
+	}
+
+	if mup.mdrp.settings.OutputType == wiki.OutputHTML {
+		// TODO(rjk): Refactor these together more nicely.
+		return mup._htmlMetaUpdaterReport(w, mubu)
+	}
+
+	// Blah
+	if _, err := mup.mdrp.tmpl.New("meta_updater_report").Parse(meta_updater_report); err != nil {
+		return fmt.Errorf("can't meta_updater_report template%v", err)
+	}
+	return mup.mdrp.tmpl.ExecuteTemplate(w, "meta_updater_report", mubu)
+}
 
 var _ corpus.Tidying = (*metadataUpdater)(nil)
+
+func (mup *metadataUpdater) _htmlMetaUpdaterReport(w io.Writer, mubu *MetadataUpdaterOutputBundle) error {
+	if _, err := mup.mdrp.tmpl.New("meta_updater_html_report").Parse(meta_updater_html_report); err != nil {
+		return fmt.Errorf("can't meta_updater_html_report template%v", err)
+	}
+	return mup.mdrp.tmpl.ExecuteTemplate(w, "meta_updater_html_report", mubu)
+}
+
+// TODO(rjk): treat an empty list more nicely.
+const meta_updater_html_report = `
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Metadata Updater Report</title>
+ <style>
+    /* --- Container --- */
+    .list-wrapper {
+      width:  90%;             /* whatever width you need */
+      margin: 2rem auto;    /* center the block */
+      border: 1px solid #ccc;
+      padding: 1rem;
+    }
+
+    /* --- List reset --- */
+    ul.fill-across {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;        /* put items in a row */
+      flex-wrap: wrap;        /* allow wrapping to next line */
+      gap: 1rem;              /* space between items */
+    }
+
+    /* --- List items --- */
+    ul.fill-across li {
+      flex: 1 1 200px;        /* grow, shrink, base width 200px */
+     padding: 1rem;
+    }
+  </style>
+</head>
+<body>
+<h1>Metadata Updater Report</h1>
+	<h2>Updated Articles</h2>
+	 <div class="list-wrapper">
+		<ul class="fill-across">
+			{{range .Articles}}
+				<li><a href="plumb:/{{.Path}}">{{.Title}}</a></li>
+			{{end}}
+		</ul>
+	</div>
+{{if .Errors }}
+	<h2>Errors</h2>
+	<ul>
+		{{range .Errors}}
+			<li>{{.}}</li>
+		{{end}}
+	</ul>
+{{end}}
+</body>
+</html>
+`

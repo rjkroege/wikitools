@@ -32,6 +32,8 @@ const (
 	MdUnterminatedIaWriterOrModernBlank
 )
 
+// TODO(rjk): Enforce at compile time that there is a string here for
+// every constant above.
 var Metadatanametable = [...]string{
 	"MdInvalid ",
 	"MdLegacy",
