@@ -190,26 +190,49 @@ const urlhtmlreport = `
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Wiki Tag Summary</title>
-  <style>
-    .auto-column-list {
-      column-width: 30ch;
-      column-gap: 4rem;
+  <title>Wiki Article List</title>
+ <style>
+    /* --- Container --- */
+    .list-wrapper {
+      width:  90%;             /* whatever width you need */
+      margin: 2rem auto;    /* center the block */
+      border: 1px solid #ccc;
+      padding: 1rem;
     }
-    .auto-column-list li {
-      break-inside: avoid;
+
+    /* --- List reset --- */
+    ul.fill-across {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;        /* put items in a row */
+      flex-wrap: wrap;        /* allow wrapping to next line */
+      gap: 1rem;              /* space between items */
     }
+
+    /* --- List items --- */
+    ul.fill-across li {
+      flex: 1 1 200px;        /* grow, shrink, base width 200px */
+     padding: 1rem;
+    }
+
+li.inner {
+	padding: 0 !important;
+}
   </style>
 </head>
 <body>
 <h1>URL Report</h1>
-<ul class="auto-column-list">
-{{range $index, $element :=  .}}<li>{{ filetourl $index }}
-	<ul>{{range . }}<li>{{.}}</li>{{end}}
-</ul></li>
-{{end}}
-</ul>
-
+ <div class="list-wrapper">
+	<ul class="fill-across">
+	{{range $index, $element :=  .}}
+	<li>{{ filetourl $index }}
+	<ul>{{range . }}
+		<li class="inner">{{.}}</li>{{end}}
+	</ul></li>
+	{{end}}
+	</ul>
+ </div>
 </body>
 </html>
 `
