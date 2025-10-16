@@ -173,6 +173,8 @@ func tidywrap(settings *wiki.Settings, f TidyingPassFactory) http.HandlerFunc {
 
 // TODO(rjk): Move this into a separate file.
 const homepage = `<html>
+<head>
+<title>Wiki</title>
 <style>
 /* Pretty button-style link */
 a.pretty-button {
@@ -195,6 +197,7 @@ a.pretty-button:hover {
   background: linear-gradient(135deg, #7c8ff0 0%, #865fca 100%);
 }
 </style>
+</head>
 <body>
 <h1>Wiki</h1>
 <h2>Reports</h2>
