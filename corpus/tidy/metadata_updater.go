@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"encoding/json"
@@ -20,7 +21,7 @@ type metadataUpdater struct {
 
 // NewMetadataUpdater creates a new Tidying implementation to update
 // metadata.
-func NewMetadataUpdater(settings *wiki.Settings) (corpus.Tidying, error) {
+func NewMetadataUpdater(settings *wiki.Settings, r *http.Request) (corpus.Tidying, error) {
 	return makeMetadataUpdaterImpl(settings)
 }
 

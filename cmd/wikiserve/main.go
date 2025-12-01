@@ -40,7 +40,7 @@ func listAllWikiFilesTidying() any { return map[string]string{"corpus": "NewList
 
 // ---------- routing table -----------------------------------------------------
 
-type TidyingPassFactory func(*wiki.Settings) (corpus.Tidying, error)
+type TidyingPassFactory func(*wiki.Settings, *http.Request) (corpus.Tidying, error)
 
 type route struct {
 	pattern string
@@ -131,7 +131,7 @@ func tidywrap(settings *wiki.Settings, f TidyingPassFactory) http.HandlerFunc {
 		log.Printf("settings %v", reqsettings)
 		
 
-		tidying, err := f(&reqsettings)
+		tidying, err := f(&reqsettings, r)
 		if err != nil {
 			log.Printf("Can't make a tidying object for this request because: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)

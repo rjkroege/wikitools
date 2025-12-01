@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"html/template"
@@ -36,7 +37,7 @@ func newFilemoverImpl(settings *wiki.Settings) *fileMover {
 
 // NewFilemover creates a Tidying implementation that positions files in
 // the right wiki directories
-func NewFilemover(settings *wiki.Settings) (corpus.Tidying, error) {
+func NewFilemover(settings *wiki.Settings, r *http.Request) (corpus.Tidying, error) {
 	return newFilemoverImpl(settings), nil
 }
 

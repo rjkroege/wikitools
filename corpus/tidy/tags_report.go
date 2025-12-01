@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"slices"
@@ -21,7 +22,7 @@ type tagsReport struct {
 	settings *wiki.Settings
 }
 
-func NewTagsReporter(settings *wiki.Settings) (corpus.Tidying, error) {
+func NewTagsReporter(settings *wiki.Settings, r *http.Request) (corpus.Tidying, error) {
 	return newTagsReporterImpl(settings)
 }
 

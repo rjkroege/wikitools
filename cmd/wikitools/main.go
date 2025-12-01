@@ -101,7 +101,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		// TODO(rjk): Union the other operations.
 	case "tidy deepclean":
 		// TODO(rjk): Highly likely that this needs some kind of settings.
-		tidying, err := tidy.NewMetadataUpdater(settings)
+		tidying, err := tidy.NewMetadataUpdater(settings, nil)
 		if err != nil {
 			log.Fatal("Can't make a MetadataUpdater( because:", err)
 		}
@@ -112,7 +112,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 			log.Fatal("report Summary: ", err)
 		}
 	case "tidy updatetaglist":
-		tidying, err := tidy.NewTagsDumper(settings)
+		tidying, err := tidy.NewTagsDumper(settings, nil)
 		if err != nil {
 			log.Fatal("Can't make a TagsDumper( because:", err)
 		}
@@ -128,7 +128,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 		// TODO(rjk): Write me.
 		// What is this even suppose to do? (Put the tags in the spotlight data?)
 	case "tidy backlinks":
-		tidying, _ := tidy.NewBacklinkwriter(settings)
+		tidying, _ := tidy.NewBacklinkwriter(settings, nil)
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}
@@ -136,7 +136,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 			log.Fatal("tidy backlinks summary: ", err)
 		}
 	case "tidy move":
-		tidying, _ := tidy.NewFilemover(settings)
+		tidying, _ := tidy.NewFilemover(settings, nil)
 		if err := corpus.Everyfile(settings, tidying); err != nil {
 			log.Fatal(err)
 		}
@@ -144,7 +144,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 			log.Fatal("report Summary: ", err)
 		}
 	case "report metadata":
-		tidying, err := tidy.NewMetadataReporter(settings)
+		tidying, err := tidy.NewMetadataReporter(settings, nil)
 		if err != nil {
 			log.Fatal("Can't make a MetadataReporter because:", err)
 		}
@@ -155,7 +155,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 			log.Fatal("report Summary: ", err)
 		}
 	case "report tags":
-		tidying, err := tidy.NewTagsReporter(settings)
+		tidying, err := tidy.NewTagsReporter(settings, nil)
 		if err != nil {
 			log.Fatal("Can't make a TagsReporter because:", err)
 		}
@@ -166,7 +166,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 			log.Fatal("report Summary: ", err)
 		}
 	case "report urls":
-		tidying, err := tidy.NewUrlReporter(settings)
+		tidying, err := tidy.NewUrlReporter(settings, nil)
 		if err != nil {
 			log.Fatal("Can't make a NewUrlReporter because:", err)
 		}
@@ -179,7 +179,7 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 	case "report todos":
 		log.Println("report todos not implemented")
 	case "report articles":
-		tidying, err := corpus.NewListAllWikiFilesTidying(settings)
+		tidying, err := corpus.NewListAllWikiFilesTidying(settings, nil)
 		if err != nil {
 			log.Fatal("Can't make a NewListAllWikiFilesTidying because:", err)
 		}

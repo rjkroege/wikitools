@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 	"html/template"
+	"net/http"
 
 	"github.com/rjkroege/wikitools/wiki"
 )
@@ -45,7 +46,7 @@ type listAllWikiFiles struct {
 	tmpl *template.Template
 }
 
-func NewListAllWikiFilesTidying(settings *wiki.Settings) (Tidying, error) {
+func NewListAllWikiFilesTidying(settings *wiki.Settings, r *http.Request) (Tidying, error) {
 	return &listAllWikiFiles{
 		settings: settings,
 	}, nil

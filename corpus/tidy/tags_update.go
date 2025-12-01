@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"io"
 	"encoding/json"
+	"net/http"
 
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/wiki"
@@ -16,7 +17,7 @@ type tagsDump struct {
 	tagrp *tagsReport
 }
 
-func NewTagsDumper(settings *wiki.Settings) (corpus.Tidying, error) {
+func NewTagsDumper(settings *wiki.Settings, r *http.Request) (corpus.Tidying, error) {
 	tagrp , err := newTagsReporterImpl(settings)
 	if err != nil {
 		return nil, err

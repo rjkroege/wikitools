@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"text/template"
 
@@ -21,7 +22,7 @@ type backlinkWriter struct {
 	urlrp *urlReport
 }
 
-func NewBacklinkwriter(settings *wiki.Settings) (corpus.Tidying, error) {
+func NewBacklinkwriter(settings *wiki.Settings, r *http.Request) (corpus.Tidying, error) {
 	urlrp , err := newUrlReporterImpl(settings)
 	if err != nil {
 		return nil, err

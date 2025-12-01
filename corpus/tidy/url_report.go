@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -52,7 +53,7 @@ func newUrlReporterImpl(settings *wiki.Settings) (*urlReport, error) {
 // the dumping of the URLs to some kind of backing storage.
 // I should be able to compose the reporting vs logging functionality into
 // this in some way.
-func NewUrlReporter(settings *wiki.Settings) (corpus.Tidying, error) {
+func NewUrlReporter(settings *wiki.Settings, r *http.Request) (corpus.Tidying, error) {
 	return newUrlReporterImpl(settings)
 }
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -39,7 +40,7 @@ func (abc *metadataReport) recordMetadataState(md *article.MetaData, path string
 	})
 }
 
-func NewMetadataReporter(settings *wiki.Settings) (corpus.Tidying, error) {
+func NewMetadataReporter(settings *wiki.Settings, r *http.Request) (corpus.Tidying, error) {
 	return newMetadataReporterImpl(settings)
 }
 
