@@ -5,6 +5,8 @@ import (
 	"io"
 	"fmt"
 	"strings"
+
+	"log"
 )
 
 const listallwikitmpl = `
@@ -56,6 +58,9 @@ func (tidy *listAllWikiFiles) _htmlSummaryWrite(w io.Writer) error {
 	// TODO(rjk): Stash all the templates in a central place where
 	// the HTML can be refactored for rapid development.
 	// Note that I need to mark filetourl as being safe to include.
+
+	// Temporary logging to demonstrate that feature is correct.
+	log.Println("_htmlSummaryWrite", tidy.tags)
 
 	if tidy.tmpl == nil { 
 		tmpl, err := template.New("articlelist").Funcs(template.FuncMap{

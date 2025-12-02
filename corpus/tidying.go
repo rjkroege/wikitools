@@ -44,11 +44,25 @@ type listAllWikiFiles struct {
 	Files    []FileRecord
 	settings *wiki.Settings
 	tmpl *template.Template
+	tags []string
+}
+
+// extractPathValueTags pulls the named wildcard value from the request,
+// splits it on commas, and returns the resulting tokens.
+// If the value is missing or empty the function returns an empty slice.
+func extractPathValueTags(r *http.Request, tagName string) []string {
+	raw := r.PathValue(tagName)
+	if raw == "" {
+		return []string{}
+	}
+	return strings.Split(raw, ",")
 }
 
 func NewListAllWikiFilesTidying(settings *wiki.Settings, r *http.Request) (Tidying, error) {
+	tags := extractPathValueTags(r, "tags")
 	return &listAllWikiFiles{
 		settings: settings,
+		tags: tags,
 	}, nil
 }
 
