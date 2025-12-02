@@ -67,8 +67,8 @@ var routes = []route{
 	// 	{"/corpus/everyfile", everyfile},
 	// 	{"/tidying/summary", summary},
 
-	{"/corpus/list", corpus.NewListAllWikiFilesTidying},
-	{"/corpus/list/{tags}", corpus.NewListAllWikiFilesTidying},
+	{"/corpus/list", tidy.NewListAllWikiFilesTidying},
+	{"/corpus/list/{tags}", tidy.NewListAllWikiFilesTidying},
 	{"/corpus/tags", tidy.NewTagsReporter},
 	{"/corpus/urls", tidy.NewUrlReporter},
 	{"/corpus/meta", tidy.NewMetadataReporter},

@@ -1,10 +1,9 @@
-package corpus
+package tidy
 
 import (
 	"html/template"
 	"io"
 	"fmt"
-	"strings"
 
 	"log"
 )
@@ -74,12 +73,4 @@ func (tidy *listAllWikiFiles) _htmlSummaryWrite(w io.Writer) error {
 		tidy.tmpl = tmpl
 	}
 	return tidy.tmpl.ExecuteTemplate(w, "articlelist", tidy.Files)
-}
-
-// TODO(rjk): Remove this code. I just cut&pasted it because I want to
-// progress now and worry about the "right" way to organize the new style
-// of managing templates and such later.
-func filetourl(prefix, path string) string {
-	short := strings.TrimPrefix(path, prefix)
-	return fmt.Sprintf("<a href=\"plumb:/%s\">%s</a>", path, short)
 }
