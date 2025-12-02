@@ -131,7 +131,7 @@ const tagreporttmpl = `
 <h1>Wiki Tag Summary</h1>
 <ul class="auto-column-list">
 {{range .}}
-    <li>{{.Tag}}: {{.Count}}</li>
+    <li><a href="/corpus/list/{{.Tag}}">{{.Tag}}</a>: {{.Count}}</li>
 {{end}}
 </ul>
   </ul>
