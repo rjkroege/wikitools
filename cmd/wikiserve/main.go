@@ -11,7 +11,7 @@ import (
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/corpus/tidy"
 	"github.com/rjkroege/wikitools/wiki"
-	cmd "github.com/rjkroege/wikitools/actions"
+	"github.com/rjkroege/wikitools/actions"
 )
 
 // ---------- tiny helpers that pretend to do the real work --------------------
@@ -237,7 +237,7 @@ func main() {
 		log.Fatal("No configuration file. Fatal:", err)
 	}
 
-	cmd.WatchAcmeLog()
+	actions.WatchAcmeLog()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {

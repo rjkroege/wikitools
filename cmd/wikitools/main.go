@@ -65,7 +65,7 @@ var CLI struct {
 }
 
 func main() {
-	os.Args = cmd.ArgsAlfredPreprocess(os.Args)
+	os.Args = actions.ArgsAlfredPreprocess(os.Args)
 	ctx := kong.Parse(&CLI)
 
 	// TODO(rjk): wiki => config
@@ -84,18 +84,18 @@ func _main(ctx *kong.Context, settings *wiki.Settings) {
 	switch ctx.Command() {
 	case "new <tagsandtitle>":
 		log.Println("should run Wikinew here", CLI.New.Tagsandtitle)
-		cmd.Wikinew(settings, CLI.New.Tagsandtitle)
+		actions.Wikinew(settings, CLI.New.Tagsandtitle)
 	case "newautocomplete <tagsandtitle>":
-		cmd.WikinewAutocomplete(settings, CLI.Newautocomplete.Tagsandtitle)
+		actions.WikinewAutocomplete(settings, CLI.Newautocomplete.Tagsandtitle)
 	case "preview <article>":
 		// TODO(rjk): Figure out what this is for.
-		cmd.Preview(settings, CLI.Debug)
+		actions.Preview(settings, CLI.Debug)
 	case "plumb <lsd> <wikitext>":
 		log.Println("plumb!", CLI.Plumb.Lsd, CLI.Plumb.Wikitext)
-		cmd.PlumberHelper(settings, CLI.Plumb.Lsd, CLI.Plumb.Wikitext)
+		actions.PlumberHelper(settings, CLI.Plumb.Lsd, CLI.Plumb.Wikitext)
 	case "bearimport <filestoprocess>":
 		log.Println("should run Bearimport here", CLI.Bearimport.Filestoprocess)
-		cmd.Bearimport(settings, CLI.Bearimport.Outputdir, CLI.Bearimport.Filestoprocess)
+		actions.Bearimport(settings, CLI.Bearimport.Outputdir, CLI.Bearimport.Filestoprocess)
 	case "tidy all":
 		log.Println("tidy all not implemented")
 		// TODO(rjk): Union the other operations.
