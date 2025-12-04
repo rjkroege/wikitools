@@ -2,6 +2,7 @@ package actions
 
 import (
 	"log"
+	"strings"
 
 	"9fans.net/go/acme"
 )
@@ -26,8 +27,10 @@ func readwindows(wikiroot string) error  {
 
                // TODO(rjk): acme.Windows might not correctly handle Name instances
                for _, w := range wins {
-			log.Println("w.Name", w.Name)
-			// TODO(rjk) do tag update for each of these things
+			if strings.HasPrefix(w.Name, wikiroot) {
+				log.Println("w.Name", w.Name)
+				// TODO(rjk) do tag update for each of these things
+			}
                }
 
 	return nil
@@ -48,7 +51,8 @@ func watchacmelog(wikiroot string) error {
 			return err
 				}
 
-
-			log.Println("watching... got an event", ev)
+			if strings.HasPrefix(ev.Name, wikiroot) {
+				log.Println("watching... got an event", ev)
+			}
 		}
 }
