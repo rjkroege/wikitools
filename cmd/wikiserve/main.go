@@ -237,7 +237,7 @@ func main() {
 		log.Fatal("No configuration file. Fatal:", err)
 	}
 
-	actions.WatchAcmeLog()
+	actions.WatchAcmeLog(settings.Wikidir)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {

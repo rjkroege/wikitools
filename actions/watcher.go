@@ -6,18 +6,18 @@ import (
 	"9fans.net/go/acme"
 )
 
-func WatchAcmeLog() {
+func WatchAcmeLog(wikiroot string) {
 	log.Println("watcher starting")
 
-	go retryloop()
+	go retryloop(wikiroot)
 }
 
-func retryloop() {
-	readwindows()
-	watchacmelog()
+func retryloop(wikiroot string) {
+	readwindows(wikiroot)
+	watchacmelog(wikiroot)
 }
 
-func readwindows() error  {
+func readwindows(wikiroot string) error  {
               wins, err := acme.Windows()
                if err != nil {
                     log.Printf("can't get acme windows; probably acme is not running: %v", err)
@@ -33,7 +33,7 @@ func readwindows() error  {
 	return nil
 }
 
-func watchacmelog() error {
+func watchacmelog(wikiroot string) error {
 	r, err := acme.Log()
 	if err != nil {
 		log.Printf("can't open acme; probably it's not running: %v", err)
