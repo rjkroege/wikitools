@@ -3,6 +3,7 @@ package actions
 import (
 	"log"
 	"strings"
+	"time"
 
 	"9fans.net/go/acme"
 )
@@ -14,8 +15,32 @@ func WatchAcmeLog(wikiroot string) {
 }
 
 func retryloop(wikiroot string) {
-	readwindows(wikiroot)
-	watchacmelog(wikiroot)
+	backoff := 1 * time.Second
+	maxBackoff := 60 * time.Second
+
+	for {
+		if err := readwindows(wikiroot); err != nil {
+			log.Printf("readwindows failed, retrying in %v", backoff)
+			time.Sleep(backoff)
+			backoff = backoff * 2
+			if backoff > maxBackoff {
+				backoff = maxBackoff
+			}
+			continue
+		}
+
+		if err := watchacmelog(wikiroot); err != nil {
+			log.Printf("watchacmelog failed, retrying in %v", backoff)
+			time.Sleep(backoff)
+			backoff = backoff * 2
+			if backoff > maxBackoff {
+				backoff = maxBackoff
+			}
+			continue
+		}
+
+		backoff = 1 * time.Second
+	}
 }
 
 func readwindows(wikiroot string) error  {
