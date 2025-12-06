@@ -118,6 +118,8 @@ func (tidy *listAllWikiFiles) SummaryEncode(e *json.Encoder) error {
 	return e.Encode(tidy.Files)
 }
 
-
+func (tidy *listAllWikiFiles) UpdateFiles(wm corpus.WindowManager) error {
+	return nil
+}
 
 var _ corpus.Tidying = (*listAllWikiFiles)(nil)

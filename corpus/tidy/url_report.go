@@ -259,4 +259,8 @@ func (abc *urlReport) SummaryEncode(e *json.Encoder) error {
 	return e.Encode(abc._urlReportGen(false, false))
 }
 
+func (abc *urlReport) UpdateFiles(wm corpus.WindowManager) error {
+	return nil
+}
+
 var _ corpus.Tidying = (*urlReport)(nil)

@@ -156,6 +156,10 @@ func (tr *metadataReport) SummaryEncode(e *json.Encoder) error {
 	return e.Encode(tr._genMetadataSections())
 }
 
+func (tr *metadataReport) UpdateFiles(wm corpus.WindowManager) error {
+	return nil
+}
+
 func (abc *metadataReport) _htmlMetaReport(w io.Writer, sections []MetadataSection) error {
 	if _, err := abc.tmpl.New("meta_html_report").Parse(meta_html_report); err != nil {
 		return fmt.Errorf("can't meta_html_report template%v", err)

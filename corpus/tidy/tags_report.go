@@ -111,6 +111,10 @@ func (tr *tagsReport) SummaryEncode(e *json.Encoder) error {
 	return e.Encode(tr.prepReport())
 }
 
+func (tr *tagsReport) UpdateFiles(wm corpus.WindowManager) error {
+	return nil
+}
+
 const tagreporttmpl = `
 <!doctype html>
 <html lang="en">

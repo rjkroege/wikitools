@@ -278,4 +278,8 @@ func (fm *fileMover) SummaryEncode(e *json.Encoder) error {
 	return e.Encode(results)
 }
 
+func (fm *fileMover) UpdateFiles(wm corpus.WindowManager) error {
+	return nil
+}
+
 var _ corpus.Tidying = (*fileMover)(nil)

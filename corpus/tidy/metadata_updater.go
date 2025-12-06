@@ -155,6 +155,10 @@ func (mup *metadataUpdater) SummaryEncode(e *json.Encoder) error {
 	 return e.Encode(mubu)
 }
 
+func (mup *metadataUpdater) UpdateFiles(wm corpus.WindowManager) error {
+	return nil
+}
+
 type MetadataUpdaterOutputBundle struct {
 	Errors []string
 	Articles []*articleReportEntry

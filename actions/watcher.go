@@ -6,26 +6,22 @@ import (
 	"time"
 
 	"9fans.net/go/acme"
+	"github.com/rjkroege/wikitools/corpus"
 )
 
-type AcmeWindow struct {
-	ID   int
-	Name string
-}
-
 type AcmeWatcher struct {
-	add      chan AcmeWindow
+	add      chan corpus.AcmeWindow
 	remove   chan int
-	snapshot chan chan []AcmeWindow
-	winds map[int]AcmeWindow
+	snapshot chan chan []corpus.AcmeWindow
+	winds map[int]corpus.AcmeWindow
 }
 
 func NewAcmeWatcher(wikiroot string) *AcmeWatcher {
 	log.Println("watcher starting")
 	wm := &AcmeWatcher{
-		add:      make(chan AcmeWindow),
+		add:      make(chan corpus.AcmeWindow),
 		remove:   make(chan int),
-		snapshot: make(chan chan []AcmeWindow),
+		snapshot: make(chan chan []corpus.AcmeWindow),
 	}
 	go wm.run()
 	go retryloop(wm, wikiroot)
@@ -33,7 +29,7 @@ func NewAcmeWatcher(wikiroot string) *AcmeWatcher {
 }
 
 func (wm *AcmeWatcher) run() {
-	am := make(map[int]AcmeWindow)
+	am := make(map[int]corpus.AcmeWindow)
 
 	for {
 		select {
@@ -42,7 +38,7 @@ func (wm *AcmeWatcher) run() {
 		case id := <-wm.remove:
 			delete(am, id)
 		case resp := <-wm.snapshot:
-			snapshot := make([]AcmeWindow, 0, len(am))
+			snapshot := make([]corpus.AcmeWindow, 0, len(am))
 			for _, win := range am {
 				snapshot = append(snapshot, win)
 			}
@@ -51,7 +47,7 @@ func (wm *AcmeWatcher) run() {
 	}
 }
 
-func (wm *AcmeWatcher) Add(win AcmeWindow) {
+func (wm *AcmeWatcher) Add(win corpus.AcmeWindow) {
 	wm.add <- win
 }
 
@@ -59,8 +55,8 @@ func (wm *AcmeWatcher) Remove(id int) {
 	wm.remove <- id
 }
 
-func (wm *AcmeWatcher) Snapshot() []AcmeWindow {
-	resp := make(chan []AcmeWindow)
+func (wm *AcmeWatcher) Snapshot() []corpus.AcmeWindow {
+	resp := make(chan []corpus.AcmeWindow)
 	wm.snapshot <- resp
 	return <-resp
 }
@@ -104,7 +100,7 @@ func readwindows(wm *AcmeWatcher, wikiroot string) error  {
                // TODO(rjk): acme.Windows might not correctly handle Name instances
                for _, w := range wins {
 			if strings.HasPrefix(w.Name, wikiroot) {
-				wm.Add(AcmeWindow{
+				wm.Add(corpus.AcmeWindow{
 					ID: w.ID,
 					Name: w.Name,
 				})
@@ -133,7 +129,7 @@ func watchacmelog(wm *AcmeWatcher, wikiroot string) error {
 
 
 			if ev.Op == "new" {
-				wm.Add(AcmeWindow{
+				wm.Add(corpus.AcmeWindow{
 					ID: ev.ID,
 					Name: ev.Name,
 				})

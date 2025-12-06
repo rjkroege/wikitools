@@ -213,4 +213,8 @@ func (blw *backlinkWriter) SummaryEncode(e *json.Encoder) error {
 	return e.Encode(&bws)
 }
 
+func (blw *backlinkWriter) UpdateFiles(wm corpus.WindowManager) error {
+	return nil
+}
+
 var _ corpus.Tidying = (*backlinkWriter)(nil)

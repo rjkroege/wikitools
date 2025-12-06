@@ -79,4 +79,8 @@ func (tagu *tagsDump) SummaryEncode(e *json.Encoder) error {
 	return tagu.tagrp.SummaryEncode(e)
 }
 
+func (tagu *tagsDump) UpdateFiles(wm corpus.WindowManager) error {
+	return nil
+}
+
 var _ corpus.Tidying = (*tagsDump)(nil)

@@ -10,6 +10,19 @@ import (
 	"github.com/rjkroege/wikitools/wiki"
 )
 
+// WindowManager is an interface for managing acme windows.
+type WindowManager interface {
+	Add(win AcmeWindow)
+	Remove(id int)
+	Snapshot() []AcmeWindow
+}
+
+// AcmeWindow represents a window in acme.
+type AcmeWindow struct {
+	ID   int
+	Name string
+}
+
 // Tidying is the interface implemented by each of the kinds of Tidying
 // passes.
 type Tidying interface {
@@ -25,6 +38,9 @@ type Tidying interface {
 	// SummaryEncode provides the final output to the provided JSON
 	// encoder.
 	SummaryEncode(e *json.Encoder) error
+
+	// UpdateFiles updates acme windows based on the WindowManager.
+	UpdateFiles(wm WindowManager) error
 }
 
 func Everyfile(settings *wiki.Settings, tidying Tidying) error {
