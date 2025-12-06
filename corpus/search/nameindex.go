@@ -12,17 +12,17 @@ import (
 	"github.com/rjkroege/wikitools/corpus"
 )
 
-type spotlightWikilinkIndexer struct {
+type wikilinkIndexerimpl struct {
 	wikiroot string
 	index    map[string][][]unique.Handle[string]
 }
 
-var _ corpus.LinkToFile = (*spotlightWikilinkIndexer)(nil)
+var _ corpus.LinkToFile = (*wikilinkIndexerimpl)(nil)
 
 // Returns a single unique path corresponding to the wikitext found in a
 // file in directory lsd, limiting search to files found recursively in location or
 // error when impossible.
-func (spix *spotlightWikilinkIndexer) Path(location, lsd, wikitext string) (string, error) {
+func (spix *wikilinkIndexerimpl) Path(location, lsd, wikitext string) (string, error) {
 	basepart := filepath.Base(wikitext)
 	if basepart == "" {
 		return "", EmptyWikitextFile
@@ -36,7 +36,7 @@ func (spix *spotlightWikilinkIndexer) Path(location, lsd, wikitext string) (stri
 	return disambiguatewikipaths(location, lsd, wikitext, allpaths)
 }
 
-func (_ *spotlightWikilinkIndexer) Allpaths(location, lsd, wikitext string) ([]string, error) {
+func (_ *wikilinkIndexerimpl) Allpaths(location, lsd, wikitext string) ([]string, error) {
 	return nil, fmt.Errorf("StubLinkToFile not implemented")
 }
 
@@ -46,7 +46,7 @@ func (_ *spotlightWikilinkIndexer) Allpaths(location, lsd, wikitext string) ([]s
 // exist.
 // TODO(rjk): consider making suffix stripping configurable. For example,
 // I expect that I'd want svg etc to keep its suffix?
-func (spix *spotlightWikilinkIndexer) Wikitext(frompath, topath string) (string, error) {
+func (spix *wikilinkIndexerimpl) Wikitext(frompath, topath string) (string, error) {
 	base := filepath.Base(topath)
 	allpaths, err := spix.pathsforwikitext(spix.wikiroot, base)
 	if err != nil {
@@ -83,11 +83,11 @@ func splitPathParts(dir string) []string {
 
 // Only have one index.
 var (
-	instance *spotlightWikilinkIndexer
+	instance *wikilinkIndexerimpl
 	once     sync.Once
 )
 
-func MakeWikilinkNameIndex(wikiroot string) *spotlightWikilinkIndexer {
+func MakeWikilinkNameIndex(wikiroot string) *wikilinkIndexerimpl {
 	once.Do(func() {
 		instance = implMakeWikilinkNameIndex(wikiroot)
 	})
@@ -97,7 +97,7 @@ func MakeWikilinkNameIndex(wikiroot string) *spotlightWikilinkIndexer {
 // TODO(rjk): Factor out the inner code as a separate entry point for
 // adding new files. In particular, there will be a larger design document
 // for updating the index cache.
-func implMakeWikilinkNameIndex(wikiroot string) *spotlightWikilinkIndexer {
+func implMakeWikilinkNameIndex(wikiroot string) *wikilinkIndexerimpl {
 	index := make(map[string][][]unique.Handle[string])
 
 	if err := filepath.WalkDir(wikiroot, func(path string, d os.DirEntry, err error) error {
@@ -117,7 +117,7 @@ func implMakeWikilinkNameIndex(wikiroot string) *spotlightWikilinkIndexer {
 		log.Fatalf("can't continue without an index")
 	}
 
-	spidx := &spotlightWikilinkIndexer{
+	spidx := &wikilinkIndexerimpl{
 		wikiroot: wikiroot,
 		index:    index,
 	}
@@ -127,7 +127,7 @@ func implMakeWikilinkNameIndex(wikiroot string) *spotlightWikilinkIndexer {
 // pathsforwikitext returns all the absolute paths for resources in
 // directory tree specified by location with leaf path wikitextfile.
 // wikitextfile is the complete file path (i.e. includes the extension.)
-func (spix *spotlightWikilinkIndexer) pathsforwikitext(location, wikitextfile string) ([]string, error) {
+func (spix *wikilinkIndexerimpl) pathsforwikitext(location, wikitextfile string) ([]string, error) {
 	pls, ok := spix.index[wikitextfile]
 	if !ok {
 		return []string{}, nil
