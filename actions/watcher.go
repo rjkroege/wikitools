@@ -28,7 +28,7 @@ func NewAcmeWatcher(wikiroot string) *AcmeWatcher {
 		snapshot: make(chan chan []AcmeWindow),
 	}
 	go wm.run()
-	go retryloop(wikiroot)
+	go retryloop(wm, wikiroot)
 	return wm
 }
 
@@ -65,12 +65,12 @@ func (wm *AcmeWatcher) Snapshot() []AcmeWindow {
 	return <-resp
 }
 
-func retryloop(wikiroot string) {
+func retryloop(wm *AcmeWatcher, wikiroot string) {
 	backoff := 1 * time.Second
 	maxBackoff := 60 * time.Second
 
 	for {
-		if err := readwindows(wikiroot); err != nil {
+		if err := readwindows(wm, wikiroot); err != nil {
 			log.Printf("readwindows failed, retrying in %v", backoff)
 			time.Sleep(backoff)
 			backoff = backoff * 2
@@ -80,7 +80,7 @@ func retryloop(wikiroot string) {
 			continue
 		}
 
-		if err := watchacmelog(wikiroot); err != nil {
+		if err := watchacmelog(wm, wikiroot); err != nil {
 			log.Printf("watchacmelog failed, retrying in %v", backoff)
 			time.Sleep(backoff)
 			backoff = backoff * 2
@@ -94,7 +94,7 @@ func retryloop(wikiroot string) {
 	}
 }
 
-func readwindows(wikiroot string) error  {
+func readwindows(wm *AcmeWatcher, wikiroot string) error  {
               wins, err := acme.Windows()
                if err != nil {
                     log.Printf("can't get acme windows; probably acme is not running: %v", err)
@@ -104,15 +104,17 @@ func readwindows(wikiroot string) error  {
                // TODO(rjk): acme.Windows might not correctly handle Name instances
                for _, w := range wins {
 			if strings.HasPrefix(w.Name, wikiroot) {
-				log.Println("w.Name", w.Name)
-				// TODO(rjk) do tag update for each of these things
+				wm.Add(AcmeWindow{
+					ID: w.ID,
+					Name: w.Name,
+				})
 			}
                }
 
 	return nil
 }
 
-func watchacmelog(wikiroot string) error {
+func watchacmelog(wm *AcmeWatcher, wikiroot string) error {
 	r, err := acme.Log()
 	if err != nil {
 		log.Printf("can't open acme; probably it's not running: %v", err)
@@ -128,7 +130,20 @@ func watchacmelog(wikiroot string) error {
 				}
 
 			if strings.HasPrefix(ev.Name, wikiroot) {
-				log.Println("watching... got an event", ev)
+
+
+			if ev.Op == "new" {
+				wm.Add(AcmeWindow{
+					ID: ev.ID,
+					Name: ev.Name,
+				})
+			}
+
+			if ev.Op == "del" {
+				wm.Remove(ev.ID)
+			}
+
+
 			}
 		}
 }

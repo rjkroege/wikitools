@@ -124,7 +124,7 @@ func figureoutdryrun(r *http.Request) bool {
 
 // tidywrap returns an http.HandlerFunc corresponding to the specified tidying
 // structured pass.
-func tidywrap(settings *wiki.Settings, f TidyingPassFactory) http.HandlerFunc {
+func tidywrap(settings *wiki.Settings, f TidyingPassFactory, watcher *actions.AcmeWatcher) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Every request gets a private settings.
 		reqsettings := *settings
@@ -132,6 +132,7 @@ func tidywrap(settings *wiki.Settings, f TidyingPassFactory) http.HandlerFunc {
 		reqsettings.Dryrun = figureoutdryrun(r)
 		log.Printf("settings %v", reqsettings)
 		
+	log.Println(">>", watcher.Snapshot())
 
 		tidying, err := f(&reqsettings, r)
 		if err != nil {
@@ -250,10 +251,9 @@ func main() {
 	// TODO(rjk): In the future
 	// register REST endpoints
 	for _, rt := range routes {
-		http.HandleFunc(rt.pattern, tidywrap(settings, rt.handler))
+		http.HandleFunc(rt.pattern, tidywrap(settings, rt.handler, watcher))
 	}
 
 	log.Printf("Listening on %s …", addr)
-	log.Println(watcher.Snapshot())
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
