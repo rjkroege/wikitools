@@ -8,10 +8,61 @@ import (
 	"9fans.net/go/acme"
 )
 
-func WatchAcmeLog(wikiroot string) {
-	log.Println("watcher starting")
+type AcmeWindow struct {
+	ID   int
+	Name string
+}
 
+type AcmeWatcher struct {
+	add      chan AcmeWindow
+	remove   chan int
+	snapshot chan chan []AcmeWindow
+	winds map[int]AcmeWindow
+}
+
+func NewAcmeWatcher(wikiroot string) *AcmeWatcher {
+	log.Println("watcher starting")
+	wm := &AcmeWatcher{
+		add:      make(chan AcmeWindow),
+		remove:   make(chan int),
+		snapshot: make(chan chan []AcmeWindow),
+	}
+	go wm.run()
 	go retryloop(wikiroot)
+	return wm
+}
+
+func (wm *AcmeWatcher) run() {
+	am := make(map[int]AcmeWindow)
+
+	for {
+		select {
+		case win := <-wm.add:
+			am[win.ID] = win
+		case id := <-wm.remove:
+			delete(am, id)
+		case resp := <-wm.snapshot:
+			snapshot := make([]AcmeWindow, 0, len(am))
+			for _, win := range am {
+				snapshot = append(snapshot, win)
+			}
+			resp <- snapshot
+		}
+	}
+}
+
+func (wm *AcmeWatcher) Add(win AcmeWindow) {
+	wm.add <- win
+}
+
+func (wm *AcmeWatcher) Remove(id int) {
+	wm.remove <- id
+}
+
+func (wm *AcmeWatcher) Snapshot() []AcmeWindow {
+	resp := make(chan []AcmeWindow)
+	wm.snapshot <- resp
+	return <-resp
 }
 
 func retryloop(wikiroot string) {
@@ -81,3 +132,4 @@ func watchacmelog(wikiroot string) error {
 			}
 		}
 }
+

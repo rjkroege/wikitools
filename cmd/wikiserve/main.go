@@ -237,7 +237,7 @@ func main() {
 		log.Fatal("No configuration file. Fatal:", err)
 	}
 
-	actions.WatchAcmeLog(settings.Wikidir)
+	watcher := actions.NewAcmeWatcher(settings.Wikidir)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
@@ -254,5 +254,6 @@ func main() {
 	}
 
 	log.Printf("Listening on %s …", addr)
+	log.Println(watcher.Snapshot())
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
