@@ -94,6 +94,22 @@ func MakeWikilinkNameIndex(wikiroot string) *wikilinkIndexerimpl {
 	return instance
 }
 
+// indexOneFile adds a single file to the index.
+func indexOneFile(index map[string][][]unique.Handle[string], path string, d os.DirEntry, err error) error {
+	if err != nil {
+		return nil
+	}
+	dir := filepath.Dir(path)
+	base := filepath.Base(path)
+
+	if !d.IsDir() {
+		pl := index[base]
+		pl = append(pl, splitPathPartsHandle(dir))
+		index[base] = pl
+	}
+	return nil
+}
+
 // TODO(rjk): Factor out the inner code as a separate entry point for
 // adding new files. In particular, there will be a larger design document
 // for updating the index cache.
@@ -101,18 +117,7 @@ func implMakeWikilinkNameIndex(wikiroot string) *wikilinkIndexerimpl {
 	index := make(map[string][][]unique.Handle[string])
 
 	if err := filepath.WalkDir(wikiroot, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return nil
-		}
-		dir := filepath.Dir(path)
-		base := filepath.Base(path)
-
-		if !d.IsDir() {
-			pl := index[base]
-			pl = append(pl, splitPathPartsHandle(dir))
-			index[base] = pl
-		}
-		return nil
+		return indexOneFile(index, path, d, err)
 	}); err != nil {
 		log.Fatalf("can't continue without an index")
 	}
