@@ -58,6 +58,7 @@ func NewUrlReporter(settings *wiki.Settings, r *http.Request) (corpus.Tidying, e
 }
 
 func onefileimpl(settings *wiki.Settings, links *links.Links, path string, info os.FileInfo, err error) error {
+log.Println(path)
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)
 		return fmt.Errorf("couldn't read %s: %v", path, err)

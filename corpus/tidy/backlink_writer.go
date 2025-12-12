@@ -40,8 +40,6 @@ func (blw *backlinkWriter) EachFile(path string, info os.FileInfo, err error) er
 	return nil
 }
 
-
-
 // linkUpdate writes the backlinks to the effected files. Run this during
 // the Summary phase to have only O(n) disk writes.
 func (blw *backlinkWriter) linkUpdate() []string {
