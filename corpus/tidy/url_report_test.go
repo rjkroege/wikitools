@@ -52,23 +52,19 @@ func Test_onefileimpl(t *testing.T) {
 			wantForward: []string{},
 			wantDamaged: []string{},
 		},
-// 		{
-// 			name: "file with multiple external URLs",
-// 			content: `# Multiple Links
-// 
-// - [Example](https://example.com)
-// - [Google](https://google.com)
-// `,
-// 			wantErr: false,
-// 			wantOutUrls: map[string]corpus.LinkMap[corpus.Urllink]{
-// 				"FILEPATH": {
-// 					corpus.MakeUrllink("https://example.com", "Example"): {},
-// 					corpus.MakeUrllink("https://google.com", "Google"):   {},
-// 				},
-// 			},
-// 			wantForward: map[string]corpus.LinkMap[corpus.Wikilink]{},
-// 			wantDamaged: map[string]corpus.LinkMap[corpus.Wikilink]{},
-// 		},
+		{
+			name: "file with multiple external URLs",
+			fpath: "../testdata/wiki/unsorted/EveningJournal.md",
+			wantOutUrls: []string{
+ "/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md",
+"[link](https://example.com)",
+"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/EveningJournal.md",
+"[Example](https://example.com)[Google](https://google.com)",
+
+},
+			wantForward: []string{},
+			wantDamaged: []string{},
+		},
 // 		{
 // 			name: "file with damaged wikilink",
 // 			content: `# Wikilink Test
