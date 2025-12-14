@@ -11,6 +11,10 @@ import (
 	"github.com/rjkroege/wikitools/wiki"
 )
 
+func fxpth(wikiroot, relpath string) string {
+	return filepath.Join(wikiroot, relpath)
+}
+
 func Test_onefileimpl(t *testing.T) {
 	wikiroot, err := filepath.Abs("../testdata")
 	if err != nil {
@@ -46,7 +50,7 @@ func Test_onefileimpl(t *testing.T) {
 			name:  "file with external URL",
 			fpath: "../testdata/wiki/2023/05-May/6/Saturday.md",
 			wantOutUrls: []string{
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md",
+				fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"),
 				"[link](https://example.com)",
 			},
 			wantForward: []string{},
@@ -57,9 +61,9 @@ func Test_onefileimpl(t *testing.T) {
 			name:  "file with multiple external URLs",
 			fpath: "../testdata/wiki/unsorted/EveningJournal.md",
 			wantOutUrls: []string{
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md",
+				fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"),
 				"[link](https://example.com)",
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/EveningJournal.md",
+				fxpth(wikiroot, "../testdata/wiki/unsorted/EveningJournal.md"),
 				"[Example](https://example.com)[Google](https://google.com)",
 			},
 			wantForward: []string{},
@@ -72,13 +76,13 @@ func Test_onefileimpl(t *testing.T) {
 			wantForward: []string{},
 			wantBack:    []string{},
 			wantOutUrls: []string{
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md",
+				fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"),
 				"[link](https://example.com)",
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/EveningJournal.md",
+				fxpth(wikiroot, "../testdata/wiki/unsorted/EveningJournal.md"),
 				"[Example](https://example.com)[Google](https://google.com)",
 			},
 			wantDamaged: []string{
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/02-Feb/28/Saturday.md",
+				fxpth(wikiroot, "../testdata/wiki/2023/02-Feb/28/Saturday.md"),
 				"[[nonexistentArticle]]",
 			},
 		},
@@ -86,25 +90,25 @@ func Test_onefileimpl(t *testing.T) {
 			name:  "file with internal links",
 			fpath: "../testdata/wiki/2023/10-Oct/1/PlottingTools.md",
 			wantOutUrls: []string{
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md",
+				fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"),
 				"[link](https://example.com)",
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/EveningJournal.md",
+				fxpth(wikiroot, "../testdata/wiki/unsorted/EveningJournal.md"),
 				"[Example](https://example.com)[Google](https://google.com)",
 			},
 			wantForward: []string{
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/10-Oct/1/PlottingTools.md",
+				fxpth(wikiroot, "../testdata/wiki/2023/10-Oct/1/PlottingTools.md"),
 				"[[28/Saturday]][[EveningJournal]]",
 			},
 
 			wantBack: []string{
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/02-Feb/28/Saturday.md",
+				fxpth(wikiroot, "../testdata/wiki/2023/02-Feb/28/Saturday.md"),
 				"[[10-Oct/1/PlottingTools.md]]",
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/EveningJournal.md",
+				fxpth(wikiroot, "../testdata/wiki/unsorted/EveningJournal.md"),
 				"[[10-Oct/1/PlottingTools.md]]",
 			},
 
 			wantDamaged: []string{
-				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/02-Feb/28/Saturday.md",
+				fxpth(wikiroot, "../testdata/wiki/2023/02-Feb/28/Saturday.md"),
 				"[[nonexistentArticle]]",
 			},
 		},
