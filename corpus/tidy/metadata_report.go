@@ -57,7 +57,6 @@ func newMetadataReporterImpl(settings *wiki.Settings) (*metadataReport, error) {
 	}, nil
 }
 
-
 func (abc *metadataReport) EachFile(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)

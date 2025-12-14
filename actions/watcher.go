@@ -13,7 +13,7 @@ type AcmeWatcher struct {
 	add      chan corpus.AcmeWindow
 	remove   chan int
 	snapshot chan chan []corpus.AcmeWindow
-	winds map[int]corpus.AcmeWindow
+	winds    map[int]corpus.AcmeWindow
 }
 
 func NewAcmeWatcher(wikiroot string) *AcmeWatcher {
@@ -90,22 +90,22 @@ func retryloop(wm *AcmeWatcher, wikiroot string) {
 	}
 }
 
-func readwindows(wm *AcmeWatcher, wikiroot string) error  {
-              wins, err := acme.Windows()
-               if err != nil {
-                    log.Printf("can't get acme windows; probably acme is not running: %v", err)
-			return err
-               }
+func readwindows(wm *AcmeWatcher, wikiroot string) error {
+	wins, err := acme.Windows()
+	if err != nil {
+		log.Printf("can't get acme windows; probably acme is not running: %v", err)
+		return err
+	}
 
-               // TODO(rjk): acme.Windows might not correctly handle Name instances
-               for _, w := range wins {
-			if strings.HasPrefix(w.Name, wikiroot) {
-				wm.Add(corpus.AcmeWindow{
-					ID: w.ID,
-					Name: w.Name,
-				})
-			}
-               }
+	// TODO(rjk): acme.Windows might not correctly handle Name instances
+	for _, w := range wins {
+		if strings.HasPrefix(w.Name, wikiroot) {
+			wm.Add(corpus.AcmeWindow{
+				ID:   w.ID,
+				Name: w.Name,
+			})
+		}
+	}
 
 	return nil
 }
@@ -118,19 +118,18 @@ func watchacmelog(wm *AcmeWatcher, wikiroot string) error {
 	}
 	defer r.Close()
 
-		for {
-			ev, err := r.Read()
-			if err != nil {
-				log.Printf("can't read events from acme; probably it's not running: %v", err)
+	for {
+		ev, err := r.Read()
+		if err != nil {
+			log.Printf("can't read events from acme; probably it's not running: %v", err)
 			return err
-				}
+		}
 
-			if strings.HasPrefix(ev.Name, wikiroot) {
-
+		if strings.HasPrefix(ev.Name, wikiroot) {
 
 			if ev.Op == "new" {
 				wm.Add(corpus.AcmeWindow{
-					ID: ev.ID,
+					ID:   ev.ID,
 					Name: ev.Name,
 				})
 			}
@@ -139,8 +138,6 @@ func watchacmelog(wm *AcmeWatcher, wikiroot string) error {
 				wm.Remove(ev.ID)
 			}
 
-
-			}
 		}
+	}
 }
-

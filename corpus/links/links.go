@@ -46,7 +46,7 @@ var (
 // ImplMakeLinks is exposed publically only to make it easier to run tests.
 // Real code should only use the future concurrent version.
 // TODO(rjk): Clean this up carefully when I convert this code to be concurrent safe.
-func implMakeLinks(mapper corpus.LinkToFile, location string)  *Links {
+func implMakeLinks(mapper corpus.LinkToFile, location string) *Links {
 	return &Links{
 		ForwardLinks: make(map[string]corpus.WikilinkMap),
 		BackLinks:    make(map[string]corpus.WikilinkMap),
@@ -141,7 +141,6 @@ func (links *Links) AddWikilink(displaytext, wikitext, fpath string) {
 // AddForwardUrl adds a URLs leaving the node. There is no node for them
 // to point to so the destination URL is nil.
 func (links *Links) AddForwardUrl(displaytext, url, fpath string) {
-log.Println("AddForwardUrl", displaytext, url, fpath )
 	urlref := corpus.MakeUrllink(url, displaytext)
 
 	perfilemap, ok := links.OutUrls[fpath]
@@ -161,13 +160,14 @@ func (links *Links) RecordUrl(displaytext, url, filepath string) {
 }
 
 func (links *Links) RecordWikilink(displaytext, wikitext, fpath string) {
+	log.Println("RecordWikilink", displaytext, wikitext, fpath)
 	links.AddWikilink(displaytext, wikitext, fpath)
 }
 
 func StringVector[T corpus.Link](linkmap map[string]corpus.LinkMap[T]) []string {
- 	keys := maps.Keys(linkmap)
- 	sort.Strings(keys)
-	
+	keys := maps.Keys(linkmap)
+	sort.Strings(keys)
+
 	result := make([]string, 0, len(keys))
 	for _, ks := range keys {
 		result = append(result, ks)

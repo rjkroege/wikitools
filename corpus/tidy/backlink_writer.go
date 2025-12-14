@@ -23,7 +23,7 @@ type backlinkWriter struct {
 }
 
 func NewBacklinkwriter(settings *wiki.Settings, r *http.Request) (corpus.Tidying, error) {
-	urlrp , err := newUrlReporterImpl(settings)
+	urlrp, err := newUrlReporterImpl(settings)
 	if err != nil {
 		return nil, err
 	}
@@ -73,10 +73,10 @@ func (blw *backlinkWriter) SummaryWrite(w io.Writer) error {
 		serrors = blw.linkUpdate()
 	}
 
-	bws :=  BacklinkWritingStatus{
-		Dryrun: dryrun,
-		FilesystemErrors: serrors,
-		FilesModified: make(map[string][]string),
+	bws := BacklinkWritingStatus{
+		Dryrun:                dryrun,
+		FilesystemErrors:      serrors,
+		FilesModified:         make(map[string][]string),
 		FilesWithDamagedLinks: make(map[string][]string),
 	}
 
@@ -88,16 +88,15 @@ func (blw *backlinkWriter) SummaryWrite(w io.Writer) error {
 		return blw._backlinkWriterHtmlReportWrite(w, &bws)
 	}
 
-
 	bws.FilesWithDamagedLinks = blw.urlrp._urlReportGen(true, false)
 	return blw._backlinkWriterReportWrite(w, &bws)
 }
 
 type BacklinkWritingStatus struct {
-	FilesystemErrors []string
+	FilesystemErrors      []string
 	FilesWithDamagedLinks map[string][]string
-	FilesModified  map[string][]string
-	Dryrun bool
+	FilesModified         map[string][]string
+	Dryrun                bool
 }
 
 const backlinkwriterhtmlreport = `
@@ -157,10 +156,10 @@ const backlinkwriterhtmlreport = `
 
 func (blw *backlinkWriter) _backlinkWriterHtmlReportWrite(w io.Writer, bws *BacklinkWritingStatus) error {
 	if _, err := blw.urlrp.tmpl.New("backlinkwriterhtmlreport").Funcs(template.FuncMap{
-			"filetourl": func(path string) string {
-				return filetourl(blw.urlrp.settings.Wikidir, path)
-			},
-		}).Parse(backlinkwriterhtmlreport); err != nil {
+		"filetourl": func(path string) string {
+			return filetourl(blw.urlrp.settings.Wikidir, path)
+		},
+	}).Parse(backlinkwriterhtmlreport); err != nil {
 		return fmt.Errorf("can't prepare backlinkwriterhtmlreport template%v", err)
 	}
 
@@ -170,7 +169,7 @@ func (blw *backlinkWriter) _backlinkWriterHtmlReportWrite(w io.Writer, bws *Back
 
 // TODO(rjk): Expand this more.
 // TODO(rjk): Remove the <a> tags
-const backlinkwriterconsolereport  = `
+const backlinkwriterconsolereport = `
 {{ if gt (len .FilesystemErrors) 0 }}
 {{ range .FilesystemErrors }}
 {{ end }}
@@ -184,12 +183,13 @@ Files with damaged links
 {{end}}
 {{ end }}
 `
+
 func (blw *backlinkWriter) _backlinkWriterReportWrite(w io.Writer, bws *BacklinkWritingStatus) error {
 	if _, err := blw.urlrp.tmpl.New("backlinkwriterconsolereport").Funcs(template.FuncMap{
-			"filetourl": func(path string) string {
-				return filetourl(blw.urlrp.settings.Wikidir, path)
-			},
-		}).Parse(backlinkwriterconsolereport); err != nil {
+		"filetourl": func(path string) string {
+			return filetourl(blw.urlrp.settings.Wikidir, path)
+		},
+	}).Parse(backlinkwriterconsolereport); err != nil {
 		return fmt.Errorf("can't prepare backlinkwriterconsolereport template%v", err)
 	}
 	return blw.urlrp.tmpl.ExecuteTemplate(w, "backlinkwriterconsolereport", bws)
@@ -202,10 +202,10 @@ func (blw *backlinkWriter) SummaryEncode(e *json.Encoder) error {
 		serrors = blw.linkUpdate()
 	}
 
-	bws :=  BacklinkWritingStatus{
-		Dryrun: dryrun,
-		FilesystemErrors: serrors,
-		FilesModified: make(map[string][]string),
+	bws := BacklinkWritingStatus{
+		Dryrun:                dryrun,
+		FilesystemErrors:      serrors,
+		FilesModified:         make(map[string][]string),
 		FilesWithDamagedLinks: blw.urlrp._urlReportGen(true, false),
 	}
 	return e.Encode(&bws)

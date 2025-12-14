@@ -2,12 +2,12 @@ package tidy
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
-	"io"
-	"encoding/json"
-	"net/http"
 
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/wiki"
@@ -18,7 +18,7 @@ type tagsDump struct {
 }
 
 func NewTagsDumper(settings *wiki.Settings, r *http.Request) (corpus.Tidying, error) {
-	tagrp , err := newTagsReporterImpl(settings)
+	tagrp, err := newTagsReporterImpl(settings)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (tr *tagsDump) writeTagList() error {
 }
 
 func (tagu *tagsDump) EachFile(path string, info os.FileInfo, err error) error {
-	return tagu.tagrp.EachFile(path , info , err )
+	return tagu.tagrp.EachFile(path, info, err)
 }
 func (tagu *tagsDump) SummaryWrite(w io.Writer) error {
 	dryrun := tagu.tagrp.settings.Dryrun

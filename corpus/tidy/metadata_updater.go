@@ -2,13 +2,13 @@ package tidy
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"encoding/json"
 
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus"
@@ -54,7 +54,7 @@ func (mup *metadataUpdater) updateAllMetadata() []string {
 	for _, v := range mup.mdrp.missingmd[article.MdLegacy] {
 		npth, err := mup.updateMetadata(v.Path)
 		if err != nil {
-// TODO(rjk): Be sure to record the faulting file to make sure that this is useful.
+			// TODO(rjk): Be sure to record the faulting file to make sure that this is useful.
 			allerrors = append(allerrors, fmt.Sprintf("updateMetadata %q: %v", npth, err))
 			continue
 		}
@@ -150,9 +150,9 @@ func (mup *metadataUpdater) SummaryEncode(e *json.Encoder) error {
 
 	dryrun := mup.mdrp.settings.Dryrun
 	if !dryrun {
-		 mubu.Errors = mup.updateAllMetadata()
+		mubu.Errors = mup.updateAllMetadata()
 	}
-	 return e.Encode(mubu)
+	return e.Encode(mubu)
 }
 
 func (mup *metadataUpdater) UpdateFiles(wm corpus.WindowManager) error {
@@ -160,7 +160,7 @@ func (mup *metadataUpdater) UpdateFiles(wm corpus.WindowManager) error {
 }
 
 type MetadataUpdaterOutputBundle struct {
-	Errors []string
+	Errors   []string
 	Articles []*articleReportEntry
 }
 
@@ -178,7 +178,7 @@ func (mup *metadataUpdater) SummaryWrite(w io.Writer) error {
 
 	dryrun := mup.mdrp.settings.Dryrun
 	if !dryrun {
-		 mubu.Errors = mup.updateAllMetadata()
+		mubu.Errors = mup.updateAllMetadata()
 	}
 
 	if mup.mdrp.settings.OutputType == wiki.OutputHTML {

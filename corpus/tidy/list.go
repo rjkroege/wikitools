@@ -4,18 +4,18 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
-	"html/template"
-	"net/http"
 
 	"github.com/rjkroege/wikitools/article"
-	"github.com/rjkroege/wikitools/wiki"
 	"github.com/rjkroege/wikitools/corpus"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 type FileRecord struct {
@@ -28,8 +28,8 @@ type FileRecord struct {
 type listAllWikiFiles struct {
 	Files    []FileRecord
 	settings *wiki.Settings
-	tmpl *template.Template
-	tags []string
+	tmpl     *template.Template
+	tags     []string
 }
 
 // extractPathValueTags pulls the named wildcard value from the request,
@@ -47,7 +47,7 @@ func NewListAllWikiFilesTidying(settings *wiki.Settings, r *http.Request) (corpu
 	tags := extractPathValueTags(r, "tags")
 	return &listAllWikiFiles{
 		settings: settings,
-		tags: tags,
+		tags:     tags,
 	}, nil
 }
 

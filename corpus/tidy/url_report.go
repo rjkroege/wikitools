@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 	"time"
-	"strings"
 
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus"
@@ -21,8 +21,8 @@ import (
 	// TODO(rjk): Support parsing math.
 	//	mathjax "github.com/litao91/goldmark-mathjax"
 	"github.com/rjkroege/wikitools/article/wikiextension"
-	"github.com/rjkroege/wikitools/corpus/search"
 	"github.com/rjkroege/wikitools/corpus/links"
+	"github.com/rjkroege/wikitools/corpus/search"
 	"go.abhg.dev/goldmark/wikilink"
 )
 
@@ -58,7 +58,7 @@ func NewUrlReporter(settings *wiki.Settings, r *http.Request) (corpus.Tidying, e
 }
 
 func onefileimpl(settings *wiki.Settings, links *links.Links, path string, info os.FileInfo, err error) error {
-log.Println(path)
+	log.Println(path)
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)
 		return fmt.Errorf("couldn't read %s: %v", path, err)
@@ -246,10 +246,10 @@ func filetourl(prefix, path string) string {
 
 func (abc *urlReport) _htmlUrlsSummaryWrite(w io.Writer, articles map[string][]string) error {
 	if _, err := abc.tmpl.New("urlhtmlreport").Funcs(template.FuncMap{
-			"filetourl": func(path string) string {
-				return filetourl(abc.settings.Wikidir, path)
-			},
-		}).Parse(urlhtmlreport); err != nil {
+		"filetourl": func(path string) string {
+			return filetourl(abc.settings.Wikidir, path)
+		},
+	}).Parse(urlhtmlreport); err != nil {
 		return fmt.Errorf("can't urlhtmlreport template%v", err)
 	}
 

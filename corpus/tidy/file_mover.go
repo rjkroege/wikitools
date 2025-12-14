@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"html/template"
 	"strings"
 
 	"github.com/rjkroege/wikitools/article"
@@ -17,21 +17,20 @@ import (
 	"github.com/rjkroege/wikitools/wiki"
 )
 
-
 type FileMove struct {
 	From string
-	To string
+	To   string
 }
 
 type fileMover struct {
-	moves []FileMove
-	settings           *wiki.Settings
+	moves    []FileMove
+	settings *wiki.Settings
 }
 
 func newFilemoverImpl(settings *wiki.Settings) *fileMover {
 	return &fileMover{
-		moves: make([]FileMove, 0),
-		settings:           settings,
+		moves:    make([]FileMove, 0),
+		settings: settings,
 	}
 }
 
@@ -104,7 +103,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 
 	destarticle := filepath.Join(fm.settings.Wikidir, destreldir, destname+destuniquing+destext)
 	if destarticle != abspath {
-		fm.moves = append(fm.moves, FileMove{ From: abspath, To: destarticle})
+		fm.moves = append(fm.moves, FileMove{From: abspath, To: destarticle})
 	}
 	return nil
 }
@@ -112,7 +111,7 @@ func (fm *fileMover) EachFile(path string, info os.FileInfo, err error) error {
 // TODO(rjk): Don't forget to update the index data here.
 func (fm *fileMover) moveFiles() []string {
 	dirs := make(map[string]struct{}, len(fm.moves))
-	errors := make([]string,0)
+	errors := make([]string, 0)
 	for _, v := range fm.moves {
 		dirs[filepath.Dir(v.From)] = struct{}{}
 		if err := wiki.SafeMoveFile(v.From, v.To); err != nil {
@@ -135,7 +134,6 @@ func (fm *fileMover) moveFiles() []string {
 	}
 	return errors
 }
-
 
 const movewikihtml = `
 <!doctype html>
@@ -204,17 +202,17 @@ const movewikihtml = `
 func (fm *fileMover) _htmlFileMotionReport(w io.Writer, results *Results) error {
 	// TODO(rjk): This needs to be cached for reuse.
 	// Central state tracking needs to happen.
-		tmpl, err := template.New("movewikihtml").Funcs(template.FuncMap{
-				"filetourl": func(path string) template.HTML {
-					return template.HTML(filetourl(fm.settings.Wikidir, path))
-				},
-				"trim":  func(path string) string {
-					return strings.TrimPrefix(path, fm.settings.Wikidir)
-				},
-			}).Parse(movewikihtml)
-		if  err != nil {
-			return fmt.Errorf("can't movewikihtml template%v", err)
-		}
+	tmpl, err := template.New("movewikihtml").Funcs(template.FuncMap{
+		"filetourl": func(path string) template.HTML {
+			return template.HTML(filetourl(fm.settings.Wikidir, path))
+		},
+		"trim": func(path string) string {
+			return strings.TrimPrefix(path, fm.settings.Wikidir)
+		},
+	}).Parse(movewikihtml)
+	if err != nil {
+		return fmt.Errorf("can't movewikihtml template%v", err)
+	}
 
 	return tmpl.ExecuteTemplate(w, "movewikihtml", results)
 }
@@ -231,7 +229,6 @@ Errors:
 {{end}}
 `
 
-
 func (fm *fileMover) SummaryWrite(w io.Writer) error {
 	// TODO(rjk): Dump the content here.
 	errors := []string{}
@@ -240,9 +237,9 @@ func (fm *fileMover) SummaryWrite(w io.Writer) error {
 	}
 
 	results := &Results{
-		Dryrun: fm.settings.Dryrun,
+		Dryrun:  fm.settings.Dryrun,
 		Actions: fm.moves,
-		Errors: errors,
+		Errors:  errors,
 	}
 
 	// TODO(rjk): need to plumb this nicely.
@@ -251,16 +248,15 @@ func (fm *fileMover) SummaryWrite(w io.Writer) error {
 		return fm._htmlFileMotionReport(w, results)
 	}
 
-
 	// TODO(rjk): Cache this properly.
 	t := template.Must(template.New("movementtmpl").Parse(movementtmpl))
 	return t.Execute(w, results)
 }
 
 type Results struct {
-	Dryrun bool
-	Actions  []FileMove
-	Errors []string
+	Dryrun  bool
+	Actions []FileMove
+	Errors  []string
 }
 
 func (fm *fileMover) SummaryEncode(e *json.Encoder) error {
@@ -270,9 +266,9 @@ func (fm *fileMover) SummaryEncode(e *json.Encoder) error {
 	}
 
 	results := &Results{
-		Dryrun: fm.settings.Dryrun,
+		Dryrun:  fm.settings.Dryrun,
 		Actions: fm.moves,
-		Errors: errors,
+		Errors:  errors,
 	}
 
 	return e.Encode(results)

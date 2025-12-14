@@ -11,7 +11,6 @@ import (
 	"github.com/rjkroege/wikitools/wiki"
 )
 
-
 func Test_onefileimpl(t *testing.T) {
 	wikiroot, err := filepath.Abs("../testdata")
 	if err != nil {
@@ -19,112 +18,101 @@ func Test_onefileimpl(t *testing.T) {
 	}
 	mapper := search.MakeWikilinkNameIndex(wikiroot)
 
-			settings := &wiki.Settings{
-				Wikidir: wikiroot,
-			}
-			lnks := links.MakeLinks(mapper, wikiroot)
+	settings := &wiki.Settings{
+		Wikidir: wikiroot,
+	}
+	lnks := links.MakeLinks(mapper, wikiroot)
 
 	tests := []struct {
-		name         string
-		fpath string
-		passedErr error
-		wantErr bool
-		wantOutUrls  []string
-		wantForward  []string
-		wantDamaged  []string
+		name        string
+		fpath       string
+		passedErr   error
+		wantErr     bool
+		wantOutUrls []string
+		wantForward []string
+		wantBack    []string
+		wantDamaged []string
 	}{
 		{
-			name:    "empty file",
-			fpath: "../testdata/wiki/unsorted/Saturday.md",
+			name:        "empty file",
+			fpath:       "../testdata/wiki/unsorted/Saturday.md",
 			wantOutUrls: []string{},
 			wantForward: []string{},
+			wantBack:    []string{},
 			wantDamaged: []string{},
 		},
-// TODO(rjk): test the pass through error case (should fire an error)
+		// TODO(rjk): test the pass through error case (should fire an error)
 		{
-			name: "file with external URL",
+			name:  "file with external URL",
 			fpath: "../testdata/wiki/2023/05-May/6/Saturday.md",
 			wantOutUrls: []string{
-"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md",
-"[link](https://example.com)",
-
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md",
+				"[link](https://example.com)",
 			},
 			wantForward: []string{},
+			wantBack:    []string{},
 			wantDamaged: []string{},
 		},
 		{
-			name: "file with multiple external URLs",
+			name:  "file with multiple external URLs",
 			fpath: "../testdata/wiki/unsorted/EveningJournal.md",
 			wantOutUrls: []string{
- "/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md",
-"[link](https://example.com)",
-"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/EveningJournal.md",
-"[Example](https://example.com)[Google](https://google.com)",
-
-},
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md",
+				"[link](https://example.com)",
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/EveningJournal.md",
+				"[Example](https://example.com)[Google](https://google.com)",
+			},
 			wantForward: []string{},
+			wantBack:    []string{},
 			wantDamaged: []string{},
 		},
-// 		{
-// 			name: "file with damaged wikilink",
-// 			content: `# Wikilink Test
-// 
-// Here is a [[nonexistent article]] wikilink.
-// `,
-// 			wantErr: false,
-// 			wantOutUrls: map[string]corpus.LinkMap[corpus.Urllink]{},
-// 			wantForward: map[string]corpus.LinkMap[corpus.Wikilink]{},
-// 			wantDamaged: map[string]corpus.LinkMap[corpus.Wikilink]{
-// 				"FILEPATH": {
-// 					corpus.MakeWikilink("nonexistent article.md", ""): {},
-// 				},
-// 			},
-// 		},
-// 		{
-// 			name: "file with metadata header",
-// 			content: `---
-// title: Test Article
-// tags: test
-// ---
-// 
-// # Test Article
-// 
-// Content with a [link](https://example.org).
-// `,
-// 			wantErr: false,
-// 			wantOutUrls: map[string]corpus.LinkMap[corpus.Urllink]{
-// 				"FILEPATH": {
-// 					corpus.MakeUrllink("https://example.org", "link"): {},
-// 				},
-// 			},
-// 			wantForward: map[string]corpus.LinkMap[corpus.Wikilink]{},
-// 			wantDamaged: map[string]corpus.LinkMap[corpus.Wikilink]{},
-// 		},
-// 		{
-// 			name: "file with mixed links",
-// 			content: `# Mixed Links
-// 
-// External: [Example](https://example.com)
-// Internal: [[some page]]
-// `,
-// 			wantErr: false,
-// 			wantOutUrls: map[string]corpus.LinkMap[corpus.Urllink]{
-// 				"FILEPATH": {
-// 					corpus.MakeUrllink("https://example.com", "Example"): {},
-// 				},
-// 			},
-// 			wantForward: map[string]corpus.LinkMap[corpus.Wikilink]{},
-// 			wantDamaged: map[string]corpus.LinkMap[corpus.Wikilink]{
-// 				"FILEPATH": {
-// 					corpus.MakeWikilink("some page.md", ""): {},
-// 				},
-// 			},
-// 		},
+		{
+			name:        "file with damaged wikilink",
+			fpath:       "../testdata/wiki/2023/02-Feb/28/Saturday.md",
+			wantForward: []string{},
+			wantBack:    []string{},
+			wantOutUrls: []string{
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md",
+				"[link](https://example.com)",
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/EveningJournal.md",
+				"[Example](https://example.com)[Google](https://google.com)",
+			},
+			wantDamaged: []string{
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/02-Feb/28/Saturday.md",
+				"[[nonexistentArticle]]",
+			},
+		},
+		{
+			name:  "file with internal links",
+			fpath: "../testdata/wiki/2023/10-Oct/1/PlottingTools.md",
+			wantOutUrls: []string{
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md",
+				"[link](https://example.com)",
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/EveningJournal.md",
+				"[Example](https://example.com)[Google](https://google.com)",
+			},
+			wantForward: []string{
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/10-Oct/1/PlottingTools.md",
+				"[[28/Saturday]][[EveningJournal]]",
+			},
+
+			wantBack: []string{
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/02-Feb/28/Saturday.md",
+				"[[10-Oct/1/PlottingTools.md]]",
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/EveningJournal.md",
+				"[[10-Oct/1/PlottingTools.md]]",
+			},
+
+			wantDamaged: []string{
+				"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/02-Feb/28/Saturday.md",
+				"[[nonexistentArticle]]",
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fpath, err := filepath.Abs( tt.fpath)
+			fpath, err := filepath.Abs(tt.fpath)
 			if err != nil {
 				t.Fatalf("can't abs %q: %v", tt.fpath, err)
 			}
@@ -150,13 +138,15 @@ func Test_onefileimpl(t *testing.T) {
 			if diff := cmp.Diff(tt.wantForward, links.StringVector(lnks.ForwardLinks)); diff != "" {
 				t.Errorf("ForwardLinks mismatch (-want +got):\n%s", diff)
 			}
+			if diff := cmp.Diff(tt.wantBack, links.StringVector(lnks.BackLinks)); diff != "" {
+				t.Errorf("BackLinks mismatch (-want +got):\n%s", diff)
+			}
 			if diff := cmp.Diff(tt.wantDamaged, links.StringVector(lnks.DamagedLinks)); diff != "" {
 				t.Errorf("DamagedLinks mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
 }
-
 
 func Test_onefileimpl_NonexistentFile(t *testing.T) {
 	tmpDir := t.TempDir()
@@ -170,6 +160,3 @@ func Test_onefileimpl_NonexistentFile(t *testing.T) {
 		t.Error("onefileimpl() should return error for nonexistent file")
 	}
 }
-
-
-	
