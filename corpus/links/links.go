@@ -34,7 +34,7 @@ type Links struct {
 }
 
 // Show that Linkminer is a UrlRecorder
-var _ corpus.UrlRecorder = (*Links)(nil)
+var _ corpus.LinkRecording = (*Links)(nil)
 
 // Only have one index.
 var (

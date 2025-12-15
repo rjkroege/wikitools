@@ -1,9 +1,9 @@
 package tidy
 
 import (
+	"fmt"
 	"html/template"
 	"io"
-	"fmt"
 
 	"log"
 )
@@ -61,13 +61,13 @@ func (tidy *listAllWikiFiles) _htmlSummaryWrite(w io.Writer) error {
 	// Temporary logging to demonstrate that feature is correct.
 	log.Println("_htmlSummaryWrite", tidy.tags)
 
-	if tidy.tmpl == nil { 
+	if tidy.tmpl == nil {
 		tmpl, err := template.New("articlelist").Funcs(template.FuncMap{
-				"filetourl": func(path string) template.HTML {
-					return template.HTML(filetourl(tidy.settings.Wikidir, path))
-				},
-			}).Parse(listallwikitmpl)
-		if  err != nil {
+			"filetourl": func(path string) template.HTML {
+				return template.HTML(filetourl(tidy.settings.Wikidir, path))
+			},
+		}).Parse(listallwikitmpl)
+		if err != nil {
 			return fmt.Errorf("can't listallwikitmpl template%v", err)
 		}
 		tidy.tmpl = tmpl

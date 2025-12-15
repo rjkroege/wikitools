@@ -65,7 +65,8 @@ func Filteredfiles() {
 
 // TODO(rjk): It's conceivable that this API could be better?
 // I had considered using the link structure but I think no.
-type UrlRecorder interface {
+// TODO(rjk): work tracked in [[IncrementalLinkDatabase]]
+type LinkRecording interface {
 	RecordUrl(displaytext, url, filepath string)
 	RecordWikilink(displaytext, wikitext, filepath string)
 }

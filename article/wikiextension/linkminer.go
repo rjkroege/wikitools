@@ -19,11 +19,11 @@ import (
 // NB: there is a separate Linkminer instance per file.
 type Linkminer struct {
 	settings *wiki.Settings
-	recorder corpus.UrlRecorder
+	recorder corpus.LinkRecording
 	fpath    string
 }
 
-func NewLinkminer(settings *wiki.Settings, recorder corpus.UrlRecorder, fpath string) *Linkminer {
+func NewLinkminer(settings *wiki.Settings, recorder corpus.LinkRecording, fpath string) *Linkminer {
 	return &Linkminer{
 		settings: settings,
 		recorder: recorder,
@@ -48,7 +48,7 @@ func (e *Linkminer) Extend(m goldmark.Markdown) {
 // TODO(rjk): Consider opportunities for code simplification
 type linkMinerASTTransformation struct {
 	settings *wiki.Settings
-	recorder corpus.UrlRecorder
+	recorder corpus.LinkRecording
 	fpath    string
 }
 
@@ -57,7 +57,7 @@ var _ parser.ASTTransformer = (*linkMinerASTTransformation)(nil)
 
 // NewLinkMinerASTTransformation returns a new parser.ASTTransformer that
 // can extract all of the Links found in a document.
-func NewLinkMinerASTTransformation(settings *wiki.Settings, recorder corpus.UrlRecorder, fpath string) parser.ASTTransformer {
+func NewLinkMinerASTTransformation(settings *wiki.Settings, recorder corpus.LinkRecording, fpath string) parser.ASTTransformer {
 	return &linkMinerASTTransformation{
 		settings: settings,
 		recorder: recorder,

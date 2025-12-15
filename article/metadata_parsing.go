@@ -37,7 +37,7 @@ func (md *MetaData) rootThroughFileForMetadataImpl(rd *bufio.Reader) error {
 			// MdModern is reserved for the situation where the title and tags have been
 			// modernized.
 			md.mdtype = MdUnterminatedIaWriterOrModern
-		case  lc == 0 && line != "---":
+		case lc == 0 && line != "---":
 			// We don't know yet what kind of metadata is present. But assume that
 			// the first line is the title if we don't have metadata.
 			// We might replace this below.
@@ -54,7 +54,7 @@ func (md *MetaData) rootThroughFileForMetadataImpl(rd *bufio.Reader) error {
 			md.mdtype = MdModern
 			processKeys(keys, md)
 			return nil
-		default:	
+		default:
 			handleLine(line, md, keys)
 		}
 		lc++
@@ -64,20 +64,20 @@ func (md *MetaData) rootThroughFileForMetadataImpl(rd *bufio.Reader) error {
 	return nil
 }
 
-func handleLine(line string, md *MetaData, keys map[string]string ) {
-			m1 := metadataMatcher.FindStringSubmatch(line)
-			if len(m1) > 0 {
-				k := strings.ToLower(m1[1])
-				v := strings.TrimSpace(m1[2])
-			
-				if _, ok := keys[k]; ok {
-					// Having duplicate keys is an error.
-					md.mdtype = MdInvalid
-				}
-				keys[k] = v
-			} else {
-				md.mdtype = MdInvalid
-			}
+func handleLine(line string, md *MetaData, keys map[string]string) {
+	m1 := metadataMatcher.FindStringSubmatch(line)
+	if len(m1) > 0 {
+		k := strings.ToLower(m1[1])
+		v := strings.TrimSpace(m1[2])
+
+		if _, ok := keys[k]; ok {
+			// Having duplicate keys is an error.
+			md.mdtype = MdInvalid
+		}
+		keys[k] = v
+	} else {
+		md.mdtype = MdInvalid
+	}
 }
 
 func processKeys(kvpairs map[string]string, md *MetaData) {
@@ -114,7 +114,7 @@ func processTags(tagstring string, md *MetaData) {
 	legacytag := false
 	badtag := false
 
-	tags := make([]string,0)
+	tags := make([]string, 0)
 
 	// A tag must start with # or @ and be at least 1 character long.
 	for _, u := range strings.Fields(tagstring) {
@@ -133,24 +133,24 @@ func processTags(tagstring string, md *MetaData) {
 
 	switch {
 	case md.mdtype == MdModern &&
-			moderntag == false &&
-			legacytag == false &&
-			badtag == false:
+		moderntag == false &&
+		legacytag == false &&
+		badtag == false:
 		md.mdtype = MdModern
 	case md.mdtype == MdModern &&
-			moderntag == true &&
-			legacytag == false &&
-			badtag == false:
+		moderntag == true &&
+		legacytag == false &&
+		badtag == false:
 		md.mdtype = MdModern
 	case md.mdtype == MdModern &&
-			legacytag == true &&
-			badtag == false:
+		legacytag == true &&
+		badtag == false:
 		md.mdtype = MdIaWriter
 	case md.mdtype == MdModern &&
-			badtag == true:
+		badtag == true:
 		md.mdtype = MdInvalid
 	case md.mdtype == MdLegacy &&
-			badtag == true:
+		badtag == true:
 		md.mdtype = MdInvalid
 	}
 }

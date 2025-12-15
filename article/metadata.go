@@ -20,10 +20,10 @@ func SetPathForContent(p string) {
 }
 
 const (
-	MdInvalid = iota	// No valid metadata in the file.
-	MdLegacy		// The original format: keys, terminal blank line
-	MdIaWriter		// The block at the top bracketed in --- lines with terminal blank
-	MdModern		// Block at the top, tags are empty or #jkjk
+	MdInvalid  = iota // No valid metadata in the file.
+	MdLegacy          // The original format: keys, terminal blank line
+	MdIaWriter        // The block at the top bracketed in --- lines with terminal blank
+	MdModern          // Block at the top, tags are empty or #jkjk
 	MdUnterminatedLegacy
 	MdUnterminatedIaWriterOrModern
 	MdUnterminatedModern

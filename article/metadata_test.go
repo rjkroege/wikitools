@@ -39,7 +39,7 @@ func Test_ExtraKeysString(t *testing.T) {
 	}
 
 	m = MetaData{"", never, never, "", "", MdInvalid, []string{}, map[string]string{"c": "d", "a": "b"}, ""}
-	if got, want := m.ExtraKeysString(), "a:b, c:d" ; got != want {
+	if got, want := m.ExtraKeysString(), "a:b, c:d"; got != want {
 		t.Errorf("got %s, want %s", got, want)
 	}
 }
@@ -58,46 +58,46 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 	date, _ := wiki.ParseDateUnix("2012/03/19 06:51:15")
 	var zerotime time.Time
 	testfiles := []rtfSR{
- 		{"Test_header_1", "Test_header_1", nil,
- 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{}, map[string]string{}, ""}},
-  		{"Test_header_1_dash", "Test_header_1_dash", nil,
- 			MetaData{"", realisticdate, date, "What I want", "", MdModern, []string{}, map[string]string{}, ""}},
- 		{"Test_header_2", "Test_header_2", nil,
- 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"}, map[string]string{}, ""}},
- 		{"Test_header_3", "Test_header_3", nil,
- 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"}, map[string]string{}, ""}},
- 		{"Test_header_4", "Test_header_4", nil,
+		{"Test_header_1", "Test_header_1", nil,
+			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{}, map[string]string{}, ""}},
+		{"Test_header_1_dash", "Test_header_1_dash", nil,
+			MetaData{"", realisticdate, date, "What I want", "", MdModern, []string{}, map[string]string{}, ""}},
+		{"Test_header_2", "Test_header_2", nil,
+			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"}, map[string]string{}, ""}},
+		{"Test_header_3", "Test_header_3", nil,
+			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"}, map[string]string{}, ""}},
+		{"Test_header_4", "Test_header_4", nil,
 			MetaData{"", realisticdate, never, "I need", "", MdInvalid, []string{}, map[string]string{}, ""}},
 		{"Test_header_5", "Test_header_5", nil,
 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"}, map[string]string{}, ""}},
- 		{"Test_header_6", "Test_header_6", nil,
- 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"},
- 				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
- 		{"Test_header_6_dash", "Test_header_6_dash", nil,
- 			MetaData{"", realisticdate, date, "What I want", "", MdIaWriter, []string{"journal"},
- 				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
-  		{"Test_header_7", "Test_header_7", nil,
- 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy,
-  				[]string{"journal", "fiddle"},
-  				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
- 		{"Test_header_8", "Test_header_8", nil,
- 			MetaData{"", realisticdate, date, "What I want", "", MdLegacy,
+		{"Test_header_6", "Test_header_6", nil,
+			MetaData{"", realisticdate, date, "What I want", "", MdLegacy, []string{"journal"},
+				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
+		{"Test_header_6_dash", "Test_header_6_dash", nil,
+			MetaData{"", realisticdate, date, "What I want", "", MdIaWriter, []string{"journal"},
+				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
+		{"Test_header_7", "Test_header_7", nil,
+			MetaData{"", realisticdate, date, "What I want", "", MdLegacy,
+				[]string{"journal", "fiddle"},
+				map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
+		{"Test_header_8", "Test_header_8", nil,
+			MetaData{"", realisticdate, date, "What I want", "", MdLegacy,
 				[]string{"journal", "hello", "bye"}, map[string]string{"tag": "empty", "plastic": "yes"}, ""}},
- 		{"Test_header_9", "Test_header_9", nil,
+		{"Test_header_9", "Test_header_9", nil,
 			MetaData{"", realisticdate, date, "Business Korea", "", MdLegacy,
- 				[]string{"book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
- 		{"Test_header_9_dash", "Test_header_9_dash", nil,
- 			MetaData{"", realisticdate, date, "Business Korea", "", MdIaWriter,
 				[]string{"book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
- 		{"Test_header_10_dash", "Test_header_10_dash", nil,
- 			MetaData{"", realisticdate, date, "Business Korea", "", MdIaWriter,
- 				[]string{"book", "business", "korea"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
+		{"Test_header_9_dash", "Test_header_9_dash", nil,
+			MetaData{"", realisticdate, date, "Business Korea", "", MdIaWriter,
+				[]string{"book"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
+		{"Test_header_10_dash", "Test_header_10_dash", nil,
+			MetaData{"", realisticdate, date, "Business Korea", "", MdIaWriter,
+				[]string{"book", "business", "korea"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
 		{"Test_header_11_dash", "Test_header_11_dash", nil,
- 			MetaData{"", realisticdate, date, "Business Korea", "", MdModern,
- 				[]string{"book", "business", "korea"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
- 
- 		{"Invalid_0", "Invalid_0", nil,
- 			MetaData{"", realisticdate, zerotime, "I need to figure out what I want. ", "", MdInvalid, []string{}, map[string]string{}, ""}},
+			MetaData{"", realisticdate, date, "Business Korea", "", MdModern,
+				[]string{"book", "business", "korea"}, map[string]string{"bib-bibkey": "kenna97", "bib-author": "Peggy Kenna and Sondra Lacy", "bib-title": "Business Korea", "bib-publisher": "Passport Books", "bib-year": "1997"}, ""}},
+
+		{"Invalid_0", "Invalid_0", nil,
+			MetaData{"", realisticdate, zerotime, "I need to figure out what I want. ", "", MdInvalid, []string{}, map[string]string{}, ""}},
 		{"Invalid_1", "Invalid_1", nil,
 			MetaData{"", realisticdate, zerotime, "", "", MdInvalid, []string{}, map[string]string{}, ""}},
 		{"Invalid_2", "Invalid_2", nil,
@@ -106,7 +106,6 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 			MetaData{"", realisticdate, zerotime, "", "", MdInvalid, []string{}, map[string]string{}, ""}},
 		{"Invalid_4", "Invalid_4", nil,
 			MetaData{"", realisticdate, zerotime, "", "", MdInvalid, []string{}, map[string]string{}, ""}},
-
 	}
 
 	for _, tu := range testfiles {
@@ -115,7 +114,6 @@ func Test_RootThroughFileForMetadata(t *testing.T) {
 		}
 
 		md := &MetaData{"", realisticdate, never, "", "", MdInvalid, []string{}, map[string]string{}, ""}
-
 
 		rd, err := os.Open(filepath.Join("../testdata", tu.in))
 		if err != nil {

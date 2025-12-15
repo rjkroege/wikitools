@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/wiki"
-	"github.com/google/go-cmp/cmp"
 )
 
 // Cover the following additional cases
@@ -49,11 +49,11 @@ func TestEachFile(t *testing.T) {
 	want := []FileMove{
 		{
 			From: filepath.Join(s.Wikidir, unnecessaryuniquingfilename),
-			To:  filepath.Join(s.Wikidir, "2022/11-Nov/29/Inversion-of-Control.md"),
+			To:   filepath.Join(s.Wikidir, "2022/11-Nov/29/Inversion-of-Control.md"),
 		},
 		{
 			From: filepath.Join(s.Wikidir, wrongplacefilename),
-			To:  filepath.Join(s.Wikidir, "2020/11-Nov/06/Session.md"),
+			To:   filepath.Join(s.Wikidir, "2020/11-Nov/06/Session.md"),
 		},
 	}
 

@@ -2,9 +2,9 @@ package corpus
 
 import (
 	"fmt"
+	"log"
 	"slices"
 	"strings"
-	"log"
 
 	"golang.org/x/exp/maps"
 )
@@ -65,16 +65,15 @@ func foo[E Link](t E) {
 	log.Println(t.Sortid())
 }
 
-
 // SortWikilinks sorts a slice of Wikilink structures by their Id field.
 func SortWikilinks[S ~[]E, E Link](links S) {
-	slices.SortFunc(links, func(a,b E) int {
+	slices.SortFunc(links, func(a, b E) int {
 		sa, sb := a.Sortid(), b.Sortid()
 		if sa < sb {
 			return -1
 		} else if sa > sb {
 			return 1
-		} 
+		}
 		return 0
 	})
 }
@@ -84,14 +83,14 @@ type WikilinkMap = LinkMap[Wikilink]
 type UrlMap = LinkMap[Urllink]
 
 func Stringify[T Link](links LinkMap[T]) string {
- 	keys := maps.Keys(links)
- 	SortWikilinks(keys)
+	keys := maps.Keys(links)
+	SortWikilinks(keys)
 
 	var b strings.Builder
- 	for _, k := range keys {
- 		b.WriteString(k.Markdown())
- 	}
- 	return b.String()
+	for _, k := range keys {
+		b.WriteString(k.Markdown())
+	}
+	return b.String()
 }
 
 func (wl Wikilink) Markdown() string {
@@ -103,30 +102,27 @@ func (wl Wikilink) Markdown() string {
 
 func (wl Wikilink) Html() string {
 	if wl.Title != "" {
-		return fmt.Sprintf("<a href=\"plumb://w/%s\">%s</a>",  wl.Id, wl.Title)
+		return fmt.Sprintf("<a href=\"plumb://w/%s\">%s</a>", wl.Id, wl.Title)
 	}
-	return fmt.Sprintf("<a href=\"plumb://w/%s\">%s</a>",  wl.Id, wl.Id)
+	return fmt.Sprintf("<a href=\"plumb://w/%s\">%s</a>", wl.Id, wl.Id)
 }
-
-
-
 
 // LinkToFile is implemented by objects that can return a unique or all file paths corresponding
 // to a given wikilink.
 type LinkToFile interface {
-// Returns a single unique path corresponding to the wikitext found in
-// file lsd limiting the search for target paths to files in location or
-// error if this is impossible.
+	// Returns a single unique path corresponding to the wikitext found in
+	// file lsd limiting the search for target paths to files in location or
+	// error if this is impossible.
 	Path(location, lsd, wikitext string) (string, error)
 
 	// Returns all (absolute) paths in the wiki that would match wikitext.
 	// TODO(rjk): Why is lsd here?
 	Allpaths(location, lsd, wikitext string) ([]string, error)
 
-// Wikitext returns a wikitext such that clicking on it in file frompath
-// will open file topath or an error if it was impossible to do so. In
-// particular: Path(wikiroot, frompath, Wikitext(frompath, topath)) ==
-// topath
+	// Wikitext returns a wikitext such that clicking on it in file frompath
+	// will open file topath or an error if it was impossible to do so. In
+	// particular: Path(wikiroot, frompath, Wikitext(frompath, topath)) ==
+	// topath
 	Wikitext(frompath, topath string) (string, error)
 }
 
@@ -157,9 +153,8 @@ func (ul Urllink) Markdown() string {
 }
 
 func (ul Urllink) Html() string {
-	return fmt.Sprintf("<a href=\"%s\">%s</a>",  ul.Url, ul.Title)
+	return fmt.Sprintf("<a href=\"%s\">%s</a>", ul.Url, ul.Title)
 }
 
 func (wl Wikilink) Sortid() string { return wl.Id }
 func (ul Urllink) Sortid() string  { return ul.Url }
-

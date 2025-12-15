@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/rjkroege/wikitools/actions"
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/corpus/tidy"
 	"github.com/rjkroege/wikitools/wiki"
-	"github.com/rjkroege/wikitools/actions"
 )
 
 // ---------- tiny helpers that pretend to do the real work --------------------
@@ -117,7 +117,6 @@ func figureoutoutputformat(r *http.Request) int {
 	return wiki.OutputCLI
 }
 
-
 func figureoutdryrun(r *http.Request) bool {
 	return r.URL.Query().Has("_dry")
 }
@@ -131,8 +130,8 @@ func tidywrap(settings *wiki.Settings, f TidyingPassFactory, watcher *actions.Ac
 		reqsettings.OutputType = figureoutoutputformat(r)
 		reqsettings.Dryrun = figureoutdryrun(r)
 		log.Printf("settings %v", reqsettings)
-		
-	log.Println(">>", watcher.Snapshot())
+
+		log.Println(">>", watcher.Snapshot())
 
 		tidying, err := f(&reqsettings, r)
 		if err != nil {
