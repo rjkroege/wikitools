@@ -1,12 +1,12 @@
 package links
 
 import (
-	"testing"
 	"path/filepath"
-	
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/corpus/search"
-	"github.com/google/go-cmp/cmp"
 )
 
 func fxpth(wikiroot, relpath string) string {
@@ -15,7 +15,7 @@ func fxpth(wikiroot, relpath string) string {
 
 // getMapper returns a mapper instance for testing.
 func getMapper(t *testing.T) corpus.LinkToFile {
-	
+
 	bp, err := filepath.Abs("../testdata")
 	if err != nil {
 		t.Fatalf("test can't run: %v", err)
@@ -27,7 +27,7 @@ func getMapper(t *testing.T) corpus.LinkToFile {
 func TestAddForwardUrl(t *testing.T) {
 	mapper := getMapper(t)
 	links := &Links{
-		mapper: mapper,
+		mapper:  mapper,
 		OutUrls: make(map[string]corpus.UrlMap),
 	}
 
@@ -92,8 +92,8 @@ func TestAddWikilink(t *testing.T) {
 		fpath       string
 
 		forwardlinks []string
-		backlinks []string
-		outurls []string
+		backlinks    []string
+		outurls      []string
 		damagedlinks []string
 	}{
 		{
@@ -102,9 +102,9 @@ func TestAddWikilink(t *testing.T) {
 			wikitext:    "16/Decisions.md",
 			fpath:       "../testdata/wiki/unsorted/Saturday.md",
 
-			forwardlinks: []string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/Saturday.md", "[[16/Decisions.md]]"},
-			backlinks: []string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/08-Aug/16/Decisions.md", "[[unsorted/Saturday.md]]"},
-			outurls: []string{},
+			forwardlinks: []string{fxpth(wikiroot, "../testdata/wiki/unsorted/Saturday.md"), "[[16/Decisions.md]]"},
+			backlinks:    []string{fxpth(wikiroot, "../testdata/wiki/2023/08-Aug/16/Decisions.md"), "[[unsorted/Saturday.md]]"},
+			outurls:      []string{},
 			damagedlinks: []string{},
 		},
 		{
@@ -113,10 +113,10 @@ func TestAddWikilink(t *testing.T) {
 			wikitext:    "16/Decisions.md",
 			fpath:       "../testdata/wiki/2023/05-May/6/Saturday.md",
 
-			forwardlinks: []string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md", "[[16/Decisions.md]]", "/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/Saturday.md", "[[16/Decisions.md]]"},
-			backlinks:[]string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/08-Aug/16/Decisions.md", "[[6/Saturday.md]][[unsorted/Saturday.md]]"},
-			outurls:[]string{},
-			damagedlinks:[]string{},
+			forwardlinks: []string{fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"), "[[16/Decisions.md]]", fxpth(wikiroot, "../testdata/wiki/unsorted/Saturday.md"), "[[16/Decisions.md]]"},
+			backlinks:    []string{fxpth(wikiroot, "../testdata/wiki/2023/08-Aug/16/Decisions.md"), "[[6/Saturday.md]][[unsorted/Saturday.md]]"},
+			outurls:      []string{},
+			damagedlinks: []string{},
 		},
 		{
 			name:        "Add failing wikilink",
@@ -124,27 +124,27 @@ func TestAddWikilink(t *testing.T) {
 			wikitext:    "Decisions.md",
 			fpath:       "../testdata/wiki/2023/05-May/6/Saturday.md",
 
-			forwardlinks: []string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md", "[[16/Decisions.md]]", "/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/Saturday.md", "[[16/Decisions.md]]"},
-			backlinks:[]string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/08-Aug/16/Decisions.md", "[[6/Saturday.md]][[unsorted/Saturday.md]]"},
-			outurls:[]string{},
-			damagedlinks:[]string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md", "[[Decisions.md]]"},
+			forwardlinks: []string{fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"), "[[16/Decisions.md]]", fxpth(wikiroot, "../testdata/wiki/unsorted/Saturday.md"), "[[16/Decisions.md]]"},
+			backlinks:    []string{fxpth(wikiroot, "../testdata/wiki/2023/08-Aug/16/Decisions.md"), "[[6/Saturday.md]][[unsorted/Saturday.md]]"},
+			outurls:      []string{},
+			damagedlinks: []string{fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"), "[[Decisions.md]]"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fpath, err := filepath.Abs( tt.fpath)
+			fpath, err := filepath.Abs(tt.fpath)
 			if err != nil {
 				t.Fatalf("can't abs %q: %v", tt.fpath, err)
 			}
-		
-			links.AddWikilink(tt.displaytext,tt.wikitext, fpath)
+
+			links.AddWikilink(tt.displaytext, tt.wikitext, fpath)
 
 			// Dump for diagnostics.
-// 			t.Logf("dump it links\nForwardLinks\n%s\nBackLinks\n%s\nDamagedLinks\n%s\n",
-// 				lstring(links.ForwardLinks),
-// 				lstring(links.BackLinks),
-// 				lstring(links.DamagedLinks))
+			// 			t.Logf("dump it links\nForwardLinks\n%s\nBackLinks\n%s\nDamagedLinks\n%s\n",
+			// 				lstring(links.ForwardLinks),
+			// 				lstring(links.BackLinks),
+			// 				lstring(links.DamagedLinks))
 
 			if diff := cmp.Diff(StringVector(links.ForwardLinks), tt.forwardlinks); diff != "" {
 				t.Errorf("ForwardLinks dump mismatch (-want +got):\n%s", diff)
