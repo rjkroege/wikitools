@@ -9,6 +9,10 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func fxpth(wikiroot, relpath string) string {
+	return filepath.Join(wikiroot, relpath)
+}
+
 // getMapper returns a mapper instance for testing.
 func getMapper(t *testing.T) corpus.LinkToFile {
 	
@@ -87,10 +91,10 @@ func TestAddWikilink(t *testing.T) {
 		wikitext    string
 		fpath       string
 
-		forwardlinks string
-		backlinks string
-		outurls string
-		damagedlinks string
+		forwardlinks []string
+		backlinks []string
+		outurls []string
+		damagedlinks []string
 	}{
 		{
 			name:        "Add new wikilink",
@@ -98,10 +102,10 @@ func TestAddWikilink(t *testing.T) {
 			wikitext:    "16/Decisions.md",
 			fpath:       "../testdata/wiki/unsorted/Saturday.md",
 
-			forwardlinks: "/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/Saturday.md: [[16/Decisions.md]]\n",
-			backlinks: "/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/08-Aug/16/Decisions.md: [[unsorted/Saturday.md]]\n",
-			outurls: "",
-			damagedlinks: "",
+			forwardlinks: []string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/Saturday.md", "[[16/Decisions.md]]"},
+			backlinks: []string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/08-Aug/16/Decisions.md", "[[unsorted/Saturday.md]]"},
+			outurls: []string{},
+			damagedlinks: []string{},
 		},
 		{
 			name:        "Add another wikilink",
@@ -109,10 +113,10 @@ func TestAddWikilink(t *testing.T) {
 			wikitext:    "16/Decisions.md",
 			fpath:       "../testdata/wiki/2023/05-May/6/Saturday.md",
 
-			forwardlinks: "/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md: [[16/Decisions.md]]\n/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/Saturday.md: [[16/Decisions.md]]\n",
-			backlinks:"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/08-Aug/16/Decisions.md: [[6/Saturday.md]][[unsorted/Saturday.md]]\n",
-			outurls:"",
-			damagedlinks:"",
+			forwardlinks: []string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md", "[[16/Decisions.md]]", "/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/Saturday.md", "[[16/Decisions.md]]"},
+			backlinks:[]string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/08-Aug/16/Decisions.md", "[[6/Saturday.md]][[unsorted/Saturday.md]]"},
+			outurls:[]string{},
+			damagedlinks:[]string{},
 		},
 		{
 			name:        "Add failing wikilink",
@@ -120,10 +124,10 @@ func TestAddWikilink(t *testing.T) {
 			wikitext:    "Decisions.md",
 			fpath:       "../testdata/wiki/2023/05-May/6/Saturday.md",
 
-			forwardlinks: "/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md: [[16/Decisions.md]]\n/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/Saturday.md: [[16/Decisions.md]]\n",
-			backlinks:"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/08-Aug/16/Decisions.md: [[6/Saturday.md]][[unsorted/Saturday.md]]\n",
-			outurls:"",
-			damagedlinks:"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md: [[Decisions.md]]\n",
+			forwardlinks: []string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md", "[[16/Decisions.md]]", "/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/unsorted/Saturday.md", "[[16/Decisions.md]]"},
+			backlinks:[]string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/08-Aug/16/Decisions.md", "[[6/Saturday.md]][[unsorted/Saturday.md]]"},
+			outurls:[]string{},
+			damagedlinks:[]string{"/Users/rjkroege/tools/wikitools/corpus/testdata/wiki/2023/05-May/6/Saturday.md", "[[Decisions.md]]"},
 		},
 	}
 
@@ -142,13 +146,13 @@ func TestAddWikilink(t *testing.T) {
 // 				lstring(links.BackLinks),
 // 				lstring(links.DamagedLinks))
 
-			if diff := cmp.Diff(lstring(links.ForwardLinks), tt.forwardlinks); diff != "" {
+			if diff := cmp.Diff(StringVector(links.ForwardLinks), tt.forwardlinks); diff != "" {
 				t.Errorf("ForwardLinks dump mismatch (-want +got):\n%s", diff)
 			}
-			if diff := cmp.Diff(lstring(links.BackLinks), tt.backlinks); diff != "" {
+			if diff := cmp.Diff(StringVector(links.BackLinks), tt.backlinks); diff != "" {
 				t.Errorf("BackLinks dump mismatch (-want +got):\n%s", diff)
 			}
-			if diff := cmp.Diff(lstring(links.DamagedLinks), tt.damagedlinks); diff != "" {
+			if diff := cmp.Diff(StringVector(links.DamagedLinks), tt.damagedlinks); diff != "" {
 				t.Errorf("DamagedLinks dump mismatch (-want +got):\n%s", diff)
 			}
 		})
