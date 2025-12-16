@@ -59,7 +59,7 @@ func TestAddForwardUrl(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			links.AddForwardUrl(tt.displaytext, tt.url, tt.fpath)
+			links.addForwardUrl(tt.displaytext, tt.url, tt.fpath)
 
 			// Check if the URL was added to the correct file's OutUrls
 			if _, ok := links.OutUrls[tt.fpath]; !ok {
