@@ -71,15 +71,7 @@ func MakeLinks(mapper corpus.LinkToFile, location string) *Links {
 func (links *Links) addWikilink(wlref corpus.Wikilink, fpath string) {
 	// urlref := corpus.MakeWikilink(wikitext, displaytext)
 
-	// Here I fix the links to have the correct extension.
-	// TODO(rjk): Adjust in the future as needed to support different
-	// extensions.
-	wikitext := wlref.Id
-	if filepath.Ext(wikitext) == "" {
-		wikitext = wikitext + ".md"
-	}
-
-	destpath, err := links.mapper.Path(links.location, filepath.Dir(fpath), wikitext)
+	destpath, err := links.mapper.Path(links.location, filepath.Dir(fpath), wlref.Id)
 	if err != nil {
 		perfilemap, ok := links.DamagedLinks[fpath]
 		if ok {
@@ -149,7 +141,6 @@ func (lr *linkRecording) RecordWikilink(displaytext, wikitext string) {
 	lr.wikis = append(lr.wikis, wikiref)
 }
 
-
 // This code must run on the thread that owns the links database.
 // Serializes the updates.
 func (lr *linkRecording) commitOnLinksOwner() {
@@ -201,3 +192,13 @@ func (links *Links) StartRecordingForFile(filepath string) corpus.LinkRecording 
 
 // Show that Linkminer is a LinksRecorder
 var _ corpus.LinkRecording = (*linkRecording)(nil)
+
+func (links *Links) remove(filepath string) {
+	// for every forward-link
+	//	find the file
+	//	go to that file and remove its backlink to me
+	fwlinks := links.ForwardLinks[filepath]
+	for k, _ := range fwlinks {
+		log.Println(k) // should be a wikilink object?
+	}
+}

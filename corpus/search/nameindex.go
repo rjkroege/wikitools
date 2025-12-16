@@ -23,6 +23,12 @@ var _ corpus.LinkToFile = (*wikilinkIndexerimpl)(nil)
 // file in directory lsd, limiting search to files found recursively in location or
 // error when impossible.
 func (spix *wikilinkIndexerimpl) Path(location, lsd, wikitext string) (string, error) {
+	// TODO(rjk): Adjust in the future as needed to support different
+	// extensions.
+	if filepath.Ext(wikitext) == "" {
+		wikitext = wikitext + ".md"
+	}
+
 	basepart := filepath.Base(wikitext)
 	if basepart == "" {
 		return "", EmptyWikitextFile

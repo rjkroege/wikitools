@@ -20,10 +20,6 @@ func PlumberHelper(settings *wiki.Settings, lsd, wikitext string) {
 	// TODO(rjk): Consider renaming this later.
 	mapper := search.MakeWikilinkNameIndex(settings.Wikidir)
 
-	if filepath.Ext(wikitext) == "" {
-		wikitext = wikitext + ".md"
-	}
-
 	fp, err := mapper.Path(settings.Wikidir, lsd, wikitext)
 	if err != nil {
 		log.Printf("indexer.Path errored on %q: %v", wikitext, err)
