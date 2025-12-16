@@ -68,7 +68,7 @@ func MakeLinks(mapper corpus.LinkToFile, location string) *Links {
 // Path(wikitext) and Path(wikitext) points to fpath in the link table.
 // This function is called for each link found in fpath by the Markdown
 // parser.
-func (links *Links) AddWikilink(displaytext, wikitext, fpath string) {
+func (links *Links) addWikilink(displaytext, wikitext, fpath string) {
 	urlref := corpus.MakeWikilink(wikitext, displaytext)
 
 	// Here I fix the links to have the correct extension.
@@ -143,7 +143,7 @@ func (lr *linkRecording) RecordUrl(displaytext, url string) {
 // TODO(rjk): The API will change for concurrent access.
 func (lr *linkRecording) RecordWikilink(displaytext, wikitext string) {
 	log.Println("RecordWikilink", displaytext, wikitext, lr.filepath)
-	lr.links.AddWikilink(displaytext, wikitext, lr.filepath)
+	lr.links.addWikilink(displaytext, wikitext, lr.filepath)
 }
 
 // TODO(rjk): Currently a nop. This will change.
@@ -166,18 +166,18 @@ func StringVector[T corpus.Link](linkmap map[string]corpus.LinkMap[T]) []string 
 
 type linkRecording struct {
 	filepath string
-	links *Links
-	urls []corpus.Urllink
-	wikis []corpus.Wikilink
+	links    *Links
+	urls     []corpus.Urllink
+	wikis    []corpus.Wikilink
 }
 
 func (links *Links) StartRecordingForFile(filepath string) corpus.LinkRecording {
 	// TODO(rjk): Insert "remove filepath" here so that updates work.
 	return &linkRecording{
 		filepath: filepath,
-		links: links,
-		urls: []corpus.Urllink{},
-		wikis: []corpus.Wikilink{},
+		links:    links,
+		urls:     []corpus.Urllink{},
+		wikis:    []corpus.Wikilink{},
 	}
 }
 
