@@ -123,9 +123,7 @@ func (links *Links) addWikilink(wlref corpus.Wikilink, fpath string) {
 
 // addForwardUrl adds a URLs leaving the node. There is no node for them
 // to point to so the destination URL is nil.
-func (links *Links) addForwardUrl(displaytext, url, fpath string) {
-	urlref := corpus.MakeUrllink(url, displaytext)
-
+func (links *Links) addForwardUrl(urlref corpus.Urllink, fpath string) {
 	perfilemap, ok := links.OutUrls[fpath]
 	if ok {
 		perfilemap[urlref] = empty{}
@@ -138,7 +136,8 @@ func (links *Links) addForwardUrl(displaytext, url, fpath string) {
 
 // TODO(rjk): The API surface will change to concurrent access.
 func (lr *linkRecording) RecordUrl(displaytext, url string) {
-	lr.links.addForwardUrl(displaytext, url, lr.filepath)
+	urlref := corpus.MakeUrllink(url, displaytext)
+	lr.links.addForwardUrl(urlref, lr.filepath)
 }
 
 // TODO(rjk): The API will change for concurrent access.
