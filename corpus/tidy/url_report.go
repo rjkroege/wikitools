@@ -89,6 +89,9 @@ func onefileimpl(settings *wiki.Settings, links *links.Links, path string, info 
 		return fmt.Errorf("urlReport can't read the markdown file %s: %v", path, err)
 	}
 
+	// Start recording.
+	recorder := links.StartRecordingForFile(path)
+
 	// TODO(rjk): Add an extension that can record all of the links that have been
 	// seen.
 	// MathJax seems to make a sad
@@ -97,7 +100,7 @@ func onefileimpl(settings *wiki.Settings, links *links.Links, path string, info 
 			extension.GFM,
 			extension.DefinitionList,
 			//			mathjax.MathJax,
-			wikiextension.NewLinkminer(settings, links, path),
+			wikiextension.NewLinkminer(settings, recorder),
 			// TODO(rjk): Figure out what kind of resolver that I need to write.
 			&wikilink.Extender{},
 		),
@@ -106,6 +109,9 @@ func onefileimpl(settings *wiki.Settings, links *links.Links, path string, info 
 	if err := mkp.Convert(markdowntext, io.Discard); err != nil {
 		log.Printf("couldn't process and discard %q: %v", path, err)
 	}
+
+	// Commit the link records.
+	recorder.Commit()
 
 	return nil
 }

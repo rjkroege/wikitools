@@ -20,14 +20,12 @@ import (
 type Linkminer struct {
 	settings *wiki.Settings
 	recorder corpus.LinkRecording
-	fpath    string
 }
 
-func NewLinkminer(settings *wiki.Settings, recorder corpus.LinkRecording, fpath string) *Linkminer {
+func NewLinkminer(settings *wiki.Settings, recorder corpus.LinkRecording) *Linkminer {
 	return &Linkminer{
 		settings: settings,
 		recorder: recorder,
-		fpath:    fpath,
 	}
 }
 
@@ -38,7 +36,7 @@ func (e *Linkminer) Extend(m goldmark.Markdown) {
 	m.Parser().AddOptions(
 		parser.WithASTTransformers(
 			// I don't understand how to correctly set priorties in goldmark's extensions.
-			util.Prioritized(NewLinkMinerASTTransformation(e.settings, e.recorder, e.fpath), 999),
+			util.Prioritized(NewLinkMinerASTTransformation(e.settings, e.recorder), 999),
 		),
 	)
 }
@@ -49,7 +47,6 @@ func (e *Linkminer) Extend(m goldmark.Markdown) {
 type linkMinerASTTransformation struct {
 	settings *wiki.Settings
 	recorder corpus.LinkRecording
-	fpath    string
 }
 
 // Show that linkMinerASTTransformation is a goldmark.ASTTransformer
@@ -57,11 +54,10 @@ var _ parser.ASTTransformer = (*linkMinerASTTransformation)(nil)
 
 // NewLinkMinerASTTransformation returns a new parser.ASTTransformer that
 // can extract all of the Links found in a document.
-func NewLinkMinerASTTransformation(settings *wiki.Settings, recorder corpus.LinkRecording, fpath string) parser.ASTTransformer {
+func NewLinkMinerASTTransformation(settings *wiki.Settings, recorder corpus.LinkRecording) parser.ASTTransformer {
 	return &linkMinerASTTransformation{
 		settings: settings,
 		recorder: recorder,
-		fpath:    fpath,
 	}
 }
 
@@ -83,9 +79,9 @@ func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.
 			// WikiLinks are perhaps more complicated. They can also have a location.
 			// Some additional processing might be needed here.
 			if a.settings.Debugmarkdownparsing {
-				log.Printf("WikiLink Node %q %q %q", string(link.Target), string(link.Fragment), a.fpath)
+				log.Printf("WikiLink Node %q %q", string(link.Target), string(link.Fragment))
 			}
-			a.recorder.RecordWikilink(string(link.Fragment), string(link.Target), a.fpath)
+			a.recorder.RecordWikilink(string(link.Fragment), string(link.Target))
 		}
 
 		if n.Kind() == gast.KindLink && !entering {
@@ -109,7 +105,7 @@ func (a *linkMinerASTTransformation) Transform(node *gast.Document, reader text.
 			if title == "" {
 				title = string(n.Text(reader.Source()))
 			}
-			a.recorder.RecordUrl(title, dest, a.fpath)
+			a.recorder.RecordUrl(title, dest)
 		}
 		return gast.WalkContinue, nil
 	})

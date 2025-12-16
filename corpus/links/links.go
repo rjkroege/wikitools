@@ -33,8 +33,8 @@ type Links struct {
 	location string
 }
 
-// Show that Linkminer is a UrlRecorder
-var _ corpus.LinkRecording = (*Links)(nil)
+// Show that Linkminer is a LinksRecorder
+var _ corpus.LinksRecorder = (*Links)(nil)
 
 // Only have one index.
 var (
@@ -135,15 +135,20 @@ func (links *Links) AddForwardUrl(displaytext, url, fpath string) {
 	}
 }
 
-// TODO(rjk): The presence of this forwarder suggests that I might want
-// to change the UrlRecorder interface?
-func (links *Links) RecordUrl(displaytext, url, filepath string) {
-	links.AddForwardUrl(displaytext, url, filepath)
+// TODO(rjk): The API surface will change to concurrent access.
+func (lr *linkRecording) RecordUrl(displaytext, url string) {
+	lr.links.AddForwardUrl(displaytext, url, lr.filepath)
 }
 
-func (links *Links) RecordWikilink(displaytext, wikitext, fpath string) {
-	log.Println("RecordWikilink", displaytext, wikitext, fpath)
-	links.AddWikilink(displaytext, wikitext, fpath)
+// TODO(rjk): The API will change for concurrent access.
+func (lr *linkRecording) RecordWikilink(displaytext, wikitext string) {
+	log.Println("RecordWikilink", displaytext, wikitext, lr.filepath)
+	lr.links.AddWikilink(displaytext, wikitext, lr.filepath)
+}
+
+// TODO(rjk): Currently a nop. This will change.
+func (lr *linkRecording) Commit() {
+	log.Println("Commit")
 }
 
 func StringVector[T corpus.Link](linkmap map[string]corpus.LinkMap[T]) []string {
@@ -158,3 +163,23 @@ func StringVector[T corpus.Link](linkmap map[string]corpus.LinkMap[T]) []string 
 
 	return result
 }
+
+type linkRecording struct {
+	filepath string
+	links *Links
+	urls []corpus.Urllink
+	wikis []corpus.Wikilink
+}
+
+func (links *Links) StartRecordingForFile(filepath string) corpus.LinkRecording {
+	// TODO(rjk): Insert "remove filepath" here so that updates work.
+	return &linkRecording{
+		filepath: filepath,
+		links: links,
+		urls: []corpus.Urllink{},
+		wikis: []corpus.Wikilink{},
+	}
+}
+
+// Show that Linkminer is a LinksRecorder
+var _ corpus.LinkRecording = (*linkRecording)(nil)

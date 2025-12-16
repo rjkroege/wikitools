@@ -67,6 +67,11 @@ func Filteredfiles() {
 // I had considered using the link structure but I think no.
 // TODO(rjk): work tracked in [[IncrementalLinkDatabase]]
 type LinkRecording interface {
-	RecordUrl(displaytext, url, filepath string)
-	RecordWikilink(displaytext, wikitext, filepath string)
+	RecordUrl(displaytext, url string)
+	RecordWikilink(displaytext, wikitext string)
+	Commit()
+}
+
+type LinksRecorder interface {
+	StartRecordingForFile(filepath string) LinkRecording
 }

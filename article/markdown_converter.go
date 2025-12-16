@@ -15,7 +15,7 @@ func NewDefaultMarkdownConverter(settings *wiki.Settings) goldmark.Markdown {
 		goldmark.WithExtensions(
 			extension.GFM,
 			extension.DefinitionList,
-			wikiextension.NewLinkminer(settings, nil, ""),
+			wikiextension.NewLinkminer(settings, nil),
 			mathjax.MathJax,
 		),
 		goldmark.WithRendererOptions(
