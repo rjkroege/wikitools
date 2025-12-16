@@ -135,21 +135,39 @@ func (links *Links) addForwardUrl(urlref corpus.Urllink, fpath string) {
 }
 
 // TODO(rjk): The API surface will change to concurrent access.
+// This code runs on an arbitrary thread.
 func (lr *linkRecording) RecordUrl(displaytext, url string) {
 	urlref := corpus.MakeUrllink(url, displaytext)
-	lr.links.addForwardUrl(urlref, lr.filepath)
+	lr.urls = append(lr.urls, urlref)
 }
 
 // TODO(rjk): The API will change for concurrent access.
+// This code runs on an arbitrary thread.
 func (lr *linkRecording) RecordWikilink(displaytext, wikitext string) {
 	log.Println("RecordWikilink", displaytext, wikitext, lr.filepath)
 	wikiref := corpus.MakeWikilink(wikitext, displaytext)
-	lr.links.addWikilink(wikiref, lr.filepath)
+	lr.wikis = append(lr.wikis, wikiref)
 }
 
-// TODO(rjk): Currently a nop. This will change.
+
+// This code must run on the thread that owns the links database.
+// Serializes the updates.
+func (lr *linkRecording) commitOnLinksOwner() {
+	// TODO(rjk): Insert "remove filepath" here so that updates work.
+	// the remover and add code needs to happen on the code that is
+	// within the links database owning goroutine
+	for _, url := range lr.urls {
+		lr.links.addForwardUrl(url, lr.filepath)
+	}
+	for _, wikiref := range lr.wikis {
+		lr.links.addWikilink(wikiref, lr.filepath)
+	}
+}
+
+// Run this on an arbitrary go routine.
 func (lr *linkRecording) Commit() {
 	log.Println("Commit")
+	lr.commitOnLinksOwner()
 }
 
 func StringVector[T corpus.Link](linkmap map[string]corpus.LinkMap[T]) []string {
@@ -173,7 +191,6 @@ type linkRecording struct {
 }
 
 func (links *Links) StartRecordingForFile(filepath string) corpus.LinkRecording {
-	// TODO(rjk): Insert "remove filepath" here so that updates work.
 	return &linkRecording{
 		filepath: filepath,
 		links:    links,
