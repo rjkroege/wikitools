@@ -137,8 +137,9 @@ func TestAddWikilink(t *testing.T) {
 			if err != nil {
 				t.Fatalf("can't abs %q: %v", tt.fpath, err)
 			}
-
-			links.addWikilink(tt.displaytext, tt.wikitext, fpath)
+			
+			wr := corpus.MakeWikilink(tt.wikitext, tt.displaytext)
+			links.addWikilink(wr , fpath)
 
 			// Dump for diagnostics.
 			// 			t.Logf("dump it links\nForwardLinks\n%s\nBackLinks\n%s\nDamagedLinks\n%s\n",

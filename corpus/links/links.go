@@ -68,12 +68,13 @@ func MakeLinks(mapper corpus.LinkToFile, location string) *Links {
 // Path(wikitext) and Path(wikitext) points to fpath in the link table.
 // This function is called for each link found in fpath by the Markdown
 // parser.
-func (links *Links) addWikilink(displaytext, wikitext, fpath string) {
-	urlref := corpus.MakeWikilink(wikitext, displaytext)
+func (links *Links) addWikilink(wlref corpus.Wikilink, fpath string) {
+	// urlref := corpus.MakeWikilink(wikitext, displaytext)
 
 	// Here I fix the links to have the correct extension.
 	// TODO(rjk): Adjust in the future as needed to support different
 	// extensions.
+	wikitext := wlref.Id
 	if filepath.Ext(wikitext) == "" {
 		wikitext = wikitext + ".md"
 	}
@@ -82,10 +83,10 @@ func (links *Links) addWikilink(displaytext, wikitext, fpath string) {
 	if err != nil {
 		perfilemap, ok := links.DamagedLinks[fpath]
 		if ok {
-			perfilemap[urlref] = empty{}
+			perfilemap[wlref] = empty{}
 		} else {
 			perfilemap = make(corpus.WikilinkMap)
-			perfilemap[urlref] = empty{}
+			perfilemap[wlref] = empty{}
 			links.DamagedLinks[fpath] = perfilemap
 		}
 		return
@@ -93,10 +94,10 @@ func (links *Links) addWikilink(displaytext, wikitext, fpath string) {
 
 	perfilemap, ok := links.ForwardLinks[fpath]
 	if ok {
-		perfilemap[urlref] = empty{}
+		perfilemap[wlref] = empty{}
 	} else {
 		perfilemap = make(corpus.WikilinkMap)
-		perfilemap[urlref] = empty{}
+		perfilemap[wlref] = empty{}
 		links.ForwardLinks[fpath] = perfilemap
 	}
 
@@ -143,7 +144,8 @@ func (lr *linkRecording) RecordUrl(displaytext, url string) {
 // TODO(rjk): The API will change for concurrent access.
 func (lr *linkRecording) RecordWikilink(displaytext, wikitext string) {
 	log.Println("RecordWikilink", displaytext, wikitext, lr.filepath)
-	lr.links.addWikilink(displaytext, wikitext, lr.filepath)
+	wikiref := corpus.MakeWikilink(wikitext, displaytext)
+	lr.links.addWikilink(wikiref, lr.filepath)
 }
 
 // TODO(rjk): Currently a nop. This will change.
