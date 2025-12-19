@@ -11,17 +11,37 @@ import (
 	"github.com/rjkroege/wikitools/wiki"
 )
 
-func fxpth(wikiroot, relpath string) string {
+func fxonepath(wikiroot, relpath string) string {
 	return filepath.Join(wikiroot, relpath)
 }
 
-func Test_onefileimpl(t *testing.T) {
-	wikiroot, err := filepath.Abs("../testdata")
-	if err != nil {
-		t.Fatalf("test can't run: %v", err)
-	}
-	mapper := search.MakeWikilinkNameIndex(wikiroot)
+func tempReplicate(t testing.TB, srcDir string) string {
+	t.Helper()
 
+	tmp := t.TempDir() // automatically removed when test ends
+
+	if err := ReplicateDir(srcDir, tmp); err != nil {
+		t.Fatalf("TempReplicate(%q) failed: %v", srcDir, err)
+	}
+	return tmp
+}
+
+func mapby2(s []string, fn func(string) string) []string {
+	for i := 0; i < len(s); i += 2 {
+		s[i] = fn(s[i])
+	}
+	return s
+}
+
+func fxpth(paths []string, wikiroot string) []string {
+	return mapby2(paths, func(s string) string {
+		return fxonepath(wikiroot, s)
+	})
+}
+
+func Test_onefileimpl(t *testing.T) {
+	wikiroot := tempReplicate(t, "../testdata")
+	mapper := search.MakeWikilinkNameIndex(wikiroot)
 	settings := &wiki.Settings{
 		Wikidir: wikiroot,
 	}
@@ -38,8 +58,8 @@ func Test_onefileimpl(t *testing.T) {
 		wantDamaged []string
 	}{
 		{
-			name:        "empty file",
-			fpath:       "../testdata/wiki/unsorted/Saturday.md",
+			name:        "empty_file",
+			fpath:       "wiki/unsorted/Saturday.md",
 			wantOutUrls: []string{},
 			wantForward: []string{},
 			wantBack:    []string{},
@@ -47,10 +67,10 @@ func Test_onefileimpl(t *testing.T) {
 		},
 		// TODO(rjk): test the pass through error case (should fire an error)
 		{
-			name:  "file with external URL",
-			fpath: "../testdata/wiki/2023/05-May/6/Saturday.md",
+			name:  "file_with_external_URL",
+			fpath: "wiki/2023/05-May/6/Saturday.md",
 			wantOutUrls: []string{
-				fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"),
+				"wiki/2023/05-May/6/Saturday.md",
 				"[link](https://example.com)",
 			},
 			wantForward: []string{},
@@ -58,12 +78,12 @@ func Test_onefileimpl(t *testing.T) {
 			wantDamaged: []string{},
 		},
 		{
-			name:  "file with multiple external URLs",
-			fpath: "../testdata/wiki/unsorted/EveningJournal.md",
+			name:  "file_with_multiple_external_URLs",
+			fpath: "wiki/unsorted/EveningJournal.md",
 			wantOutUrls: []string{
-				fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"),
+				"wiki/2023/05-May/6/Saturday.md",
 				"[link](https://example.com)",
-				fxpth(wikiroot, "../testdata/wiki/unsorted/EveningJournal.md"),
+				"wiki/unsorted/EveningJournal.md",
 				"[Example](https://example.com)[Google](https://google.com)",
 			},
 			wantForward: []string{},
@@ -71,44 +91,44 @@ func Test_onefileimpl(t *testing.T) {
 			wantDamaged: []string{},
 		},
 		{
-			name:        "file with damaged wikilink",
-			fpath:       "../testdata/wiki/2023/02-Feb/28/Saturday.md",
+			name:        "file_with_damaged_wikilink",
+			fpath:       "wiki/2023/02-Feb/28/Saturday.md",
 			wantForward: []string{},
 			wantBack:    []string{},
 			wantOutUrls: []string{
-				fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"),
+				"wiki/2023/05-May/6/Saturday.md",
 				"[link](https://example.com)",
-				fxpth(wikiroot, "../testdata/wiki/unsorted/EveningJournal.md"),
+				"wiki/unsorted/EveningJournal.md",
 				"[Example](https://example.com)[Google](https://google.com)",
 			},
 			wantDamaged: []string{
-				fxpth(wikiroot, "../testdata/wiki/2023/02-Feb/28/Saturday.md"),
+				"wiki/2023/02-Feb/28/Saturday.md",
 				"[[nonexistentArticle]]",
 			},
 		},
 		{
-			name:  "file with internal links",
-			fpath: "../testdata/wiki/2023/10-Oct/1/PlottingTools.md",
+			name:  "file_with_internal_links",
+			fpath: "wiki/2023/10-Oct/1/PlottingTools.md",
 			wantOutUrls: []string{
-				fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"),
+				"wiki/2023/05-May/6/Saturday.md",
 				"[link](https://example.com)",
-				fxpth(wikiroot, "../testdata/wiki/unsorted/EveningJournal.md"),
+				"wiki/unsorted/EveningJournal.md",
 				"[Example](https://example.com)[Google](https://google.com)",
 			},
 			wantForward: []string{
-				fxpth(wikiroot, "../testdata/wiki/2023/10-Oct/1/PlottingTools.md"),
+				"wiki/2023/10-Oct/1/PlottingTools.md",
 				"[[28/Saturday]][[EveningJournal]]",
 			},
 
 			wantBack: []string{
-				fxpth(wikiroot, "../testdata/wiki/2023/02-Feb/28/Saturday.md"),
+				"wiki/2023/02-Feb/28/Saturday.md",
 				"[[10-Oct/1/PlottingTools.md]]",
-				fxpth(wikiroot, "../testdata/wiki/unsorted/EveningJournal.md"),
+				"wiki/unsorted/EveningJournal.md",
 				"[[10-Oct/1/PlottingTools.md]]",
 			},
 
 			wantDamaged: []string{
-				fxpth(wikiroot, "../testdata/wiki/2023/02-Feb/28/Saturday.md"),
+				"wiki/2023/02-Feb/28/Saturday.md",
 				"[[nonexistentArticle]]",
 			},
 		},
@@ -116,15 +136,14 @@ func Test_onefileimpl(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fpath, err := filepath.Abs(tt.fpath)
-			if err != nil {
-				t.Fatalf("can't abs %q: %v", tt.fpath, err)
-			}
-
+ 
+t.Logf("wikiroot: %q", wikiroot)
+			fpath := filepath.Join(wikiroot, tt.fpath)
 			info, err := os.Stat(fpath)
 			if err != nil {
 				t.Fatalf("couldn't stat %q just made: %v", fpath, err)
 			}
+t.Logf("fpath: %q", fpath)
 
 			err = onefileimpl(settings, lnks, fpath, info, tt.passedErr)
 			if err != nil && !tt.wantErr {
@@ -136,16 +155,16 @@ func Test_onefileimpl(t *testing.T) {
 				return
 			}
 
-			if diff := cmp.Diff(tt.wantOutUrls, links.StringVector(lnks.OutUrls)); diff != "" {
+			if diff := cmp.Diff(fxpth(tt.wantOutUrls,wikiroot), links.StringVector(lnks.OutUrls)); diff != "" {
 				t.Errorf("OutUrls mismatch (-want +got):\n%s", diff)
 			}
-			if diff := cmp.Diff(tt.wantForward, links.StringVector(lnks.ForwardLinks)); diff != "" {
+			if diff := cmp.Diff(fxpth(tt.wantForward,wikiroot), links.StringVector(lnks.ForwardLinks)); diff != "" {
 				t.Errorf("ForwardLinks mismatch (-want +got):\n%s", diff)
 			}
-			if diff := cmp.Diff(tt.wantBack, links.StringVector(lnks.BackLinks)); diff != "" {
+			if diff := cmp.Diff(fxpth(tt.wantBack,wikiroot), links.StringVector(lnks.BackLinks)); diff != "" {
 				t.Errorf("BackLinks mismatch (-want +got):\n%s", diff)
 			}
-			if diff := cmp.Diff(tt.wantDamaged, links.StringVector(lnks.DamagedLinks)); diff != "" {
+			if diff := cmp.Diff(fxpth(tt.wantDamaged,wikiroot), links.StringVector(lnks.DamagedLinks)); diff != "" {
 				t.Errorf("DamagedLinks mismatch (-want +got):\n%s", diff)
 			}
 		})
