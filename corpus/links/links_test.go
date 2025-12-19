@@ -91,6 +91,7 @@ func TestAddWikilink(t *testing.T) {
 		displaytext string
 		wikitext    string
 		fpath       string
+		removeinstead bool
 
 		forwardlinks []string
 		backlinks    []string
@@ -125,8 +126,23 @@ func TestAddWikilink(t *testing.T) {
 			wikitext:    "Decisions.md",
 			fpath:       "../testdata/wiki/2023/05-May/6/Saturday.md",
 
-			forwardlinks: []string{fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"), "[[16/Decisions.md]]", fxpth(wikiroot, "../testdata/wiki/unsorted/Saturday.md"), "[[16/Decisions.md]]"},
+			forwardlinks: []string{
+				fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"), "[[16/Decisions.md]]",
+				fxpth(wikiroot, "../testdata/wiki/unsorted/Saturday.md"), "[[16/Decisions.md]]"},
 			backlinks:    []string{fxpth(wikiroot, "../testdata/wiki/2023/08-Aug/16/Decisions.md"), "[[6/Saturday.md]][[unsorted/Saturday.md]]"},
+			outurls:      []string{},
+			damagedlinks: []string{fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"), "[[Decisions.md]]"},
+		},
+		{
+			name:        "Remove a wikilink",
+			displaytext: "",
+			fpath:       "../testdata/wiki/unsorted/Saturday.md",
+			removeinstead: true,
+			forwardlinks: []string{
+				fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"), "[[16/Decisions.md]]",
+			},
+			backlinks:    []string{
+				fxpth(wikiroot, "../testdata/wiki/2023/08-Aug/16/Decisions.md"), "[[6/Saturday.md]]"},
 			outurls:      []string{},
 			damagedlinks: []string{fxpth(wikiroot, "../testdata/wiki/2023/05-May/6/Saturday.md"), "[[Decisions.md]]"},
 		},
@@ -139,14 +155,18 @@ func TestAddWikilink(t *testing.T) {
 				t.Fatalf("can't abs %q: %v", tt.fpath, err)
 			}
 			
-			wr := corpus.MakeWikilink(tt.wikitext, tt.displaytext)
-			links.addWikilink(wr , fpath)
+			if tt.removeinstead {
+				links.remove(fpath)
+			} else {
+				wr := corpus.MakeWikilink(tt.wikitext, tt.displaytext)
+				links.addWikilink(wr , fpath)
+			}
 
 			// Dump for diagnostics.
-			// 			t.Logf("dump it links\nForwardLinks\n%s\nBackLinks\n%s\nDamagedLinks\n%s\n",
-			// 				lstring(links.ForwardLinks),
-			// 				lstring(links.BackLinks),
-			// 				lstring(links.DamagedLinks))
+			 			t.Logf("dump it links\nForwardLinks\n%s\nBackLinks\n%s\nDamagedLinks\n%s\n",
+							StringVector(links.ForwardLinks),
+							StringVector(links.BackLinks),
+			 				StringVector(links.DamagedLinks))
 
 			if diff := cmp.Diff(StringVector(links.ForwardLinks), tt.forwardlinks); diff != "" {
 				t.Errorf("ForwardLinks dump mismatch (-want +got):\n%s", diff)
@@ -160,3 +180,4 @@ func TestAddWikilink(t *testing.T) {
 		})
 	}
 }
+

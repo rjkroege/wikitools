@@ -144,9 +144,7 @@ func (lr *linkRecording) RecordWikilink(displaytext, wikitext string) {
 // This code must run on the thread that owns the links database.
 // Serializes the updates.
 func (lr *linkRecording) commitOnLinksOwner() {
-	// TODO(rjk): Insert "remove filepath" here so that updates work.
-	// the remover and add code needs to happen on the code that is
-	// within the links database owning goroutine
+	lr.links.remove(lr.filepath)
 	for _, url := range lr.urls {
 		lr.links.addForwardUrl(url, lr.filepath)
 	}
@@ -193,12 +191,25 @@ func (links *Links) StartRecordingForFile(filepath string) corpus.LinkRecording 
 // Show that Linkminer is a LinksRecorder
 var _ corpus.LinkRecording = (*linkRecording)(nil)
 
-func (links *Links) remove(filepath string) {
-	// for every forward-link
-	//	find the file
-	//	go to that file and remove its backlink to me
-	fwlinks := links.ForwardLinks[filepath]
+func (links *Links) remove(fpath string) {
+	fwlinks := links.ForwardLinks[fpath]
 	for k, _ := range fwlinks {
-		log.Println(k) // should be a wikilink object?
+		destpath, err := links.mapper.Path(links.location, filepath.Dir(fpath), k.Id)
+		if err != nil {
+			// In theory, this should never happen (perhaps if a file was removed?)
+			log.Printf("the destination file of wikilink %v would seem to be missing: %v", k, err)
+			continue
+		}
+
+		backtext, err := links.mapper.Wikitext(destpath, fpath)
+		if err != nil {
+			log.Printf("links.mapper.Wikitext from %q to %q failed: %v", fpath, destpath, err)
+			continue
+		}
+		backref := corpus.MakeWikilink(backtext, "")
+		delete(links.BackLinks[destpath], backref)
 	}
+
+	delete(links.DamagedLinks,fpath)
+	delete(links.ForwardLinks,fpath)
 }
