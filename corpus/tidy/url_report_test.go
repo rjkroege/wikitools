@@ -136,14 +136,11 @@ func Test_onefileimpl(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
- 
-t.Logf("wikiroot: %q", wikiroot)
-			fpath := filepath.Join(wikiroot, tt.fpath)
+ 			fpath := filepath.Join(wikiroot, tt.fpath)
 			info, err := os.Stat(fpath)
 			if err != nil {
 				t.Fatalf("couldn't stat %q just made: %v", fpath, err)
 			}
-t.Logf("fpath: %q", fpath)
 
 			err = onefileimpl(settings, lnks, fpath, info, tt.passedErr)
 			if err != nil && !tt.wantErr {
@@ -169,7 +166,103 @@ t.Logf("fpath: %q", fpath)
 			}
 		})
 	}
+
+
+	// Now, alter a file
+	writepath := filepath.Join(wikiroot, "wiki/2023/10-Oct/1/PlottingTools.md") 
+	if err := os.WriteFile(writepath, []byte(newplottools), 0666); err != nil {
+		t.Fatalf("can't write %q: %v", writepath, err)
+	}
+	
+	tests = []struct {
+		name        string
+		fpath       string
+		passedErr   error
+		wantErr     bool
+		wantOutUrls []string
+		wantForward []string
+		wantBack    []string
+		wantDamaged []string
+	}{
+		{
+			name:  "file_with_internal_links",
+			fpath: "wiki/2023/10-Oct/1/PlottingTools.md",
+			wantOutUrls: []string{
+				"wiki/2023/05-May/6/Saturday.md",
+				"[link](https://example.com)",
+				"wiki/unsorted/EveningJournal.md",
+				"[Example](https://example.com)[Google](https://google.com)",
+			},
+			wantForward: []string{
+				"wiki/2023/10-Oct/1/PlottingTools.md",
+				"[[28/Saturday]]",
+			},
+
+			wantBack: []string{
+				"wiki/2023/02-Feb/28/Saturday.md",
+				"[[10-Oct/1/PlottingTools.md]]",
+				"wiki/unsorted/EveningJournal.md",
+				"",
+			},
+
+			wantDamaged: []string{
+				"wiki/2023/02-Feb/28/Saturday.md",
+				"[[nonexistentArticle]]",
+				"wiki/2023/10-Oct/1/PlottingTools.md",
+				"[[Monday]][[missingfilehere]]",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+ 			fpath := filepath.Join(wikiroot, tt.fpath)
+			info, err := os.Stat(fpath)
+			if err != nil {
+				t.Fatalf("couldn't stat %q just made: %v", fpath, err)
+			}
+
+			err = onefileimpl(settings, lnks, fpath, info, tt.passedErr)
+			if err != nil && !tt.wantErr {
+				t.Errorf("onefileimpl() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr && err == nil {
+				t.Errorf("onefileimpl() failed to err when expected")
+				return
+			}
+
+			if diff := cmp.Diff(fxpth(tt.wantOutUrls,wikiroot), links.StringVector(lnks.OutUrls)); diff != "" {
+				t.Errorf("OutUrls mismatch (-want +got):\n%s", diff)
+			}
+			if diff := cmp.Diff(fxpth(tt.wantForward,wikiroot), links.StringVector(lnks.ForwardLinks)); diff != "" {
+				t.Errorf("ForwardLinks mismatch (-want +got):\n%s", diff)
+			}
+			if diff := cmp.Diff(fxpth(tt.wantBack,wikiroot), links.StringVector(lnks.BackLinks)); diff != "" {
+				t.Logf("BackLinks %v", lnks.BackLinks)
+				t.Errorf("BackLinks mismatch (-want +got):\n%s", diff)
+			}
+			if diff := cmp.Diff(fxpth(tt.wantDamaged,wikiroot), links.StringVector(lnks.DamagedLinks)); diff != "" {
+				t.Errorf("DamagedLinks mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
 }
+
+var newplottools = `---
+title: PlottingTools
+date: Wed  4 Feb 2009, 11:29:00 EST
+tags: #graphics
+---
+
+# Mixed Links
+
+- [[28/Saturday]]
+- [[missingfilehere]]
+- [[Monday]]
+
+`
+
 
 func Test_onefileimpl_NonexistentFile(t *testing.T) {
 	tmpDir := t.TempDir()
