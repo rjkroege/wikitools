@@ -1,7 +1,7 @@
  package wiki
 
-// LinkToFile is implemented by objects that can return a unique or all file paths corresponding
-// to a given wikilink.
+// LinkToFile is implemented by objects that can return a unique or all
+// file paths corresponding to a given wikilink.
 type LinkToFile interface {
 	// Returns a single unique path corresponding to the wikitext found in
 	// file lsd limiting the search for target paths to files in location or
@@ -17,4 +17,7 @@ type LinkToFile interface {
 	// particular: Path(wikiroot, frompath, Wikitext(frompath, topath)) ==
 	// topath
 	Wikitext(frompath, topath string) (string, error)
+
+	// Close shuts down the implementation.
+	Close()
 }

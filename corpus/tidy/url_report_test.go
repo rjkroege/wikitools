@@ -44,6 +44,7 @@ func Test_onefileimpl(t *testing.T) {
 	mapper := search.MakeWikilinkNameIndex(wikiroot)
 	settings := &wiki.Settings{
 		Wikidir: wikiroot,
+		Mapper: mapper,
 	}
 	lnks := links.MakeLinks(mapper, wikiroot)
 
@@ -266,10 +267,12 @@ tags: #graphics
 
 func Test_onefileimpl_NonexistentFile(t *testing.T) {
 	tmpDir := t.TempDir()
+	mapper := search.MakeWikilinkNameIndex(tmpDir)
+	lnks := links.MakeLinks(mapper, tmpDir)
 	settings := &wiki.Settings{
 		Wikidir: tmpDir,
+		Mapper: mapper,
 	}
-	lnks := links.MakeLinks(search.MakeWikilinkNameIndex(tmpDir), tmpDir)
 
 	err := onefileimpl(settings, lnks, filepath.Join(tmpDir, "nonexistent.md"), nil, nil)
 	if err == nil {

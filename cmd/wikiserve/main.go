@@ -237,7 +237,8 @@ func main() {
 		// proceed with reasonable defaults.
 		log.Fatal("No configuration file. Fatal:", err)
 	}
-	mapper := search.MakeWikilinkNameIndex(settings.Wikidir)
+	mapper := search.NewChannelIndexer(settings.Wikidir)
+	defer mapper.Close()
 	settings.Mapper = mapper
 
 	watcher := actions.NewAcmeWatcher(settings.Wikidir)

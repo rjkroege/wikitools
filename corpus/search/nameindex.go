@@ -19,6 +19,8 @@ type wikilinkIndexerimpl struct {
 
 var _ wiki.LinkToFile = (*wikilinkIndexerimpl)(nil)
 
+func (spix *wikilinkIndexerimpl) Close() {}
+
 // Returns a single unique path corresponding to the wikitext found in a
 // file in directory lsd, limiting search to files found recursively in location or
 // error when impossible.
@@ -88,17 +90,17 @@ func splitPathParts(dir string) []string {
 }
 
 // Only have one index.
-var (
-	instance *wikilinkIndexerimpl
-	once     sync.Once
-)
+ var (
+instance *wikilinkIndexerimpl
+   once     sync.Once
+ )
 
-func MakeWikilinkNameIndex(wikiroot string) *wikilinkIndexerimpl {
-	once.Do(func() {
-		instance = implMakeWikilinkNameIndex(wikiroot)
-	})
-	return instance
-}
+ func MakeWikilinkNameIndex(wikiroot string) *wikilinkIndexerimpl {
+     once.Do(func() {
+        instance = implMakeWikilinkNameIndex(wikiroot)
+   })
+  return instance
+ }
 
 // indexOneFile adds a single file to the index.
 func indexOneFile(index map[string][][]unique.Handle[string], path string, d os.DirEntry, err error) error {

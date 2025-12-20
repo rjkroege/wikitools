@@ -23,7 +23,7 @@ func TestPathsforwikitext(t *testing.T) {
 		t.Fatalf("test can't run: %v", err)
 	}
 
-	spix := MakeWikilinkNameIndex(bp)
+	spix := implMakeWikilinkNameIndex(bp)
 
 	for _, tc := range tests {
 		got, err := spix.pathsforwikitext(filepath.Join(bp, tc.input_location), tc.input_wikitextfile)
@@ -93,7 +93,7 @@ func TestWikitext(t *testing.T) {
 	}
 	wikiroot := filepath.Join(bp, "wiki")
 
-	spix := MakeWikilinkNameIndex(bp)
+	spix := implMakeWikilinkNameIndex(bp)
 
 	tests := []WikitextTestCase{
 		{
@@ -147,6 +147,7 @@ func TestWikitext(t *testing.T) {
 
 		want := tc.want
 		if diff := cmp.Diff(want, got); diff != "" {
+			t.Logf("frompath: %q topath: %q", tc.frompath, tc.topath)
 			t.Errorf("Wikitext mismatch (-want +got):\n%s", diff)
 			continue
 		}
