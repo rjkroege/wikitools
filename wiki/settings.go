@@ -27,6 +27,7 @@ type Settings struct {
 	Debugmarkdownparsing bool
 	OutputType           int
 	Dryrun               bool
+	Mapper LinkToFile
 }
 
 // Read opens a json format configuration file.

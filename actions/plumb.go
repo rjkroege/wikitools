@@ -9,16 +9,12 @@ import (
 
 	"9fans.net/go/acme"
 	"github.com/rjkroege/wikitools/article"
-	"github.com/rjkroege/wikitools/corpus/search"
 	"github.com/rjkroege/wikitools/wiki"
 )
 
 func PlumberHelper(settings *wiki.Settings, lsd, wikitext string) {
 	log.Println("PlumberHelper", wikitext)
-
-	// Remember that on darwin that we are running in a secondary Go routine.
-	// TODO(rjk): Consider renaming this later.
-	mapper := search.MakeWikilinkNameIndex(settings.Wikidir)
+	mapper := settings.Mapper
 
 	fp, err := mapper.Path(settings.Wikidir, lsd, wikitext)
 	if err != nil {

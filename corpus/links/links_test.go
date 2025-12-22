@@ -7,6 +7,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/corpus/search"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 func fxpth(wikiroot, relpath string) string {
@@ -14,7 +15,7 @@ func fxpth(wikiroot, relpath string) string {
 }
 
 // getMapper returns a mapper instance for testing.
-func getMapper(t *testing.T) corpus.LinkToFile {
+func getMapper(t *testing.T) wiki.LinkToFile {
 
 	bp, err := filepath.Abs("../testdata")
 	if err != nil {

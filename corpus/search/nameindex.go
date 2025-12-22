@@ -9,7 +9,7 @@ import (
 	"sync"
 	"unique"
 
-	"github.com/rjkroege/wikitools/corpus"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 type wikilinkIndexerimpl struct {
@@ -17,7 +17,7 @@ type wikilinkIndexerimpl struct {
 	index    map[string][][]unique.Handle[string]
 }
 
-var _ corpus.LinkToFile = (*wikilinkIndexerimpl)(nil)
+var _ wiki.LinkToFile = (*wikilinkIndexerimpl)(nil)
 
 // Returns a single unique path corresponding to the wikitext found in a
 // file in directory lsd, limiting search to files found recursively in location or

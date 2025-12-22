@@ -22,7 +22,6 @@ import (
 	//	mathjax "github.com/litao91/goldmark-mathjax"
 	"github.com/rjkroege/wikitools/article/wikiextension"
 	"github.com/rjkroege/wikitools/corpus/links"
-	"github.com/rjkroege/wikitools/corpus/search"
 	"go.abhg.dev/goldmark/wikilink"
 )
 
@@ -44,7 +43,7 @@ func newUrlReporterImpl(settings *wiki.Settings) (*urlReport, error) {
 	}
 	return &urlReport{
 		settings: settings,
-		links:    links.MakeLinks(search.MakeWikilinkNameIndex(settings.Wikidir), settings.Wikidir),
+		links:    links.MakeLinks(settings.Mapper, settings.Wikidir),
 		tmpl:     tmpl,
 	}, nil
 }

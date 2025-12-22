@@ -7,6 +7,7 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/rjkroege/wikitools/actions"
 	"github.com/rjkroege/wikitools/corpus"
+	"github.com/rjkroege/wikitools/corpus/search"
 	"github.com/rjkroege/wikitools/corpus/tidy"
 	"github.com/rjkroege/wikitools/wiki"
 )
@@ -80,6 +81,8 @@ func main() {
 }
 
 func _main(ctx *kong.Context, settings *wiki.Settings) {
+	mapper := search.MakeWikilinkNameIndex(settings.Wikidir)
+	settings.Mapper = mapper
 
 	switch ctx.Command() {
 	case "new <tagsandtitle>":

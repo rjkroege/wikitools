@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"golang.org/x/exp/maps"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 // TODO(rjk): overview I am working towards a system where I get
@@ -107,29 +108,10 @@ func (wl Wikilink) Html() string {
 	return fmt.Sprintf("<a href=\"plumb://w/%s\">%s</a>", wl.Id, wl.Id)
 }
 
-// LinkToFile is implemented by objects that can return a unique or all file paths corresponding
-// to a given wikilink.
-type LinkToFile interface {
-	// Returns a single unique path corresponding to the wikitext found in
-	// file lsd limiting the search for target paths to files in location or
-	// error if this is impossible.
-	Path(location, lsd, wikitext string) (string, error)
-
-	// Returns all (absolute) paths in the wiki that would match wikitext.
-	// TODO(rjk): Why is lsd here?
-	Allpaths(location, lsd, wikitext string) ([]string, error)
-
-	// Wikitext returns a wikitext such that clicking on it in file frompath
-	// will open file topath or an error if it was impossible to do so. In
-	// particular: Path(wikiroot, frompath, Wikitext(frompath, topath)) ==
-	// topath
-	Wikitext(frompath, topath string) (string, error)
-}
-
 // Allpaths returns all (absolute) paths of files in the wiki that could
 // be referred to by [[wl.Id]] by using a provided index.
 // TODO(rjk): Check if this is working.
-func (wl Wikilink) Allpaths(index LinkToFile) ([]string, error) {
+func (wl Wikilink) Allpaths(index wiki.LinkToFile) ([]string, error) {
 	return index.Allpaths("", "", wl.Id)
 }
 

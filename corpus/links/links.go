@@ -8,6 +8,7 @@ import (
 
 	"github.com/rjkroege/wikitools/corpus"
 	"golang.org/x/exp/maps"
+	"github.com/rjkroege/wikitools/wiki"
 )
 
 type empty = struct{}
@@ -27,7 +28,7 @@ type Links struct {
 	DamagedLinks map[string]corpus.LinkMap[corpus.Wikilink]
 
 	// mapper instance takes a wikitext link to its corresponding filename.
-	mapper corpus.LinkToFile
+	mapper wiki.LinkToFile
 
 	// location is the root of the wiki tree
 	location string
@@ -45,7 +46,7 @@ var (
 // ImplMakeLinks is exposed publically only to make it easier to run tests.
 // Real code should only use the future concurrent version.
 // TODO(rjk): Clean this up carefully when I convert this code to be concurrent safe.
-func implMakeLinks(mapper corpus.LinkToFile, location string) *Links {
+func implMakeLinks(mapper wiki.LinkToFile, location string) *Links {
 	return &Links{
 		ForwardLinks: make(map[string]corpus.WikilinkMap),
 		BackLinks:    make(map[string]corpus.WikilinkMap),
@@ -56,7 +57,7 @@ func implMakeLinks(mapper corpus.LinkToFile, location string) *Links {
 	}
 }
 
-func MakeLinks(mapper corpus.LinkToFile, location string) *Links {
+func MakeLinks(mapper wiki.LinkToFile, location string) *Links {
 	once.Do(func() {
 		instance = implMakeLinks(mapper, location)
 	})

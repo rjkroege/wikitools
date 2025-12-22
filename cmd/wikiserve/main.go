@@ -10,6 +10,7 @@ import (
 
 	"github.com/rjkroege/wikitools/actions"
 	"github.com/rjkroege/wikitools/corpus"
+	"github.com/rjkroege/wikitools/corpus/search"
 	"github.com/rjkroege/wikitools/corpus/tidy"
 	"github.com/rjkroege/wikitools/wiki"
 )
@@ -236,6 +237,8 @@ func main() {
 		// proceed with reasonable defaults.
 		log.Fatal("No configuration file. Fatal:", err)
 	}
+	mapper := search.MakeWikilinkNameIndex(settings.Wikidir)
+	settings.Mapper = mapper
 
 	watcher := actions.NewAcmeWatcher(settings.Wikidir)
 
