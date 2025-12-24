@@ -135,17 +135,17 @@ type CompleteUrlReportDocument struct {
 func (abc *urlReport) _urlReportGen(damagedonly bool, html bool) map[string][]string {
 	articles := make(map[string][]string)
 
-	zipperLinks(html, abc.links.DamagedLinks, articles)
+	AppendStringVector(html, abc.links.DamagedLinks, articles)
 	if damagedonly {
 		return articles
 	}
-	zipperLinks(html, abc.links.OutUrls, articles)
-	zipperLinks(html, abc.links.ForwardLinks, articles)
+	AppendStringVector(html, abc.links.OutUrls, articles)
+	AppendStringVector(html, abc.links.ForwardLinks, articles)
 
 	return articles
 }
 
-func zipperLinks[T corpus.Link](html bool, linkies map[string]corpus.LinkMap[T], articles map[string][]string) {
+func AppendStringVector[T corpus.Link](html bool, linkies map[string]corpus.LinkMap[T], articles map[string][]string) {
 	for k, v := range linkies {
 		for u := range v {
 			if html {

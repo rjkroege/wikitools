@@ -83,7 +83,7 @@ func (blw *backlinkWriter) SummaryWrite(w io.Writer) error {
 	if blw.urlrp.settings.OutputType == wiki.OutputHTML {
 		// Perhaps a bit of a fib. This returns the files *that will be written* which
 		// is larger than the files that *need to be written*.
-		zipperLinks(true, blw.urlrp.links.BackLinks, bws.FilesModified)
+		AppendStringVector(true, blw.urlrp.links.BackLinks, bws.FilesModified)
 		bws.FilesWithDamagedLinks = blw.urlrp._urlReportGen(true, true)
 		return blw._backlinkWriterHtmlReportWrite(w, &bws)
 	}
