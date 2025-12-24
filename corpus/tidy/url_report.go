@@ -136,9 +136,9 @@ func (abc *urlReport) _urlReportGen(damagedonly bool, html bool) map[string][]st
 	articles := make(map[string][]string)
 
 	if html {
-		AppendStringVector(func(l corpus.Wikilink) string { return l.Html() }, abc.links.DamagedLinks, articles)
+		links.AppendStringVector(func(l corpus.Wikilink) string { return l.Html() }, abc.links.DamagedLinks, articles)
 	} else {
-		AppendStringVector(func(l corpus.Wikilink) string { return l.Markdown() }, abc.links.DamagedLinks, articles)
+		links.AppendStringVector(func(l corpus.Wikilink) string { return l.Markdown() }, abc.links.DamagedLinks, articles)
 	}
 
 
@@ -147,22 +147,14 @@ func (abc *urlReport) _urlReportGen(damagedonly bool, html bool) map[string][]st
 	}
 
 	if html {
-		AppendStringVector(func(l corpus.Urllink) string { return l.Html() }, abc.links.OutUrls, articles)
-		AppendStringVector(func(l corpus.Wikilink) string { return l.Html() }, abc.links.ForwardLinks, articles)
+		links.AppendStringVector(func(l corpus.Urllink) string { return l.Html() }, abc.links.OutUrls, articles)
+		links.AppendStringVector(func(l corpus.Wikilink) string { return l.Html() }, abc.links.ForwardLinks, articles)
 	} else {
-		AppendStringVector(func(l corpus.Urllink) string { return l.Markdown() }, abc.links.OutUrls, articles)
-		AppendStringVector(func(l corpus.Wikilink) string { return l.Markdown() }, abc.links.ForwardLinks, articles)
+		links.AppendStringVector(func(l corpus.Urllink) string { return l.Markdown() }, abc.links.OutUrls, articles)
+		links.AppendStringVector(func(l corpus.Wikilink) string { return l.Markdown() }, abc.links.ForwardLinks, articles)
 	}
 
 	return articles
-}
-
-func AppendStringVector[T corpus.Link](f func(T) string, linkies map[string]corpus.LinkMap[T], articles map[string][]string) {
-	for k, v := range linkies {
-		for u := range v {
-			articles[k] = append(articles[k], f(u))
-		}
-	}
 }
 
 // TODO(rjk): Above, I blithered about how to refactor this to share the
