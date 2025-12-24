@@ -74,4 +74,8 @@ type LinkRecording interface {
 
 type LinksRecorder interface {
 	StartRecordingForFile(filepath string) LinkRecording
+	AppendStringVectorForwardLinks(f func(Wikilink) string, articles map[string][]string)
+	AppendStringVectorBackLinks(f func(Wikilink) string, articles map[string][]string)
+	AppendStringVectorOutUrls(f func(Urllink) string, articles map[string][]string)
+	AppendStringVectorDamagedLinks(f func(Wikilink) string, articles map[string][]string)
 }
