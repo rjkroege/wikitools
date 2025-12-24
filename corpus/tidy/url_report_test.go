@@ -46,7 +46,7 @@ func Test_onefileimpl(t *testing.T) {
 		Wikidir: wikiroot,
 		Mapper: mapper,
 	}
-	lnks := links.MakeLinks(mapper, wikiroot)
+	lnks := links.MakeLinks(mapper, wikiroot).(*links.Links)
 
 	tests := []struct {
 		name        string
@@ -268,7 +268,7 @@ tags: #graphics
 func Test_onefileimpl_NonexistentFile(t *testing.T) {
 	tmpDir := t.TempDir()
 	mapper := search.MakeWikilinkNameIndex(tmpDir)
-	lnks := links.MakeLinks(mapper, tmpDir)
+	lnks := links.MakeLinks(mapper, tmpDir).(*links.Links)
 	settings := &wiki.Settings{
 		Wikidir: tmpDir,
 		Mapper: mapper,

@@ -85,7 +85,7 @@ func TestAddWikilink(t *testing.T) {
 		t.Fatalf("test can't run: %v", err)
 	}
 	mapper := getMapper(t)
-	links := MakeLinks(mapper, wikiroot)
+	links := MakeLinks(mapper, wikiroot).(*Links)
 
 	tests := []struct {
 		name        string

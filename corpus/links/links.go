@@ -57,7 +57,7 @@ func implMakeLinks(mapper wiki.LinkToFile, location string) *Links {
 	}
 }
 
-func MakeLinks(mapper wiki.LinkToFile, location string) *Links {
+func MakeLinks(mapper wiki.LinkToFile, location string) corpus.LinksRecorder {
 	once.Do(func() {
 		instance = implMakeLinks(mapper, location)
 	})
