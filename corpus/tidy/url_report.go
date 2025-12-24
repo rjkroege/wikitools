@@ -136,22 +136,21 @@ func (abc *urlReport) _urlReportGen(damagedonly bool, html bool) map[string][]st
 	articles := make(map[string][]string)
 
 	if html {
-		links.AppendStringVector(func(l corpus.Wikilink) string { return l.Html() }, abc.links.DamagedLinks, articles)
+		abc.links.AppendStringVectorDamagedLinks(func(l corpus.Wikilink) string { return l.Html() }, articles)
 	} else {
-		links.AppendStringVector(func(l corpus.Wikilink) string { return l.Markdown() }, abc.links.DamagedLinks, articles)
+		abc.links.AppendStringVectorDamagedLinks(func(l corpus.Wikilink) string { return l.Markdown() }, articles)
 	}
-
 
 	if damagedonly {
 		return articles
 	}
 
 	if html {
-		links.AppendStringVector(func(l corpus.Urllink) string { return l.Html() }, abc.links.OutUrls, articles)
-		links.AppendStringVector(func(l corpus.Wikilink) string { return l.Html() }, abc.links.ForwardLinks, articles)
+		abc.links.AppendStringVectorOutUrls(func(l corpus.Urllink) string { return l.Html() }, articles)
+		abc.links.AppendStringVectorForwardLinks(func(l corpus.Wikilink) string { return l.Html() }, articles)
 	} else {
-		links.AppendStringVector(func(l corpus.Urllink) string { return l.Markdown() }, abc.links.OutUrls, articles)
-		links.AppendStringVector(func(l corpus.Wikilink) string { return l.Markdown() }, abc.links.ForwardLinks, articles)
+		abc.links.AppendStringVectorOutUrls(func(l corpus.Urllink) string { return l.Markdown() }, articles)
+		abc.links.AppendStringVectorForwardLinks(func(l corpus.Wikilink) string { return l.Markdown() }, articles)
 	}
 
 	return articles

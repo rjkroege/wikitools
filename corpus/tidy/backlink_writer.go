@@ -11,7 +11,6 @@ import (
 
 	"github.com/rjkroege/wikitools/article"
 	"github.com/rjkroege/wikitools/corpus"
-	"github.com/rjkroege/wikitools/corpus/links"
 	// "github.com/rjkroege/wikitools/corpus/search"
 	"github.com/rjkroege/wikitools/wiki"
 )
@@ -83,7 +82,7 @@ func (blw *backlinkWriter) SummaryWrite(w io.Writer) error {
 	if blw.urlrp.settings.OutputType == wiki.OutputHTML {
 		// Perhaps a bit of a fib. This returns the files *that will be written* which
 		// is larger than the files that *need to be written*.
-		links.AppendStringVector(func(l corpus.Wikilink) string { return l.Html() }, blw.urlrp.links.BackLinks, bws.FilesModified)
+		blw.urlrp.links.AppendStringVectorBackLinks(func(l corpus.Wikilink) string { return l.Html() }, bws.FilesModified)
 		bws.FilesWithDamagedLinks = blw.urlrp._urlReportGen(true, true)
 		return blw._backlinkWriterHtmlReportWrite(w, &bws)
 	}

@@ -9,3 +9,19 @@ func AppendStringVector[T corpus.Link](f func(T) string, linkies map[string]corp
 		}
 	}
 }
+
+func (links *Links) AppendStringVectorForwardLinks(f func(corpus.Wikilink) string, articles map[string][]string) {
+	AppendStringVector(f, links.ForwardLinks, articles)
+}
+
+func (links *Links) AppendStringVectorBackLinks(f func(corpus.Wikilink) string, articles map[string][]string) {
+	AppendStringVector(f, links.BackLinks, articles)
+}
+
+func (links *Links) AppendStringVectorOutUrls(f func(corpus.Urllink) string, articles map[string][]string) {
+	AppendStringVector(f, links.OutUrls, articles)
+}
+
+func (links *Links) AppendStringVectorDamagedLinks(f func(corpus.Wikilink) string, articles map[string][]string) {
+	AppendStringVector(f, links.DamagedLinks, articles)
+}
