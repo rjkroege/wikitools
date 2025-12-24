@@ -9,6 +9,7 @@ scriptable/build
 /corpus/search/internal_testvectors_test.go
 /logging
 /wikiserve
+/.gemini
 
 # From what bun generated.
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore

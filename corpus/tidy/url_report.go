@@ -135,24 +135,32 @@ type CompleteUrlReportDocument struct {
 func (abc *urlReport) _urlReportGen(damagedonly bool, html bool) map[string][]string {
 	articles := make(map[string][]string)
 
-	AppendStringVector(html, abc.links.DamagedLinks, articles)
+	if html {
+		AppendStringVector(func(l corpus.Wikilink) string { return l.Html() }, abc.links.DamagedLinks, articles)
+	} else {
+		AppendStringVector(func(l corpus.Wikilink) string { return l.Markdown() }, abc.links.DamagedLinks, articles)
+	}
+
+
 	if damagedonly {
 		return articles
 	}
-	AppendStringVector(html, abc.links.OutUrls, articles)
-	AppendStringVector(html, abc.links.ForwardLinks, articles)
+
+	if html {
+		AppendStringVector(func(l corpus.Urllink) string { return l.Html() }, abc.links.OutUrls, articles)
+		AppendStringVector(func(l corpus.Wikilink) string { return l.Html() }, abc.links.ForwardLinks, articles)
+	} else {
+		AppendStringVector(func(l corpus.Urllink) string { return l.Markdown() }, abc.links.OutUrls, articles)
+		AppendStringVector(func(l corpus.Wikilink) string { return l.Markdown() }, abc.links.ForwardLinks, articles)
+	}
 
 	return articles
 }
 
-func AppendStringVector[T corpus.Link](html bool, linkies map[string]corpus.LinkMap[T], articles map[string][]string) {
+func AppendStringVector[T corpus.Link](f func(T) string, linkies map[string]corpus.LinkMap[T], articles map[string][]string) {
 	for k, v := range linkies {
 		for u := range v {
-			if html {
-				articles[k] = append(articles[k], u.Html())
-			} else {
-				articles[k] = append(articles[k], u.Markdown())
-			}
+			articles[k] = append(articles[k], f(u))
 		}
 	}
 }
