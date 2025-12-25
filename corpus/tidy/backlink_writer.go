@@ -44,10 +44,14 @@ func (blw *backlinkWriter) EachFile(path string, info os.FileInfo, err error) er
 func (blw *backlinkWriter) linkUpdate() []string {
 	allerrors := make([]string, 0)
 
-	for path, nbl := range blw.urlrp.links.GetBackLinks() {
+	for tuple := range blw.urlrp.links.BackLinksIterator() {
+		path := tuple.From
+		nbl := tuple.To
+
 		obl, err := article.ReadBacklinks(path)
 
-		if err != nil && errors.Is(err, errors.New("attribute not found")) {
+		// TODO(rjk): I might have a bug here. Revisit later.
+		if err != nil && !errors.Is(err, errors.New("attribute not found")) {
 			allerrors = append(allerrors, fmt.Sprintf("backlinkWriter.EachFile can't ReadBacklinks on %q fail %v", path, err))
 		}
 
