@@ -214,3 +214,8 @@ func (links *Links) remove(fpath string) {
 	delete(links.DamagedLinks,fpath)
 	delete(links.ForwardLinks,fpath)
 }
+
+// TODO(rjk): Must fix this for thie refactoring.
+func (links *Links) GetBackLinks() map[string]corpus.LinkMap[corpus.Wikilink] {
+	return links.BackLinks
+}

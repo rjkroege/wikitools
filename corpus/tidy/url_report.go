@@ -29,7 +29,7 @@ type urlReport struct {
 	settings *wiki.Settings
 
 	// The store of links both forward and backwards.
-	links *links.Links
+	links corpus.LinksRecorder
 
 	tmpl *template.Template
 }
@@ -56,7 +56,7 @@ func NewUrlReporter(settings *wiki.Settings, r *http.Request) (corpus.Tidying, e
 	return newUrlReporterImpl(settings)
 }
 
-func onefileimpl(settings *wiki.Settings, links *links.Links, path string, info os.FileInfo, err error) error {
+func onefileimpl(settings *wiki.Settings, links corpus.LinksRecorder, path string, info os.FileInfo, err error) error {
 	log.Println(path)
 	if err != nil {
 		log.Println("couldn't read ", path, ": ", err)

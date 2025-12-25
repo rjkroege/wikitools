@@ -44,7 +44,7 @@ func (blw *backlinkWriter) EachFile(path string, info os.FileInfo, err error) er
 func (blw *backlinkWriter) linkUpdate() []string {
 	allerrors := make([]string, 0)
 
-	for path, nbl := range blw.urlrp.links.BackLinks {
+	for path, nbl := range blw.urlrp.links.GetBackLinks() {
 		obl, err := article.ReadBacklinks(path)
 
 		if err != nil && errors.Is(err, errors.New("attribute not found")) {
