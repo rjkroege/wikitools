@@ -13,6 +13,12 @@ import (
 
 type empty = struct{}
 
+// LinkTuple is a pair of string and corpus.WikilinkMap
+type LinkTuple struct {
+	From string
+	To   corpus.LinkMap[corpus.Wikilink]
+}
+
 type Links struct {
 	// A set of outgoing wikitext links from each fullpath-specified article.
 	ForwardLinks map[string]corpus.LinkMap[corpus.Wikilink]
