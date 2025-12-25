@@ -20,7 +20,7 @@ the callsites to _urlReportGen appropriately to use the new pair of
 functions. Remove _urlReportGen.
 - [x] make a new type struct LinkTuple containing a string and corpus.LinkMap[corpus.Wikilink]. put
 this defn in links.go
-- [ ] create a new member function  BackLinksIterator in link_helper.go on Links that returns a iter.Seq[T] where T can be a LinkTuple
+- [x] create a new member function  BackLinksIterator in link_helper.go on Links that returns a iter.Seq[T] where T can be a LinkTuple
 and the successive elements are LinkTuple objects corresponding to the k,v contents of the
 BackLinks member in the Links argument. be sure to write a test for BackLinksIterator and place
 this test in link_helpers_test.go
