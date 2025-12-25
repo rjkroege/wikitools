@@ -24,7 +24,7 @@ this defn in links.go
 and the successive elements are LinkTuple objects corresponding to the k,v contents of the
 BackLinks member in the Links argument. be sure to write a test for BackLinksIterator and place
 this test in link_helpers_test.go
-- [ ] add BackLinksIterator to the LinksRecorder interface
+- [x] add BackLinksIterator to the LinksRecorder interface
 - [ ] rewrite linkUpdate by iterating over the iter.Seq[T] returned by BackLinksIterator
 - [ ] remove GetBackLinks from the code
 - [ ] create a new file concurrent_links.go that contains a complete channel based proxy
