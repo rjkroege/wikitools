@@ -27,7 +27,7 @@ this test in link_helpers_test.go
 - [x] add BackLinksIterator to the LinksRecorder interface
 - [x] rewrite linkUpdate by iterating over the iter.Seq[T] returned by BackLinksIterator
 - [x] remove GetBackLinks from the code
-- [ ] create a new file concurrent_links.go that contains a complete channel based proxy
+- [x] create a new file concurrent_links.go that contains a complete channel based proxy
 implementation of LinkRecording with a Links instance in an owning go routine and a ConcurrentLinks struct
 that implements LinkRecording. ConcurrentLinks's BackLinksIterator should use the channel iterator wrapping
 pattern.
