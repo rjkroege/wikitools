@@ -18,7 +18,7 @@ _urlReportGenMarkdown. Make the _urlReportGenHtml only do the html ==
 true case while _urlReportGenMarkdown does the Markdown case. Update
 the callsites to _urlReportGen appropriately to use the new pair of
 functions. Remove _urlReportGen.
-- [ ] make a new type struct LinkTuple containing a string and corpus.LinkMap[corpus.Wikilink]. put
+- [x] make a new type struct LinkTuple containing a string and corpus.LinkMap[corpus.Wikilink]. put
 this defn in links.go
 - [ ] create a new member function  BackLinksIterator in link_helper.go on Links that returns a iter.Seq[T] where T can be a LinkTuple
 and the successive elements are LinkTuple objects corresponding to the k,v contents of the
