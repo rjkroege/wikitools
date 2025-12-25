@@ -79,6 +79,5 @@ type LinksRecorder interface {
 	AppendStringVectorBackLinks(f func(Wikilink) string, articles map[string][]string)
 	AppendStringVectorOutUrls(f func(Urllink) string, articles map[string][]string)
 	AppendStringVectorDamagedLinks(f func(Wikilink) string, articles map[string][]string)
-	GetBackLinks() map[string]LinkMap[Wikilink]
 	BackLinksIterator() iter.Seq[LinkTuple]
 }
