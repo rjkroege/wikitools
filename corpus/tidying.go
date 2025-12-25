@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"iter"
 
 	"github.com/rjkroege/wikitools/wiki"
 )
@@ -79,4 +80,5 @@ type LinksRecorder interface {
 	AppendStringVectorOutUrls(f func(Urllink) string, articles map[string][]string)
 	AppendStringVectorDamagedLinks(f func(Wikilink) string, articles map[string][]string)
 	GetBackLinks() map[string]LinkMap[Wikilink]
+	BackLinksIterator() iter.Seq[LinkTuple]
 }

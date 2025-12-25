@@ -55,6 +55,12 @@ type Link interface {
 
 type LinkMap[T Link] map[T]empty
 
+// LinkTuple is a pair of string and corpus.WikilinkMap
+type LinkTuple struct {
+	From string
+	To   LinkMap[Wikilink]
+}
+
 func MakeWikilink(id, title string) Wikilink {
 	return Wikilink{
 		Id:    id,
