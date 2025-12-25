@@ -25,7 +25,7 @@ and the successive elements are LinkTuple objects corresponding to the k,v conte
 BackLinks member in the Links argument. be sure to write a test for BackLinksIterator and place
 this test in link_helpers_test.go
 - [x] add BackLinksIterator to the LinksRecorder interface
-- [ ] rewrite linkUpdate by iterating over the iter.Seq[T] returned by BackLinksIterator
+- [x] rewrite linkUpdate by iterating over the iter.Seq[T] returned by BackLinksIterator
 - [ ] remove GetBackLinks from the code
 - [ ] create a new file concurrent_links.go that contains a complete channel based proxy
 implementation of LinkRecording with a Links instance in an owning go routine and a ConcurrentLinks struct
