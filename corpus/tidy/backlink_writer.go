@@ -83,11 +83,11 @@ func (blw *backlinkWriter) SummaryWrite(w io.Writer) error {
 		// Perhaps a bit of a fib. This returns the files *that will be written* which
 		// is larger than the files that *need to be written*.
 		blw.urlrp.links.AppendStringVectorBackLinks(func(l corpus.Wikilink) string { return l.Html() }, bws.FilesModified)
-		bws.FilesWithDamagedLinks = blw.urlrp._urlReportGen(true, true)
+		bws.FilesWithDamagedLinks = blw.urlrp._urlReportGenHtml(true)
 		return blw._backlinkWriterHtmlReportWrite(w, &bws)
 	}
 
-	bws.FilesWithDamagedLinks = blw.urlrp._urlReportGen(true, false)
+	bws.FilesWithDamagedLinks = blw.urlrp._urlReportGenMarkdown(true)
 	return blw._backlinkWriterReportWrite(w, &bws)
 }
 
@@ -205,7 +205,7 @@ func (blw *backlinkWriter) SummaryEncode(e *json.Encoder) error {
 		Dryrun:                dryrun,
 		FilesystemErrors:      serrors,
 		FilesModified:         make(map[string][]string),
-		FilesWithDamagedLinks: blw.urlrp._urlReportGen(true, false),
+		FilesWithDamagedLinks: blw.urlrp._urlReportGenMarkdown(true),
 	}
 	return e.Encode(&bws)
 }

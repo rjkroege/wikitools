@@ -132,29 +132,37 @@ type CompleteUrlReportDocument struct {
 }
 
 // TODO(rjk): These parameters should use the Pike optional parameter pattern.
-func (abc *urlReport) _urlReportGen(damagedonly bool, html bool) map[string][]string {
+func (abc *urlReport) _urlReportGenMarkdown(damagedonly bool) map[string][]string {
 	articles := make(map[string][]string)
 
-	if html {
-		abc.links.AppendStringVectorDamagedLinks(func(l corpus.Wikilink) string { return l.Html() }, articles)
-	} else {
-		abc.links.AppendStringVectorDamagedLinks(func(l corpus.Wikilink) string { return l.Markdown() }, articles)
-	}
+	abc.links.AppendStringVectorDamagedLinks(func(l corpus.Wikilink) string { return l.Markdown() }, articles)
 
 	if damagedonly {
 		return articles
 	}
 
-	if html {
-		abc.links.AppendStringVectorOutUrls(func(l corpus.Urllink) string { return l.Html() }, articles)
-		abc.links.AppendStringVectorForwardLinks(func(l corpus.Wikilink) string { return l.Html() }, articles)
-	} else {
-		abc.links.AppendStringVectorOutUrls(func(l corpus.Urllink) string { return l.Markdown() }, articles)
-		abc.links.AppendStringVectorForwardLinks(func(l corpus.Wikilink) string { return l.Markdown() }, articles)
-	}
+	abc.links.AppendStringVectorOutUrls(func(l corpus.Urllink) string { return l.Markdown() }, articles)
+	abc.links.AppendStringVectorForwardLinks(func(l corpus.Wikilink) string { return l.Markdown() }, articles)
 
 	return articles
 }
+
+func (abc *urlReport) _urlReportGenHtml(damagedonly bool) map[string][]string {
+	articles := make(map[string][]string)
+
+	abc.links.AppendStringVectorDamagedLinks(func(l corpus.Wikilink) string { return l.Html() }, articles)
+
+	if damagedonly {
+		return articles
+	}
+
+	abc.links.AppendStringVectorOutUrls(func(l corpus.Urllink) string { return l.Html() }, articles)
+	abc.links.AppendStringVectorForwardLinks(func(l corpus.Wikilink) string { return l.Html() }, articles)
+
+	return articles
+}
+
+
 
 // TODO(rjk): Above, I blithered about how to refactor this to share the
 // logic for writing a backing database of URLs with this code. I can
@@ -162,11 +170,11 @@ func (abc *urlReport) _urlReportGen(damagedonly bool, html bool) map[string][]st
 // implementation.
 func (abc *urlReport) SummaryWrite(w io.Writer) error {
 	if abc.settings.OutputType == wiki.OutputHTML {
-		articles := abc._urlReportGen(false, true)
+		articles := abc._urlReportGenHtml(false)
 		return abc._htmlUrlsSummaryWrite(w, articles)
 	}
 
-	articles := abc._urlReportGen(false, false)
+	articles := abc._urlReportGenMarkdown(false)
 	if _, err := abc.tmpl.New("urlreport").Parse(urllistingreport); err != nil {
 		return fmt.Errorf("can't cleaningreport template%v", err)
 	}
@@ -261,7 +269,7 @@ func (abc *urlReport) _htmlUrlsSummaryWrite(w io.Writer, articles map[string][]s
 }
 
 func (abc *urlReport) SummaryEncode(e *json.Encoder) error {
-	return e.Encode(abc._urlReportGen(false, false))
+	return e.Encode(abc._urlReportGenMarkdown(false))
 }
 
 func (abc *urlReport) UpdateFiles(wm corpus.WindowManager) error {
