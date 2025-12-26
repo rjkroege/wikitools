@@ -1,6 +1,10 @@
 package links
 
-import "github.com/rjkroege/wikitools/corpus"
+import (
+	"iter"
+
+	"github.com/rjkroege/wikitools/corpus"
+)
 
 func appendStringVector[T corpus.Link](f func(T) string, linkies map[string]corpus.LinkMap[T], articles map[string][]string) {
 	for k, v := range linkies {
@@ -24,4 +28,14 @@ func (links *Links) AppendStringVectorOutUrls(f func(corpus.Urllink) string, art
 
 func (links *Links) AppendStringVectorDamagedLinks(f func(corpus.Wikilink) string, articles map[string][]string) {
 	appendStringVector(f, links.DamagedLinks, articles)
+}
+
+func (links *Links) BackLinksIterator() iter.Seq[LinkTuple] {
+	return func(yield func(LinkTuple) bool) {
+		for k, v := range links.BackLinks {
+			if !yield(LinkTuple{From: k, To: v}) {
+				return
+			}
+		}
+	}
 }
