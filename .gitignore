@@ -10,7 +10,7 @@ scriptable/build
 /logging
 /wikiserve
 /.gemini
-/prompt.md
+
 
 # From what bun generated.
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
