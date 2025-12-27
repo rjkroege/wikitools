@@ -28,9 +28,6 @@ this test in link_helpers_test.go
 - [x] rewrite linkUpdate by iterating over the iter.Seq[T] returned by BackLinksIterator
 - [x] remove GetBackLinks from the code
 - [x] create a new file concurrent_links.go that contains a complete channel based proxy
-implementation of LinkRecording with a Links instance in an owning go routine and a ConcurrentLinks struct
-that implements LinkRecording. ConcurrentLinks's BackLinksIterator should use the channel iterator wrapping
-pattern.
-- [ ] create the ConcurrentLinks implementation and go routine in wikiserve/main.go. create the Links
-implementation in wikitools/main.go. Place the LinkRecorder instance in Settings. Use the LinkRecorder
-from Settings across all of the non-test code.
+	implementation of LinkRecording
+- [x] modify concurrent_links.go to have a separate strongly typed command channel for each entry point in LinksRecorder. Remove the cmd* constants. change the switch in
+	method owner to use a select over the separate channels.
