@@ -31,8 +31,12 @@ func (links *Links) AppendStringVectorDamagedLinks(f func(corpus.Wikilink) strin
 }
 
 func (links *Links) BackLinksIterator() iter.Seq[corpus.LinkTuple] {
+	return backLinksIteratorImpl(links.BackLinks)
+}
+
+func backLinksIteratorImpl(backlinks map[string]corpus.LinkMap[corpus.Wikilink]) iter.Seq[corpus.LinkTuple] {
 	return func(yield func(corpus.LinkTuple) bool) {
-		for k, v := range links.BackLinks {
+		for k, v := range backlinks {
 			if !yield(corpus.LinkTuple{From: k, To: v}) {
 				return
 			}

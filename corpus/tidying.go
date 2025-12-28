@@ -70,11 +70,10 @@ func Filteredfiles() {
 type LinkRecording interface {
 	RecordUrl(displaytext, url string)
 	RecordWikilink(displaytext, wikitext string)
-	Commit()
 }
 
 type LinksRecorder interface {
-	StartRecordingForFile(filepath string) LinkRecording
+	Commit(LinkRecording)
 	AppendStringVectorForwardLinks(f func(Wikilink) string, articles map[string][]string)
 	AppendStringVectorBackLinks(f func(Wikilink) string, articles map[string][]string)
 	AppendStringVectorOutUrls(f func(Urllink) string, articles map[string][]string)

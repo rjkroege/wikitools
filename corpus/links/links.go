@@ -144,21 +144,17 @@ func (lr *linkRecording) RecordWikilink(displaytext, wikitext string) {
 
 // This code must run on the thread that owns the links database.
 // Serializes the updates.
-func (lr *linkRecording) commitOnLinksOwner() {
-	lr.links.remove(lr.filepath)
+func (links *Links) Commit(lri corpus.LinkRecording) {
+	lr := lri.(*linkRecording)
+	links.remove(lr.filepath)
 	for _, url := range lr.urls {
-		lr.links.addForwardUrl(url, lr.filepath)
+		links.addForwardUrl(url, lr.filepath)
 	}
 	for _, wikiref := range lr.wikis {
-		lr.links.addWikilink(wikiref, lr.filepath)
+		links.addWikilink(wikiref, lr.filepath)
 	}
 }
 
-// Run this on an arbitrary go routine.
-func (lr *linkRecording) Commit() {
-	log.Println("Commit")
-	lr.commitOnLinksOwner()
-}
 
 func StringVector[T corpus.Link](linkmap map[string]corpus.LinkMap[T]) []string {
 	keys := maps.Keys(linkmap)
@@ -175,15 +171,13 @@ func StringVector[T corpus.Link](linkmap map[string]corpus.LinkMap[T]) []string 
 
 type linkRecording struct {
 	filepath string
-	links    *Links
 	urls     []corpus.Urllink
 	wikis    []corpus.Wikilink
 }
 
-func (links *Links) StartRecordingForFile(filepath string) corpus.LinkRecording {
+func StartRecordingForFile(filepath string) corpus.LinkRecording {
 	return &linkRecording{
 		filepath: filepath,
-		links:    links,
 		urls:     []corpus.Urllink{},
 		wikis:    []corpus.Wikilink{},
 	}

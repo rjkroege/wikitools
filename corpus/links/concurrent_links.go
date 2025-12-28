@@ -2,163 +2,41 @@ package links
 
 import (
 	"iter"
+	"maps"
 
 	"github.com/rjkroege/wikitools/corpus"
 	"github.com/rjkroege/wikitools/wiki"
 )
 
-// commitCmd is the data sent on the commit channel.
-type commitCmd struct {
-	filepath string
-	urls     []corpus.Urllink
-	wikis    []corpus.Wikilink
+type ownedWork struct {
 	ret      chan<- struct{}
-}
-
-// appendStringVectorCmd is the data sent on the appendStringVector channels.
-type appendStringVectorCmd struct {
-	f        func(any) string
-	articles map[string][]string
-	ret      chan<- struct{}
-}
-
-// backLinksIteratorCmd is the data sent on the backLinksIterator channel.
-type backLinksIteratorCmd struct {
-	ret chan<- iter.Seq[corpus.LinkTuple]
+	op 	func(l *Links)
 }
 
 type ConcurrentLinks struct {
-	commitCh             chan<- commitCmd
-	appendFwdLinksCh     chan<- appendStringVectorCmd
-	appendBackLinksCh    chan<- appendStringVectorCmd
-	appendOutUrlsCh      chan<- appendStringVectorCmd
-	appendDamagedLinksCh chan<- appendStringVectorCmd
-	backLinksIteratorCh  chan<- backLinksIteratorCmd
-	stopCh               chan<- struct{}
+	taskCh	chan ownedWork
+	stopCh               chan struct{}
 }
-
-var _ corpus.LinksRecorder = (*ConcurrentLinks)(nil)
 
 func NewConcurrentLinks(mapper wiki.LinkToFile, location string) *ConcurrentLinks {
-	commitCh := make(chan commitCmd)
-	appendFwdLinksCh := make(chan appendStringVectorCmd)
-	appendBackLinksCh := make(chan appendStringVectorCmd)
-	appendOutUrlsCh := make(chan appendStringVectorCmd)
-	appendDamagedLinksCh := make(chan appendStringVectorCmd)
-	backLinksIteratorCh := make(chan backLinksIteratorCmd)
-	stopCh := make(chan struct{})
-
 	cl := &ConcurrentLinks{
-		commitCh:             commitCh,
-		appendFwdLinksCh:     appendFwdLinksCh,
-		appendBackLinksCh:    appendBackLinksCh,
-		appendOutUrlsCh:      appendOutUrlsCh,
-		appendDamagedLinksCh: appendDamagedLinksCh,
-		backLinksIteratorCh:  backLinksIteratorCh,
-		stopCh:               stopCh,
+		taskCh:	make(chan ownedWork),
+		stopCh:               make(chan struct{}),
 	}
-
-	go cl.owner(mapper, location,
-		commitCh,
-		appendFwdLinksCh,
-		appendBackLinksCh,
-		appendOutUrlsCh,
-		appendDamagedLinksCh,
-		backLinksIteratorCh,
-		stopCh)
-
+	go cl.owner(mapper, location)
 	return cl
 }
+// Must clone this in wikiserve/main
 
-type concurrentLinkRecording struct {
-	filepath string
-	urls     []corpus.Urllink
-	wikis    []corpus.Wikilink
-	commitCh chan<- commitCmd
-}
-
-var _ corpus.LinkRecording = (*concurrentLinkRecording)(nil)
-
-func (clr *concurrentLinkRecording) RecordUrl(displaytext, url string) {
-	clr.urls = append(clr.urls, corpus.MakeUrllink(url, displaytext))
-}
-
-func (clr *concurrentLinkRecording) RecordWikilink(displaytext, wikitext string) {
-	clr.wikis = append(clr.wikis, corpus.MakeWikilink(wikitext, displaytext))
-}
-
-func (clr *concurrentLinkRecording) Commit() {
-	ret := make(chan struct{})
-	clr.commitCh <- commitCmd{
-		filepath: clr.filepath,
-		urls:     clr.urls,
-		wikis:    clr.wikis,
-		ret:      ret,
-	}
-	<-ret
-}
-
-func (cl *ConcurrentLinks) StartRecordingForFile(filepath string) corpus.LinkRecording {
-	return &concurrentLinkRecording{
-		filepath: filepath,
-		commitCh: cl.commitCh,
-	}
-}
-
-func (cl *ConcurrentLinks) owner(
-	mapper wiki.LinkToFile,
-	location string,
-	commitCh <-chan commitCmd,
-	appendFwdLinksCh <-chan appendStringVectorCmd,
-	appendBackLinksCh <-chan appendStringVectorCmd,
-	appendOutUrlsCh <-chan appendStringVectorCmd,
-	appendDamagedLinksCh <-chan appendStringVectorCmd,
-	backLinksIteratorCh <-chan backLinksIteratorCmd,
-	stopCh <-chan struct{},
-) {
+func (cl *ConcurrentLinks) owner(mapper wiki.LinkToFile, location string) {
 	links := implMakeLinks(mapper, location)
 
 	for {
 		select {
-		case cmd := <-commitCh:
-			// This is a little weird because I'm mixing two kinds of objects.
-			lr := &linkRecording{
-				filepath: cmd.filepath,
-				links:    links,
-				urls:     cmd.urls,
-				wikis:    cmd.wikis,
-			}
-			lr.commitOnLinksOwner()
-			close(cmd.ret)
-
-		case cmd := <-appendFwdLinksCh:
-			links.AppendStringVectorForwardLinks(func(l corpus.Wikilink) string {
-				return cmd.f(l)
-			}, cmd.articles)
-			close(cmd.ret)
-
-		case cmd := <-appendBackLinksCh:
-			links.AppendStringVectorBackLinks(func(l corpus.Wikilink) string {
-				return cmd.f(l)
-			}, cmd.articles)
-			close(cmd.ret)
-
-		case cmd := <-appendOutUrlsCh:
-			links.AppendStringVectorOutUrls(func(l corpus.Urllink) string {
-				return cmd.f(l)
-			}, cmd.articles)
-			close(cmd.ret)
-
-		case cmd := <-appendDamagedLinksCh:
-			links.AppendStringVectorDamagedLinks(func(l corpus.Wikilink) string {
-				return cmd.f(l)
-			}, cmd.articles)
-			close(cmd.ret)
-
-		case cmd := <-backLinksIteratorCh:
-			cmd.ret <- links.BackLinksIterator()
-
-		case <-stopCh:
+		case task := <-cl.taskCh:
+			task.op(links)
+			close(task.ret)
+		case <-cl.stopCh:
 			return
 		}
 	}
@@ -166,52 +44,79 @@ func (cl *ConcurrentLinks) owner(
 
 func (cl *ConcurrentLinks) AppendStringVectorForwardLinks(f func(corpus.Wikilink) string, articles map[string][]string) {
 	ret := make(chan struct{})
-	cl.appendFwdLinksCh <- appendStringVectorCmd{
-		f:        func(l any) string { return f(l.(corpus.Wikilink)) },
-		articles: articles,
-		ret:      ret,
-	}
+	cl.taskCh <- ownedWork{
+		ret: ret,
+		op:        func(l *Links)  { 
+			l.AppendStringVectorForwardLinks(f, articles)
+		},
+
+	}		
 	<-ret
 }
 
 func (cl *ConcurrentLinks) AppendStringVectorBackLinks(f func(corpus.Wikilink) string, articles map[string][]string) {
 	ret := make(chan struct{})
-	cl.appendBackLinksCh <- appendStringVectorCmd{
-		f:        func(l any) string { return f(l.(corpus.Wikilink)) },
-		articles: articles,
-		ret:      ret,
-	}
+	cl.taskCh <- ownedWork{
+		ret: ret,
+		op:        func(l *Links)  { 
+			l.AppendStringVectorBackLinks(f, articles)
+		},
+
+	}		
 	<-ret
 }
 
 func (cl *ConcurrentLinks) AppendStringVectorOutUrls(f func(corpus.Urllink) string, articles map[string][]string) {
 	ret := make(chan struct{})
-	cl.appendOutUrlsCh <- appendStringVectorCmd{
-		f:        func(l any) string { return f(l.(corpus.Urllink)) },
-		articles: articles,
-		ret:      ret,
-	}
+	cl.taskCh <- ownedWork{
+		ret: ret,
+		op:        func(l *Links)  { 
+			l.AppendStringVectorOutUrls(f,  articles)
+		},
+
+	}		
 	<-ret
 }
 
 func (cl *ConcurrentLinks) AppendStringVectorDamagedLinks(f func(corpus.Wikilink) string, articles map[string][]string) {
 	ret := make(chan struct{})
-	cl.appendDamagedLinksCh <- appendStringVectorCmd{
-		f:        func(l any) string { return f(l.(corpus.Wikilink)) },
-		articles: articles,
-		ret:      ret,
-	}
+	cl.taskCh <- ownedWork{
+		ret: ret,
+		op:        func(l *Links)  { 
+			l.AppendStringVectorDamagedLinks(f,  articles)
+		},
+
+	}		
 	<-ret
 }
 
 func (cl *ConcurrentLinks) BackLinksIterator() iter.Seq[corpus.LinkTuple] {
-	ret := make(chan iter.Seq[corpus.LinkTuple])
-	cl.backLinksIteratorCh <- backLinksIteratorCmd{
-		ret: ret,
+	retarg := make(chan map[string]corpus.LinkMap[corpus.Wikilink])
+	defer close(retarg)
+	cl.taskCh <- ownedWork{
+		op:        func(l *Links)  {
+			backlinks := maps.Clone(l.BackLinks)
+			for k, v := range backlinks {
+				backlinks[k] = maps.Clone(v)
+			}
+			retarg <- backlinks
+		},
 	}
-	return <-ret
+	return backLinksIteratorImpl(<-retarg)
 }
 
 func (cl *ConcurrentLinks) Stop() {
 	cl.stopCh <- struct{}{}
+}
+
+func (cl *ConcurrentLinks) Commit(lri corpus.LinkRecording) {
+	ret := make(chan struct{})
+	cl.taskCh <- ownedWork{
+		ret: ret,
+		op:        func(l *Links)  { 
+			l.Commit(lri)
+		},
+
+	}		
+	<-ret
 }

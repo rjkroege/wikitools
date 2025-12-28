@@ -21,7 +21,7 @@ import (
 	// TODO(rjk): Support parsing math.
 	//	mathjax "github.com/litao91/goldmark-mathjax"
 	"github.com/rjkroege/wikitools/article/wikiextension"
-	"github.com/rjkroege/wikitools/corpus/links"
+	pkglinks "github.com/rjkroege/wikitools/corpus/links"
 	"go.abhg.dev/goldmark/wikilink"
 )
 
@@ -43,7 +43,7 @@ func newUrlReporterImpl(settings *wiki.Settings) (*urlReport, error) {
 	}
 	return &urlReport{
 		settings: settings,
-		links:    links.MakeLinks(settings.Mapper, settings.Wikidir),
+		links:    pkglinks.MakeLinks(settings.Mapper, settings.Wikidir),
 		tmpl:     tmpl,
 	}, nil
 }
@@ -89,7 +89,7 @@ func onefileimpl(settings *wiki.Settings, links corpus.LinksRecorder, path strin
 	}
 
 	// Start recording.
-	recorder := links.StartRecordingForFile(path)
+	recorder := pkglinks.StartRecordingForFile(path)
 
 	// TODO(rjk): Add an extension that can record all of the links that have been
 	// seen.
@@ -110,7 +110,7 @@ func onefileimpl(settings *wiki.Settings, links corpus.LinksRecorder, path strin
 	}
 
 	// Commit the link records.
-	recorder.Commit()
+	links.Commit(recorder)
 
 	return nil
 }
