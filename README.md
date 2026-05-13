@@ -1,3 +1,5 @@
+Rewritten. See [~rjk/neowiki - Tooling for an Acme/Edwood-centric archive of notes. - sourcehut git](https://git.sr.ht/~rjk/neowiki) for the new version.
+
 # Overview
 Tools to help manage a personal wiki of notes stored in `git`.
 
